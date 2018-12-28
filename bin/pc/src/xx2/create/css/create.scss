@@ -1,0 +1,410 @@
+@import './common.scss';
+@import './sidebar.scss';
+@import './popup.scss';
+
+
+$pageSize: 1200px;
+
+
+// header
+.header{
+	margin: auto;
+	height: 550px;
+	background: url(../images/inside_bg1.jpg) no-repeat center top;
+	& .max_width{
+		@extend .header;
+		position: relative;
+		max-width: 2560px;
+		min-width: $pageSize;
+		& .logo{
+			position: absolute;
+			width: 259px;
+			height: 102px;
+			background: url(../images/logo_xx2.png) no-repeat;
+			left: 60px;
+			top: 15px;
+			@include nt();
+		}
+
+		& .nav{
+			position: absolute;
+			right: 50px;
+			top: 40px;
+			& a{
+				display: inline-block;
+				height: 50px;
+				line-height: 50px;
+				text-decoration: none;
+				&:hover{
+					& em{
+						text-decoration: underline;
+					}
+				}
+				& i, & em{
+					display: inline-block;
+					vertical-align: middle;
+				}
+				& em{
+					margin: 0 20px 0 10px;
+					font-size: 16px;
+					color: #403a72;
+				}
+				& .ico_back{
+					width: 16px;
+					height: 16px;
+					@include sprite(-280, -5);
+				}
+				& .ico_home{
+					width: 17px;
+					height: 17px;
+					@include sprite(-280, -35);
+				}
+				& .ico_reg{
+					width: 16px;
+					height: 16px;
+					@include sprite(-280, -70);
+				}
+			}
+		}
+
+		& .w{
+			position: relative;
+			margin: auto;
+			width: 1200px;
+			height: 686px;
+
+			& .btn_login{
+				position: absolute;
+				left: 50px;
+				top: 480px;
+				width: 582px;
+				height: 73px;
+				@include sprite(-5, -210);
+				@include nt();
+				&:hover{
+					@include sprite(-5, -290);
+				}
+			}
+		}
+	}
+}
+
+// content
+.content{
+	margin: auto;
+	width: 100%;
+	background: url(../images/inside_bg2.jpg) no-repeat #fff center top;
+	& .w{
+		@extend .content;
+		width: $pageSize;
+		padding-bottom: 100px;
+
+		// 服务器信息&签到
+		& .serv_sign{
+			position: relative;
+			height: 200px;
+
+			// 服务器信息
+			& .server_list{
+				float: left;
+				padding: 30px 0 0 50px;
+				width: 550px;
+				& li{
+					line-height: 34px;
+					font-size: 14px;
+					& label{
+						float: left;
+						display: inline-block;
+						padding-right: 10px;
+						width: 120px;
+						height: 30px;
+						text-align: right;
+					}
+					& .rinfo{
+						float: left;
+					}
+					& .btn_apply{
+						margin-left: 10px;
+						display: inline-block;
+						vertical-align: middle;
+						width: 126px;
+						height: 32px;
+						line-height: 32px;
+						text-align: center;
+						text-decoration: none;
+						color: #fff;
+						font-size: 14px;
+						@include sprite(-300, -120);
+						&:hover{@include sprite(-300, -160);}
+					}
+				}
+			}
+
+			// 签到
+			& .sign{
+				position: relative;
+				float: right;
+				margin-right: 50px;
+				margin-top: 35px;
+				padding: 22px;
+				width: 500px;
+				border: 1px solid #d1d1d1;
+
+				& .txt{
+					float: left;
+					width: 180px;
+					font-size: 14px;
+					color: #333;
+				}
+
+				& .imgs{
+					float: left;
+					& .img{
+						float: left;
+						width: 69px;
+						height: 69px;
+					}
+					& .img_txt{
+						margin-left: 20px;
+						float: left;
+						line-height: 70px;	
+					}
+				}
+
+				& .btn_sign{
+					position: absolute;
+					right: 0;
+					top: 0;
+					width: 132px;
+					height: 114px;
+					@include btns(0, -657);
+					@include nt();
+					&:hover{@include btns(0, -771);}
+
+					&.yet{
+						@include btns(-132, -657);
+					}
+				}
+			}
+		}
+
+		// 礼包清单
+		& .gift_list{
+			& .g_list{
+				margin: 30px auto auto;
+				& li{
+					float: left;
+					position: relative;
+					margin: 20px 20px 0 20px;
+					width: 128px;
+					&.yet{
+						& .arr{
+							@include sprite(-310, -5);
+						}
+					}
+
+					& .arr{
+						position: absolute;
+						right: -5px;
+						top: 40px;
+						width: 19px;
+						height: 54px;
+						@include sprite(-340, -5);
+					}
+					& .img{
+						display: block;
+						margin: auto;
+						width: 128px;
+						height: 127px;
+						@include sprite(-440, -5);
+					}
+					& .name{
+						display: block;
+						margin: auto;
+						margin-top: 10px;
+						color: #fff;
+						font-size: 18px;
+						text-align: center;
+						line-height: 30px;
+					}
+				}
+			}
+		}
+
+
+
+		// step
+		& .step_s1{
+			position: relative;
+			margin-top: 60px;
+			width: 1162px;
+			height: 240px;
+			background: url(../images/wrap.png) no-repeat 0 0;
+			& .all_gift_list{
+				left: 85px;
+				top: 100px;
+			}
+			& .btn_get{
+				top: 110px;
+			}
+		}
+
+
+		& .s2_title{
+			margin-top: 40px;
+			width: 458px;
+			height: 93px;
+			background: url(../images/wrap.png) no-repeat 0 -250px;
+		}
+		& .step_s2{
+			position: relative;
+			margin-top: 30px;
+			margin-left: 45px;
+			width: 1116px;
+			height: 173px;
+			background: url(../images/wrap.png) no-repeat 0 -360px;
+			& .btn_get{
+				@include btns(-600, -656);
+				&:hover{@include btns(-600, -729);}
+			}
+		}
+
+
+		& .step_s3{
+			position: relative;
+			margin-top: 30px;
+			margin-left: 45px;
+			width: 1116px;
+			height: 173px;
+			background: url(../images/wrap.png) no-repeat 0 -550px;
+			& .invite_title{color: #EA4F91;}
+		}
+
+
+		& .step_s4{
+			position: relative;
+			margin-top: 50px;
+			width: 1162px;
+			height: 241px;
+			background: url(../images/wrap.png) no-repeat 0 -740px;
+			& .all_gift_list{
+				left: 85px;
+				top: 100px;
+				& img{
+					width: 81px;
+					height: 81px;
+				}
+			}
+			& .note_txt{
+				position: absolute;
+				left: 380px;
+				top: 110px;
+				width: 410px;
+				font-size: 14px;
+				color: #333;
+				line-height: 24px;
+			}
+			& .btn_map{
+				position: absolute;
+				right: 50px;
+				top: 110px;
+				width: 204px;
+				height: 73px;
+				@include btns(-451, -367);
+				@include nt();
+				&:hover{
+					@include btns(-451, -440);
+				}
+				&.yet{
+					@include btns(-530, -284);	
+				}
+			}
+		}
+		
+		// 统一礼物列表
+		& .all_gift_list{
+			position: absolute;
+			left: 40px;
+			top: 40px;
+			& li{
+				position: relative;
+				float: left;
+				margin: 0 0 10px 0;
+				width: 140px;
+				height: auto;
+				background: none;
+				&.yet{
+					& .arr{
+						@include sprite(-310, -5);
+					}
+				}
+				&.last_item{
+					margin-left: 180px;
+				}
+
+				& .arr{
+					position: absolute;
+					right: 20px;
+					top: -8px;
+					width: 19px;
+					height: 54px;
+					@include sprite(-340, -5);
+				}
+				& .img{
+					display: block;
+					margin: auto;
+					width: 81px;
+					height: 81px;
+					@include sprite(-5, -120);
+				}
+				& .name{
+					display: block;
+					margin: auto;
+					margin-top: 5px;
+					text-align: center;
+					font-size: 14px;
+					color: #333;
+					@include ellipsis();
+				}
+			}
+		}
+	
+		// 统一获取按钮
+		& .btn_get{
+			position: absolute;
+			top: 55px;
+			right: 80px;
+			width: 168px;
+			height: 73px;
+			@include btns(-264, -656);
+			@include nt();
+			&:hover{@include btns(-264, -729);}
+			&.yet{
+				@include btns(-432, -656);
+				&:hover{
+					@include btns(-432, -729);
+				}
+			}
+		}
+
+		// 统一副标题
+		& .invite_title{
+			position: absolute;
+			left: 60px;
+			top: -15px;
+			font-size: 20px;
+			color: #7466B9;
+		}
+
+		& .arr_right{
+			position: absolute;
+			left: 785px;
+			top: 55px;
+			width: 120px;
+			height: 58px;
+			@include sprite(-100, -120);
+		}
+	}
+}
+
+

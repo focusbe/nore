@@ -1,0 +1,30 @@
+{
+    "init":[
+        {
+            "event":"",
+            "target":"",
+            "handler":{
+                "target":"",
+                "method":"",
+                "next":[
+                    {
+                        "event":"",
+                        "target":"",
+                        "handler":{
+                            "target":"",
+                            "method":"",
+                            "next":[
+                                {
+                                    "event":"soon"
+                                },
+                                {
+                                    "event":"soon"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

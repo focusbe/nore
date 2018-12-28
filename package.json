@@ -1,0 +1,139 @@
+{
+    "name": "actcreate",
+    "version": "0.0.1",
+    "description": "由巨人网站部开发的用于制作活动网页的桌面客户端",
+    "productFileName": "actcreate",
+    "main": "main.js",
+    "scripts": {
+        "dev": "webpack-dev-server --progress --colors --content-base build",
+        "dist": "set NODE_ENV=production&& webpack --progress --hide-modules",
+        "dist-mac": "export NODE_ENV=production&& webpack --progress --hide-modules",
+        "build": "webpack",
+        "electron": "electron .",
+        "start": "npm run dev &&npm run electron",
+        "rebuild": "electron-rebuild -f -w ffi",
+        "packager": "electron-packager . actCreater --platform=win32 --arch=x64  --out=./output --overwrite --app-version=0.0.1 --icon=./assets/app.icns  --asar=false --ignore=\"(src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\"",
+        "packagermac": "npm run dist-mac && electron-packager . actCreater --platform=darwin --arch=x64 --out=./output --overwrite --app-version=0.0.1 --asar=false --icon=./assets/app.icns --ignore=\"(src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\"",
+        "packwin": "npm run dist && electron-builder --x64 --publish always",
+        "packmac": "npm run dist-mac && electron-builder --publish always"
+    },
+    "build": {
+        "appId": "com.ztgame.actcreate",
+        "asar": true,
+        "publish": [
+            {
+                "provider": "github",
+                "repo": "TTTV",
+                "owner": "focusbe",
+                "protocol": "https",
+                "token": "9d6f0554d880238a35b71a40c9bb129618070ff6"
+            }
+        ],
+        "asarUnpack": [
+            "./template/**/*",
+            "./elements/**/*",
+            "./data/**/*"
+        ],
+        "mac": {
+            "category": "your.app.category.type",
+            "icon": "assets/app",
+            "target": [
+                "zip",
+                "dmg"
+            ]
+        },
+        "win": {
+            "target": "nsis",
+            "icon": "assets/app"
+        },
+        "squirrelWindows": {
+            "iconUrl": "http://www.ztgame.com/logo.png"
+        },
+        "files": {
+            "filter": [
+                "**/*",
+                "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme,test,__tests__,tests,powered-test,example,examples,*.d.ts}",
+                "!**/node_modules/.bin",
+                "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+                "!**/._*",
+                "!.editorconfig",
+                "!package.json",
+                "!yarn.lock",
+                "!webpack.config.js",
+                "!package-lock.json",
+                "!src/*",
+                "!output/*",
+                "!assets/*",
+                "!workshop/*"
+            ]
+        },
+        "directories": {
+            "output": "output"
+        }
+    },
+    "author": "巨人网络",
+    "license": "",
+    "devDependencies": {
+        "autoprefixer": "^7.1.2",
+        "babel": "^6.23.0",
+        "babel-loader": "^6.2.4",
+        "babel-plugin-import": "^1.6.7",
+        "babel-preset-react": "^6.24.1",
+        "babel-preset-react-hmre": "^1.1.1",
+        "babel-preset-stage-2": "^6.13.0",
+        "clipboard": "^1.7.1",
+        "css-loader": "^0.23.1",
+        "electron": "~1.7.8",
+        "electron-rebuild": "^1.6.0",
+        "express": "^4.15.2",
+        "extract-text-webpack-plugin": "^2.1.2",
+        "file-loader": "^0.11.1",
+        "html-loader": "^0.4.5",
+        "html-webpack-plugin": "^2.28.0",
+        "image-webpack-loader": "^3.3.1",
+        "iview": "^2.11.0",
+        "jquery": "^3.2.1",
+        "json-loader": "^0.5.7",
+        "less": "^2.7.2",
+        "less-loader": "^4.0.5",
+        "material-design-icons": "^3.0.1",
+        "node-sass": "^4.5.3",
+        "postcss-loader": "^0.9.1",
+        "react": "^15.6.2",
+        "react-dom": "^15.5.4",
+        "react-hot-loader": "^3.0.0-beta.6",
+        "react-redux": "^5.0.4",
+        "redux": "^3.6.0",
+        "sass-loader": "^6.0.6",
+        "style-loader": "^0.13.1",
+        "url-loader": "^0.5.8",
+        "vue": "^2.3.4",
+        "vue-loader": "^12.2.1",
+        "vue-router": "^2.6.0",
+        "vue-style-loader": "^3.0.3",
+        "vue-template-compiler": "^2.3.4",
+        "vuex": "^3.0.1",
+        "webpack": "^2.1.0-beta.25",
+        "webpack-dev-middleware": "^1.10.1",
+        "webpack-dev-server": "^2.1.0-beta.0",
+        "webpack-hot-middleware": "^2.18.0"
+    },
+    "dependencies": {
+        "axios": "^0.18.0",
+        "babel-core": "^6.26.0",
+        "babel-preset-es2015": "^6.24.1",
+        "babelify": "^8.0.0",
+        "browser-sync": "^2.23.7",
+        "browserify": "^16.2.0",
+        "electron-updater": "^2.21.8",
+        "element-ui": "^2.3.6",
+        "fs-extra": "^5.0.0",
+        "http-proxy-middleware": "^0.18.0",
+        "jsonfile": "^4.0.0",
+        "juicer": "^0.6.15",
+        "knex": "^0.13.0",
+        "regenerate": "^1.3.3",
+        "sqlite3": "^3.1.13",
+        "vue-server-renderer": "^2.5.16"
+    }
+}

@@ -1,0 +1,29 @@
+input::-webkit-placeholder, textarea::-webkit-placeholder, input::-webkit-input-placeholder, textarea::-webkit-input-placeholder{height: 32px;}
+input:-moz-placeholder, textarea:-moz-placeholder{height: 32px;}
+input:-ms-input-placeholder, textarea:-ms-input-placeholder{height: 32px;}
+
+.row{
+	& .reg{
+		background: #3E76B7;
+		border-color: #3E76B7;
+	}
+	& .get-mpcode{
+		background: #3E76B7;
+		color: #fff;
+	}
+}
+
+
+// 验证码
+.row-captcha{
+	height: 32px;
+	& .err-tip{
+		top: 16%;
+	}
+}
+.box-footer input{
+	width: 150px;
+}
+.box-ok{
+	background: #3E76B7;
+}

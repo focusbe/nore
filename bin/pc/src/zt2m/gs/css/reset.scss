@@ -1,0 +1,132 @@
+@charset "utf-8";
+
+$bold: bold;
+$nm: normal;
+$none: none;
+
+// margin、padding清零
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, legend, input, button, textarea, p, blockquote, th, td {
+	margin: 0;
+	padding: 0;
+}
+
+// 定义默认字体
+body, button, input, select, textarea {
+	font: 12px/1.5 yahei,微软雅黑,arial;
+	color: #333;
+}
+
+// 去掉加粗，保留H系列标签原始字体大小
+h1, h2, h3, h4, h5, h6 {
+	font-weight: $nm;
+}
+
+// 移除列表元素的默认样式
+ol, ul {
+	list-style: $none;
+}
+
+// 斜体扶正
+address, em, i {
+	font-style: $nm;
+}
+
+// 去掉加粗
+b，th {
+	font-weight: $nm;
+}
+
+// 移除默认边框
+img, iframe, fieldset, button {
+	border: 0;
+}
+
+// 合并表格边框
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+// 去除链接默认的下划线
+a {
+	text-decoration: $none;
+}
+
+// 去除虚线
+a, button {
+	outline: $none;
+}
+
+// 1. 解决在IE6/7 <img>底部出现3px间隙
+// 2. 解决在IE7图片缩放会变得失真
+img {
+	vertical-align: middle; // 1
+	-ms-interpolation-mode: bicubic; // 2
+}
+
+// 解决在HTML5的docype下(<!doctype html>)，IE8/9,Ch,Sa,FF,Op底部有间隙
+iframe {
+	vertical-align: top;
+}
+
+// 1. 去掉默认背景
+// 2. 解决IE7-浏览器按钮宽度问题
+button {
+	background: $none;   // 1
+	*overflow: visible; // 2
+}
+
+// 1. 让FF,Sa5,Ch下的textarea只能纵向拉伸高度, 避免因拉伸而影响布局
+// 2. 去掉IE下默认的滚动条占位
+textarea {
+	resize: vertical; // 1
+	overflow: auto;   // 2
+}
+
+.clearfix:after{content:".";display:block;clear:both;visibility:hidden;line-height: 0;font-size: 0;height: 0}
+.clearfix{zoom:1}
+.none{display: none;}
+.tc{text-align: center;}
+.fl{float: left;}
+.fr{float: right;}
+
+
+// 转动
+.turn{
+	animation: changeTurn 10s linear infinite;
+	-webkit-animation: changeTurn 10s linear infinite;
+	-moz-animation: changeTurn 10s linear infinite;
+	-o-animation: changeTurn 10s linear infinite;
+	-ms-animation: changeTurn 10s linear infinite;
+}
+@keyframes changeTurn{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+@-webkit-keyframes changeTurn{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+@-moz-keyframes changeTurn{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+@-o-keyframes changeTurn{
+	from {-webkit-transform: rotate(0deg);}
+	to {-webkit-transform: rotate(360deg);}
+}
+@-ms-keyframes changeTurn{
+	from {-ms-transform: rotate(0deg);}
+	to {-ms-transform: rotate(360deg);}
+}
+
+#qrcode{
+	position: relative;
+	width: 100%;
+	height: 0;
+	overflow: hidden;
+	& div{
+		position: absolute;
+		left: -9999em;
+	}
+}

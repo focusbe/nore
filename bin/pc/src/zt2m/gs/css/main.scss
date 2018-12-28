@@ -1,0 +1,345 @@
+@import './reset.scss';
+
+@mixin sprite($x: 0, $y: 0){
+	background: url(../images/sprite.png) no-repeat $x+px $y+px;
+}
+
+body{
+	overflow-x: hidden;
+}
+
+// 猜巨星
+.step{
+	margin: auto;
+	position: relative;
+	width: 100%;
+	max-width: 2560px;
+	height: 1080px;
+	overflow: hidden;
+	
+	& .step1{
+		width: 100%;
+		height: 1080px;
+		background: url(../images/bg1.jpg) no-repeat center top;
+
+		// video
+		& .video{
+			position: absolute;
+			left: 50%;
+			top: 0;
+			margin-left: -1280px;
+			width: 2560px;
+			height: 1080px;
+			z-index: 1;
+			& video{
+				width: 2560px;
+				height: 1080px;
+			}
+		}
+	}
+
+	& .step2{
+		width: 100%;
+		height: 1080px;
+		background: url(../images/bg2.jpg) no-repeat center top;
+		overflow: hidden;
+
+		// video
+		& .video{
+			position: relative;
+			margin: 370px auto auto;
+			width: 640px;
+			height: 360px;
+			background: url(../images/video.jpg) no-repeat;
+			z-index: 2;
+			& .video_btn{
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				margin: -45px 0 0 -45px;
+				width: 90px;
+				height: 90px;
+				z-index: 3;
+				@include sprite(-410, -110);
+			}
+		}
+	}
+
+	& .step3{
+		position: relative;
+		width: 100%;
+		height: 1080px;
+		background: url(../images/bg3.jpg) no-repeat center top;
+		overflow: hidden;
+	
+		& .audio{
+			position: relative;
+			margin: 370px auto auto;
+			width: 640px;
+			height: 360px;
+			z-index: 2;
+
+			& .audio_btn{
+				position: absolute;
+				left: 280px;
+				top: 64px;
+				width: 80px;
+				height: 68px;
+				& .ico{
+					margin: 15px auto auto;
+					display: block;
+					width: 35px;
+					height: 39px;
+					@include sprite(-5, -230);
+					&.ico1{@include sprite(-5, -230);}
+					&.ico2{@include sprite(-45, -230);}
+					&.ico3{@include sprite(-85, -230);}
+				}
+			}
+		}
+	}
+
+	& .logo{
+		position: absolute;
+		left: 0;
+		top: -30px;
+		width: 253px;
+		height: 209px;
+		background: url(../images/logo.png) no-repeat;
+		z-index: 2;
+	}
+	& .share_info{
+		position: absolute;
+		right: 15px;
+		top: 15px;
+		width: 200px;
+		height: 60px;
+		line-height: 60px;
+		z-index: 44;
+		text-align: center;
+		& a{
+			margin: 0 10px;
+			display: inline-block;
+			vertical-align: middle;
+		}
+		& .share_weibo{
+			width: 36px;
+			height: 30px;
+			@include sprite(-475, -5);
+		}
+		& .share_home{
+			width: 28px;
+			height: 28px;
+			@include sprite(-520, -5);
+		}
+	}
+
+	& .w{
+		// @extend .step1;
+		position: absolute;
+		left: 50%;
+		top: 760px;
+		margin-left: -600px;
+		width: 1200px;
+		height: 320px;
+		z-index: 2;
+	
+		& .btn{
+			margin: auto;
+			width: 700px;
+			& .btn_subscribe{
+				display: block;
+				margin: auto;
+				width: 400px;
+				height: 100px;
+				@include sprite(-5, -5);
+				&:hover{
+					@include sprite(-5, -110);
+				}
+			}
+			& .txt{
+				margin-top: 10px;
+				font-size: 22px;
+				text-align: center;
+				color: #412310;
+				& em{
+
+				}
+			}
+			& .oth_txt{
+				color: #BEAD96;
+			}
+		}
+
+		& .lock{
+			position: relative;
+			height: 177px;
+			& .lock_item{
+				display: inline-block;
+				position: absolute;
+				top: 45px;
+				&.lock_item1{left: 280px;}
+				&.lock_item2{left: 510px;}
+				&.lock_item3{left: 735px;}
+				&.on{
+					& .ico_lock{@include sprite(-410, -5);}
+					& .txt{
+						border: 1px solid #BE9652;
+						border-radius: 35px;
+					}
+				}
+				& .ico_lock{
+					display: block;
+					margin: auto;
+					width: 24px;
+					height: 29px;
+					@include sprite(-440, -5);
+				}
+				& .txt{
+					margin: 10px auto auto;
+					padding: 8px 0;
+					display: block;
+					width: 205px;
+					& em{
+						margin: auto;
+						display: block;
+						color: #D68A28;
+						text-align: center;
+					}
+					& .ft1{
+						font-size: 16px;
+					}
+					& .ft2{
+						font-size: 20px;
+						font-weight: bold;
+					}
+				}
+			}
+		}
+	}
+}
+
+// popup
+.maskbg{
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	background: #000;
+	opacity: 0.8;
+	filter: alpha(opacity=80);
+	z-index: 88;
+}
+.popup{
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	margin: -225px 0 0 -325px;
+	width: 650px;
+	height: 450px;
+	background: #fff;
+	z-index: 99;
+	& .close{
+		position: absolute;
+		top: -60px;
+		right: 0%;
+		width: 30px;
+		height: 30px;
+		@include sprite(-540, -50);
+	}
+
+	& .p_title{
+		height: 90px;
+		line-height: 90px;
+		text-align: center;
+		font-size: 24px;
+		color: #fff;
+		background: #333;
+	}
+	& .p_wrap{
+		margin: 50px auto auto;
+		width: 452px;
+		height: 260px;
+		& .s_list{
+			margin: auto;
+			width: 372px;
+			& li{
+				position: relative;
+				margin-top: 10px;
+				width: 100%;
+				height: 50px;
+				line-height: 50px;
+				& .label{
+					float: left;
+					margin-right: 2px;
+					width: 50px;
+					height: 50px;
+				}
+				& .mob{@include sprite(-410, -50);}
+				& .pwd{@include sprite(-470, -50);}
+
+				& input{
+					float: left;
+					padding: 0 10px;
+					width: 300px;
+					height: 50px;
+					line-height: 50px;
+					background: #E1E1E1;
+					font-size: 14px;
+					color: #666;
+					border: none;
+				}
+				& .code_img{
+					position: absolute;
+					right: 0;
+					top: 0;
+					width: 100px;
+					height: 50px;
+				}
+				& .btn_msg{
+					position: absolute;
+					right: 0;
+					top: 0;
+					width: 100px;
+					text-align: center;
+					line-height: 50px;
+					background: #9F8856;
+					color: #fff;
+				}
+			}
+		}
+		& .btn_subscribe{
+			margin: 20px auto auto;
+			display: block;
+			width: 372px;
+			height: 70px;
+			line-height: 70px;
+			text-align: center;
+			font-size: 20px;
+			color: #fff;
+			background: #A99467;
+		}
+	}
+}
+.popup_msg{
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	margin: -80px 0 0 -200px;
+	width: 400px;
+	height: 160px;
+	background: #fff;
+	border-radius: 10px;
+	z-index: 99;
+	text-align: center;
+	& .title1{
+		margin-top: 20px;
+		line-height: 60px;
+		font-size: 36px;
+	}
+	& .title2{
+		line-height: 35px;
+		font-size: 22px;
+	}
+}

@@ -1,0 +1,270 @@
+/*
+@ note: 弹层
+*/
+@import './common.scss';
+
+.maskbg{
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 88;
+	background: rgba(0, 0, 0, 0.5);
+}
+.popup{
+	position: fixed;
+	left: 50%;
+	top: 30%;
+	margin-left: -283px;
+	width: 566px;
+	z-index: 99;
+	& .btn_close{
+		position: absolute;
+		right: 20px;
+		top: 0;
+		width: 55px;
+		height: 78px;
+		@include sprite(-230, -120);
+	}
+	& .p_title{
+		height: 78px;
+		line-height: 78px;
+		padding-left: 40px;
+		font-size: 26px;
+		color: #fff;
+		background: url(../images/popup_title_bg.jpg) no-repeat;
+
+	}
+	& .cont{
+		padding: 40px 98px;
+		background: #fff;
+	}
+
+
+	// 按钮统一
+	& .btn{
+		display: block;
+		margin: 25px auto auto;
+		width: 369px;
+		height: 67px;
+		@include nt();
+		&:hover{}
+	}
+
+	// 签到
+	& .popup_sign{
+		& .title{
+			font-size: 24px;
+			color: #EA4F91;
+			text-align: center;
+			line-height: 35px;
+		}
+		& .img{
+			display: block;
+			margin: 15px auto auto;
+			width: 101px;
+			height: 101px;
+			// @include sprite(-5, -5);
+			& img{
+				margin: 10px 0 0 10px;
+			}
+		}
+		& .name{
+			display: block;
+			margin: auto;
+			line-height: 30px;
+			font-size: 14px;
+			text-align: center;
+			color: #333;
+		}
+		& .btn_get{
+			@include btns(0, -885);
+			&:hover{@include btns(-369, -885);}
+		}
+	}
+
+	// 角色创建
+	& .popup_create{
+		& .mt30{
+			margin-top: 30px;
+		}
+		& .txt{
+			position: relative;
+			font-size: 14px;
+			line-height: 30px;
+			color: #333;
+			& em{
+				color: #7467B9;
+			}
+			& .label{
+				display: inline-block;
+				width: 105px;
+				text-align: right;
+				padding-right: 10px;
+			}
+			& .btn_resel{
+				margin-left: 20px;
+				color: #7467B9;
+				text-decoration: none;
+				&:hover{
+					text-decoration: underline;
+				}
+			}
+			& .serv_sel{
+				position: absolute;
+				left: 120px;
+				top: 0px;
+				padding: 0 50px;
+				height: 30px;
+				line-height: 30px;
+				font-size: 14px;
+				color: #333;
+			}
+		}
+		& .btn_next{
+			@include btns(0, -952);
+			&:hover{@include btns(-369, -952);}
+		}
+		& .btn_enter{
+			@include btns(0, -1153);
+			&:hover{@include btns(-369, -1153);}
+		}
+	}
+
+	// 角色创建失败
+	& .popup_create_fail{
+		& .txt{
+			font-size: 14px;
+			line-height: 30px;
+			color: #333;
+		}
+		& .btn_ok{
+			@include btns(0, -1019);
+			&:hover{@include btns(-369, -1019);}
+		}
+	}
+
+	// 点亮中国
+	& .popup_map{
+		& .title{
+			font-size: 24px;
+			color: #7467B9;
+			text-align: left;
+			line-height: 35px;
+			& em{color: #EA4F91;}
+		}
+		& .gift_list{
+			margin: 30px auto auto;
+			width: 280px;
+			& li{
+				position: relative;
+				float: left;
+				margin: 0 0 10px 0;
+				width: 140px;
+				height: auto;
+				background: none;
+				& .img{
+					display: block;
+					margin: auto;
+					width: 81px;
+					height: 81px;
+					@include sprite(-5, -120);
+					& img{
+						width: 81px;
+						height: 81px;
+					}
+				}
+				& .name{
+					display: block;
+					margin: auto;
+					margin-top: 5px;
+					text-align: center;
+					font-size: 14px;
+					color: #333;
+					@include ellipsis();
+				}
+			}
+		}
+		& .btn_get{
+			@include btns(0, -885);
+			&:hover{@include btns(-369, -885);}
+		}
+	}
+
+	// 获得礼包
+	& .popup_package{
+		& .title{
+			font-size: 24px;
+			color: #7467B9;
+			text-align: center;
+			line-height: 35px;
+			& em{color: #EA4F91;}
+		}
+		& .gift_list{
+			margin: 30px auto auto;
+			width: 300px;
+			& li{
+				position: relative;
+				float: left;
+				margin: 0 15px 10px 15px;
+				width: 120px;
+				height: auto;
+				background: none;
+				& .img{
+					display: block;
+					margin: auto;
+					width: 101px;
+					height: 101px;
+					@include sprite(-5, -5);
+					& img{
+						margin: 10px 0 0 10px;
+					}
+				}
+				& .name{
+					display: block;
+					margin: auto;
+					margin-top: 5px;
+					text-align: center;
+					font-size: 14px;
+					color: #333;
+					@include ellipsis();
+				}
+			}
+		}		
+		& .btn_get{
+			@include btns(0, -885);
+			&:hover{@include btns(-369, -885);}
+		}
+	}
+
+	// 邀请好友
+	& .popup_invite{
+		& .title{
+			font-size: 20px;
+			color: #7467B9;
+			text-align: left;
+			line-height: 30px;
+			& em{color: #EA4F91;}
+		}
+		& .i_txt{
+			margin-top: 25px;
+			font-size: 14px;
+			color: #333;
+			& input{
+				margin-top: 8px;
+				display: block;
+				width: 347px;
+				line-height: 20px;
+				border: 1px solid #D5D3D3;
+				padding: 5px 10px;
+				font-size: 14px;
+				color: #333;
+			}
+		}
+		& .btn_share{
+			@include btns(0, -1086);
+			&:hover{@include btns(-369, -1086);}
+		}
+	}
+}
