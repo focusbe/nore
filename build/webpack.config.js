@@ -39,7 +39,7 @@ module.exports = {
     },
     resolve: {
         extensions: [
-            '.js', '.jsx'
+            '.js', '.jsx','.ts','.tsx'
         ]
     },
     context: resolve(__dirname, 'src'),
@@ -82,6 +82,12 @@ module.exports = {
             {
                 test: /\.jsx?$/,
                 use: ['babel-loader'],
+                exclude: /node_modules/,
+                include: /src/
+            },
+            {
+                test: /\.ts?$/,
+                use: ['ts-loader'],
                 exclude: /node_modules/,
                 include: /src/
             },

@@ -1,37 +1,35 @@
 {
-    "name": "actcreate",
+    "name": "webcreator",
     "version": "0.0.1",
-    "description": "由巨人网站部开发的用于制作活动网页的桌面客户端",
-    "productFileName": "actcreate",
+    "description": "集成前端开发，切图，逻辑，组件调用，项目发布的客户端",
+    "productFileName": "webcreator",
     "main": "main.js",
     "scripts": {
         "dev": "webpack-dev-server --progress --colors --content-base build",
         "dist": "set NODE_ENV=production&& webpack --progress --hide-modules",
         "dist-mac": "export NODE_ENV=production&& webpack --progress --hide-modules",
         "build": "webpack",
-        "electron": "electron .",
-        "start": "npm run dev &&npm run electron",
-        "rebuild": "electron-rebuild -f -w ffi",
-        "packager": "electron-packager . actCreater --platform=win32 --arch=x64  --out=./output --overwrite --app-version=0.0.1 --icon=./assets/app.icns  --asar=false --ignore=\"(src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\"",
-        "packagermac": "npm run dist-mac && electron-packager . actCreater --platform=darwin --arch=x64 --out=./output --overwrite --app-version=0.0.1 --asar=false --icon=./assets/app.icns --ignore=\"(src|docs|.gitignore|LICENSE|README.md|webpack.config.js|node_modules)\"",
+        "electron": "tsc && electron .",
+        "start": "npm run dev && npm run electron",
+        "rebuild": "electron-rebuild -f -w ",
         "packwin": "npm run dist && electron-builder --x64 --publish always",
         "packmac": "npm run dist-mac && electron-builder --publish always"
     },
     "build": {
-        "appId": "com.ztgame.actcreate",
+        "appId": "com.ztgame.webcreator",
         "asar": true,
         "publish": [
             {
                 "provider": "github",
-                "repo": "TTTV",
-                "owner": "focusbe",
+                "repo": "webcreator",
+                "owner": "foliouTeam",
                 "protocol": "https",
                 "token": "9d6f0554d880238a35b71a40c9bb129618070ff6"
             }
         ],
         "asarUnpack": [
             "./template/**/*",
-            "./elements/**/*",
+            "./config/**/*",
             "./data/**/*"
         ],
         "mac": {
@@ -58,12 +56,15 @@
                 "!**/._*",
                 "!.editorconfig",
                 "!package.json",
+                "!README.md",
+                "!tsconfig.json",
                 "!yarn.lock",
                 "!webpack.config.js",
                 "!package-lock.json",
-                "!src/*",
+                "!app/*",
                 "!output/*",
                 "!assets/*",
+                "!build/*",
                 "!workshop/*"
             ]
         },
@@ -71,19 +72,17 @@
             "output": "output"
         }
     },
-    "author": "巨人网络",
+    "author": "刘鹏",
     "license": "",
     "devDependencies": {
         "autoprefixer": "^7.1.2",
         "babel": "^6.23.0",
         "babel-loader": "^6.2.4",
         "babel-plugin-import": "^1.6.7",
-        "babel-preset-react": "^6.24.1",
-        "babel-preset-react-hmre": "^1.1.1",
         "babel-preset-stage-2": "^6.13.0",
         "clipboard": "^1.7.1",
         "css-loader": "^0.23.1",
-        "electron": "~1.7.8",
+        "electron": "^4.0.0",
         "electron-rebuild": "^1.6.0",
         "express": "^4.15.2",
         "extract-text-webpack-plugin": "^2.1.2",
@@ -99,13 +98,12 @@
         "material-design-icons": "^3.0.1",
         "node-sass": "^4.5.3",
         "postcss-loader": "^0.9.1",
-        "react": "^15.6.2",
-        "react-dom": "^15.5.4",
-        "react-hot-loader": "^3.0.0-beta.6",
-        "react-redux": "^5.0.4",
         "redux": "^3.6.0",
         "sass-loader": "^6.0.6",
         "style-loader": "^0.13.1",
+        "ts-loader": "3",
+        "ts-node": "^7.0.1",
+        "typescript": "^3.2.2",
         "url-loader": "^0.5.8",
         "vue": "^2.3.4",
         "vue-loader": "^12.2.1",
@@ -113,7 +111,7 @@
         "vue-style-loader": "^3.0.3",
         "vue-template-compiler": "^2.3.4",
         "vuex": "^3.0.1",
-        "webpack": "^2.1.0-beta.25",
+        "webpack": "2",
         "webpack-dev-middleware": "^1.10.1",
         "webpack-dev-server": "^2.1.0-beta.0",
         "webpack-hot-middleware": "^2.18.0"
@@ -133,7 +131,6 @@
         "juicer": "^0.6.15",
         "knex": "^0.13.0",
         "regenerate": "^1.3.3",
-        "sqlite3": "^3.1.13",
         "vue-server-renderer": "^2.5.16"
     }
 }

@@ -10,6 +10,35 @@ function createview(compon){
             
         },
         styles:{
+            display:{
+                group:'positionsize',
+                label:'显示方式',
+                type:'select',
+                values:[{
+                    label:'块级元素',
+                    value:'block'
+                },{
+                    label:'行内快',
+                    value:'inline-block'
+                }],
+                default:'block',
+            },
+            overflow:{
+                group:'positionsize',
+                label:'超出',
+                type:'select',
+                values:[{
+                    label:'隐藏',
+                    value:'hidden'
+                },{
+                    label:'显示',
+                    value:'visible'
+                },{
+                    label:'滚动',
+                    value:'scroll'
+                }],
+                default:'hidden',
+            },
             background:{
                 group:'pageconfig',
                 label:'背景',

@@ -5,21 +5,10 @@ const ipcMain = electron.ipcMain;
 const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const url = require("url");
-const autoUpdater = require("electron-updater").autoUpdater;
-var inarar = __dirname.indexOf("app.asar") > -1;
-let DEBUG = true;
-var isproduct = inarar;
-let defaultWindow = {
-    width: 1000,
-    height: 800,
-    frame: true,
-    webPreferences: {
-        webSecurity: false
-    },
-    show: false,
-    titleBarStyle: "hidden",
-    backgroundColor: "#3c3c3c"
-};
+import {inarar,DEBUG,isproduct} from './main/env';
+import AutoUpdater from './main/autodater';
+import MySocket from './main/mysocket';
+
 
 const Main = {
     callback: [],
@@ -39,51 +28,7 @@ const Main = {
             self.createWindow("main");
         });
         var browserify = require("browserify");
-        this.initfenfa();
-        this.initUpdater();
-    },
-    initUpdater: function() {
-        if (DEBUG) {
-            return;
-        }
-        var self = this;
-        autoUpdater.on("checking-for-update", () => {
-            //console.log('checking');
-        });
-        autoUpdater.on("update-available", (ev, info) => {
-            // if (DEBUG) {
-            //     console.log('有更新');
-            // }
-            // console.log('available');
-        });
-        autoUpdater.on("update-not-available", (ev, info) => {
-            // console.log('not-available');
-            //alert('无更新');
-        });
-        autoUpdater.on("error", (ev, err) => {
-            //console.log('error:');
-            //console.log(ev);
-            // console.log(err);
-        });
-        autoUpdater.on("download-progress", (ev, progressObj) => {
-            // console.log('download progress');
-            // console.log(ev);
-            // console.log(progressObj);
-            // 			{total: 83452555,
-            //   delta: 233280,
-            //   transferred: 437227,
-            //   percent: 0.5239228445432258,
-            //   bytesPerSecond: 174751 }
-            //self.sendTo('main','alert','Download progress...');
-        });
-        autoUpdater.on("update-downloaded", (ev, info) => {
-            //console.log('update-downloaded');
-            // setTimeout(function () {
-            // 	autoUpdater.quitAndInstall();
-            // }, 5000)
-            self.sendTo("main", "update-downloaded");
-        });
-        autoUpdater.checkForUpdates();
+        AutoUpdater.init();
     },
     setAppMenu: function() {
         var self = this;
@@ -301,115 +246,7 @@ const Main = {
             cururl = src;
         }
         return cururl;
-    },
-    createWindow: function (tag, src, config) {
-        var self = this;
-        if (!src) {
-            return;
-        }
-        if (!config) {
-            config = {};
-        }
-
-        config = Object.assign(defaultWindow, config);
-
-        if (!self.Windows[tag]) {
-            self.Windows[tag] = new BrowserWindow(config);
-
-            self.Windows[tag].once("ready-to-show", function () {
-
-                let hwnd = self.Windows[tag].getNativeWindowHandle(); //获取窗口句柄。
-                self.Windows[tag].show();
-                if (typeof config.onShow == "function") {
-                    config.onShow();
-                }
-            });
-            self.Windows[tag].webContents.on("dom-ready", function () {
-                self.Windows[tag].webContents.executeJavaScript('window.WINDOWTAG="' + tag + '"');
-            });
-            console.log(this.getUrl(src, config));
-            self.Windows[tag].loadURL(this.getUrl(src, config));
-
-            if (DEBUG) {
-                this.Windows[tag].webContents.openDevTools();
-            }
-            self.Windows[tag].on("closed", function () {
-                if (typeof config.onClose == "function") {
-                    config.onClose();
-                }
-                self.Windows[tag] = null;
-                delete self.Windows[tag];
-            });
-        } else {
-            self.Windows[tag].loadURL(this.getUrl(src, config));
-            self.Windows[tag].show();
-        }
-        // and load the index.html of the app.
-    },
-    sendTo: function(tag, event, data) {
-        if (!this.Windows[tag]) {
-            return;
-        }
-        if (!event) {
-            return;
-        }
-        if (!data) {
-            data = null;
-        }
-        this.Windows[tag].webContents.send("senddata", {
-            event: event,
-            data: data
-        });
-    },
-    sendAll: function(event, data) {
-        for (var i in this.Window) {
-            this.Window[i].webContents.send("senddata", {
-                event: event,
-                data: data
-            });
-        }
-    },
-    on:{
-        open:function(data){
-            console.log(data)
-            var url = !!data.url?data.url:"main.html";
-            var hash = !!data.hash?data.hash:"";
-            var search = !!data.search?data.search:"";
-            Main.createWindow(data.tag, url, {
-                hash:data.hash,
-                search: data.search
-            });
-            
-        }
-    },
-    initfenfa: function() {
-        var self = this;
-        ipcMain.on("senddata", function(socket,result) {
-            console.log('senddata');
-            console.log(result);
-            if (!!result && !!result.tag && !!result.event) {
-                let tag = result.tag;
-                let event = result.event;
-                if (!result.data) {
-                    result.data = null;
-                }
-                let data = result.data;
-                if (tag == "ALLWINDOWS") {
-                    self.sendAll(event, data);
-                } else if(tag=='MAIN'){
-                    console.log('MAIN');
-                    console.log(data);
-                    if(typeof(self.on[event])=='function'){
-                        self.on[event](data);
-                    }
-                    
-                } else {
-                    self.sendTo(tag, event, data);
-                }
-            } else {
-                console.log("no params");
-            }
-        });
     }
+    
 };
 Main.init();

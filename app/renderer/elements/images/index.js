@@ -9,9 +9,6 @@ var container =  createview({
         position:'relative',
         width:'100px',
         height:'100px',
-        padding:'0',
-        textAlign:'center',
-        color:'',
         background:'#ccc'
     },
     onRendered:function(dom){
