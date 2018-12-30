@@ -7,8 +7,6 @@ import "material-design-icons";
 import iView from "iview";
 import "./css/themes.less";
 import Elelments from "./elements/index.js";
-import TEST from './test.ts';
-console.log(TEST);
 Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);

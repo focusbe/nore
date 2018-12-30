@@ -5,12 +5,11 @@ const ipcMain = electron.ipcMain;
 const BrowserWindow = electron.BrowserWindow;
 const path = require("path");
 const url = require("url");
-import {inarar,DEBUG,isproduct} from './public/env';
+import {inarar,DEBUG,isproduct} from './libs/env';
 import AutoUpdater from './autodater';
 import MySocket from './mysocket';
 
 const Main = {
-    callback: [],
     Windows: {},
     init: function() {
         var self = this;

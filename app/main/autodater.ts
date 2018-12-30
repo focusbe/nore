@@ -1,5 +1,5 @@
 const autoUpdater = require("electron-updater").autoUpdater;
-import {inarar,DEBUG,isproduct} from './env';
+import {inarar,DEBUG,isproduct} from './libs/env';
 class AutoUpdater{
     static init() {
         if (DEBUG) {
