@@ -7,7 +7,6 @@ import AutoUpdater from './autodater';
 import mySocket from './mysocket';
 import WinManager from './winmanager'
 import initMenu from './initmenu';
-
 class Main {
     constructor(){
         var self = this;

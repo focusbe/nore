@@ -7,11 +7,11 @@
     "scripts": {
         "start-main": "webpack --config build/main.config.js --progress --hide-modules && npm run electron ./dist/main/index.js",
         "electron": "electron ./dist/main/index.js",
-        "dev": "webpack-dev-server --progress --colors --content-base build --config build/renderer.config.js",
+        "webpack-dev": "webpack-dev-server --progress --colors --content-base build --config build/renderer.config.js",
+        "start": "node ./build/dev.js",
         "dist-win": "set NODE_ENV=production&& npm run build",
         "dist-mac": "export NODE_ENV=production&& npm run build",
         "build": "webpack --config build/renderer.config.js --progress --hide-modules",
-        "start": "npm run dev && npm run electron",
         "rebuild": "electron-rebuild -f -w ",
         "packwin": "npm run dist && electron-builder --x64 --publish always",
         "packmac": "npm run dist-mac && electron-builder --publish always"
@@ -99,6 +99,7 @@
         "material-design-icons": "^3.0.1",
         "node-sass": "^4.11.0",
         "sass-loader": "^7.1.0",
+        "shelljs": "^0.8.3",
         "style-loader": "^0.23.1",
         "ts-loader": "^5.3.2",
         "ts-node": "^7.0.1",

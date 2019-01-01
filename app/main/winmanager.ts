@@ -68,11 +68,11 @@ class WinManager {
         let search = config.search || "";
         let hash = config.hash || "";
         let cururl: string;
-        console.log(path.join(__dirname, (!isproduct ? "../renderer/" : "../renderer/") + src));
+        //console.log(path.join(__dirname, (!isproduct ? "../renderer/" : "../renderer/") + src));
         if (src.indexOf("//") < 0) {
             cururl = url.format({
-                pathname: path.join(__dirname, (!isproduct ? "../renderer/" : "../renderer/") + src),
-                protocol: "file",
+                pathname: isproduct?path.join(__dirname, "../renderer/" + src):'localhost:3000/'+src,
+                protocol: isproduct ? "file" : "http",
                 slashes: true,
                 search: search,
                 hash: hash
