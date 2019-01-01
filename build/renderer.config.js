@@ -115,8 +115,14 @@ module.exports = {
             {
                 test: /\.(less)$/,
                 use: [
-                    'less-loader'
-                ]
+                    'vue-style-loader',
+                    'css-loader',
+                    {
+                        loader: 'less-loader'
+                    }
+                ],
+                // exclude: /node_modules/,
+                // include: /src/
             },
             {
                 test: /\.(png|jpg|gif)$/i,
