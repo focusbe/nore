@@ -1,5 +1,6 @@
 const autoUpdater = require("electron-updater").autoUpdater;
 import {inarar,DEBUG,isproduct} from './libs/env';
+import mySocket from "./mysocket";
 class AutoUpdater{
     static init() {
         if (DEBUG) {
@@ -9,22 +10,22 @@ class AutoUpdater{
         autoUpdater.on("checking-for-update", () => {
             //console.log('checking');
         });
-        autoUpdater.on("update-available", (ev, info) => {
+        autoUpdater.on("update-available", (ev:any, info:any) => {
             // if (DEBUG) {
             //     console.log('有更新');
             // }
             // console.log('available');
         });
-        autoUpdater.on("update-not-available", (ev, info) => {
+        autoUpdater.on("update-not-available", (ev:any, info:any) => {
             // console.log('not-available');
             //alert('无更新');
         });
-        autoUpdater.on("error", (ev, err) => {
+        autoUpdater.on("error", (ev:any, err:any) => {
             //console.log('error:');
             //console.log(ev);
             // console.log(err);
         });
-        autoUpdater.on("download-progress", (ev, progressObj) => {
+        autoUpdater.on("download-progress", (ev:any, progressObj:any) => {
             // console.log('download progress');
             // console.log(ev);
             // console.log(progressObj);
@@ -35,12 +36,12 @@ class AutoUpdater{
             //   bytesPerSecond: 174751 }
             //self.sendTo('main','alert','Download progress...');
         });
-        autoUpdater.on("update-downloaded", (ev, info) => {
+        autoUpdater.on("update-downloaded", (ev:any, info:any) => {
             //console.log('update-downloaded');
             // setTimeout(function () {
             // 	autoUpdater.quitAndInstall();
             // }, 5000)
-            self.sendTo("main", "update-downloaded");
+            mySocket.sendTo("main", "update-downloaded");
         });
         autoUpdater.checkForUpdates();
     }

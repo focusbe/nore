@@ -98,13 +98,13 @@ export default {
     },
     created:function(){
         var self = this;
-        Projects.getlist(function(res){
-            self.ProjectList = res;
-        })
+        // Projects.getlist(function(res){
+        //     self.ProjectList = res;
+        // })
     },
     computed: {
         gameList: function() {
-            return Configs.gameList();
+            //return Configs.gameList();
         }
     },
     props: {},

@@ -13,8 +13,8 @@
 </template>
 <script>
 
-import "../js/common.js";
-import $ from "jquery";
+// import "../js/common.js";
+// import $ from "jquery";
 
 export default {
     data: function() {
@@ -26,9 +26,9 @@ export default {
     updated: function() {},
     mounted: function() {
         var self = this;
-        Socket.on("new_project", function() {
-            self.showNewProject();
-        });
+        // Socket.on("new_project", function() {
+        //     self.showNewProject();
+        // });
     },
     methods: {
         exit: function() {
