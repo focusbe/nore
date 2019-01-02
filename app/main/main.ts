@@ -6,6 +6,7 @@ import {inarar,DEBUG,isproduct} from './libs/env';
 import AutoUpdater from './autodater';
 import mySocket from './mysocket';
 import WinManager from './winmanager'
+
 import initMenu from './initmenu';
 class Main {
     constructor(){
@@ -23,6 +24,8 @@ class Main {
             WinManager.newwindow("main");
         });
         AutoUpdater.init();
+
+        
     }
 };
 var main = new Main();

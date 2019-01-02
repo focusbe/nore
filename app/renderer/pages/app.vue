@@ -12,10 +12,9 @@
     </div>
 </template>
 <script>
-
-// import "../js/common.js";
+import mySocket from '../js/mysocket';
+console.log(mySocket);
 // import $ from "jquery";
-
 export default {
     data: function() {
         return {
