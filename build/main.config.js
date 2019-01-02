@@ -12,7 +12,7 @@ module.exports = {
         __filename: false,
         __dirname: false
     },
-    // devtool: 'sourcemap',
+    devtool: 'sourcemap',
     context: path.resolve(__dirname, "../app/main"),
     output: {
         filename: 'index.js',

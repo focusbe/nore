@@ -7,7 +7,7 @@
     "scripts": {
         "start-main": "webpack --config build/main.config.js -w --progress --hide-modules --mode=development",
         "start-rendder": "webpack-dev-server --progress --colors --content-base build --config build/renderer.config.js --mode=development",
-        "electron": "electron ./dist/main/index.js",
+        "electron": "electron ./dist/main/index.js --inspect-brk=5858",
         "dist-renderer": "webpack --config build/renderer.config.js --progress --hide-modules --mode=production",
         "dist-main": "webpack --config build/main.config.js --progress --hide-modules --mode=production",
         "rebuild": "electron-rebuild -f -w ",
