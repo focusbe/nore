@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "outDir": "../../dist/main",
+        "noImplicitAny": true,
+        "module": "es6",
+        "target": "es6",
+        "jsx": "react",
+        "allowJs": false,
+        "checkJs":false,
+        
+    },
+    "include": [
+        "./"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

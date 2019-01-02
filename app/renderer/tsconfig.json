@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "outDir": "../../dist/renderer/",
+        "noImplicitAny": true,
+        "module": "es6",
+        "target": "es5",
+        "jsx": "react",
+        "allowJs": false
+    },
+    "include": [
+        "./"
+    ],
+    "exclude": [
+        "node_modules",
+        "**/*.spec.ts"
+    ]
+}

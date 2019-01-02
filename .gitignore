@@ -3,3 +3,5 @@ data/
 yarn.lock
 package-lock.json
 .vscode
+dist/
+output/
