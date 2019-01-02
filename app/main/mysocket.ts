@@ -29,20 +29,7 @@ class MySocket {
     on(event: string, callback: Function) {
         this.callbacks[event] = callback;
     }
-    // on: {
-    //     open: function(data) {
-    //         console.log(data)
-    //         var url = !!data.url ? data.url : "main.html";
-    //         var hash = !!data.hash ? data.hash : "";
-    //         var search = !!data.search ? data.search : "";
-    //         Main.createWindow(data.tag, url, {
-    //             hash: data.hash,
-    //             search: data.search
-    //         });
-    //     }
-    // },
     private static instance = new MySocket()
-
     static getInstance(): MySocket {
         return MySocket.instance
     }
@@ -58,7 +45,7 @@ class MySocket {
                     result.data = null;
                 }
                 let data = result.data;
-                if (tag == "ALLwinCache") {
+                if (tag == "ALLWINDOWS") {
                     self.sendAll(event, data);
                 } else if (tag == 'MAIN') {
                     console.log('MAIN');
