@@ -5,16 +5,15 @@
     "productFileName": "webcreator",
     "main": "dist/main/index.js",
     "scripts": {
-        "start-main": "webpack --config build/main.config.js --progress --hide-modules && npm run electron ./dist/main/index.js",
+        "start-main": "webpack --config build/main.config.js -w --progress --hide-modules --mode=development",
+        "start-rendder": "webpack-dev-server --progress --colors --content-base build --config build/renderer.config.js --mode=development",
         "electron": "electron ./dist/main/index.js",
-        "webpack-dev": "webpack-dev-server --progress --colors --content-base build --config build/renderer.config.js",
-        "start": "node ./build/dev.js",
-        "dist-win": "set NODE_ENV=production&& npm run build",
-        "dist-mac": "export NODE_ENV=production&& npm run build",
-        "build": "webpack --config build/renderer.config.js --progress --hide-modules",
+        "dist-renderer": "webpack --config build/renderer.config.js --progress --hide-modules --mode=production",
+        "dist-main": "webpack --config build/main.config.js --progress --hide-modules --mode=production",
         "rebuild": "electron-rebuild -f -w ",
-        "packwin": "npm run dist && electron-builder --x64 --publish always",
-        "packmac": "npm run dist-mac && electron-builder --publish always"
+        "dev": "node ./build/dev.js",
+        "electron-builder": "electron-builder --x64 --publish never",
+        "build": "node ./build/build.js"
     },
     "build": {
         "appId": "com.ztgame.webcreator",
@@ -84,6 +83,7 @@
         "clipboard": "^1.7.1",
         "css-loader": "^2.1.0",
         "electron": "^4.0.0",
+        "electron-builder": "^20.38.4",
         "electron-updater": "^4.0.6",
         "element-ui": "^2.4.11",
         "file-loader": "^3.0.1",

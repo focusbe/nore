@@ -4,11 +4,7 @@ const {
 const webpack = require('webpack');
 const path = require('path')
 //判断当前运行环境是开发模式还是生产模式
-const nodeEnv = process.env.NODE_ENV || 'development';
-const isPro = nodeEnv === 'production';
-console.log("当前运行环境：", isPro ?
-    'production' :
-    'development');
+
 module.exports = {
     target: 'electron-main',
     entry: './main.ts',
@@ -16,10 +12,8 @@ module.exports = {
         __filename: false,
         __dirname: false
     },
-    devtool: 'sourcemap',
+    // devtool: 'sourcemap',
     context: path.resolve(__dirname, "../app/main"),
-    watch: true,
-    mode: nodeEnv,
     output: {
         filename: 'index.js',
         path: resolve(__dirname, '../dist/main'),

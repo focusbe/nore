@@ -6,12 +6,8 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const path = require('path')
 //判断当前运行环境是开发模式还是生产模式
-const nodeEnv = process.env.NODE_ENV || 'development';
-const isPro = nodeEnv === 'production';
-console.log("当前运行环境：", nodeEnv);
 module.exports = {
     target: 'electron-renderer',
-    mode: nodeEnv,
     context: resolve(__dirname, '../app/renderer'),
     entry: {
         app: [
