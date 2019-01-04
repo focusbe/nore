@@ -11,9 +11,9 @@
         "dist-renderer": "webpack --config build/renderer.config.js --progress --hide-modules --mode=production",
         "dist-main": "webpack --config build/main.config.js --progress --hide-modules --mode=production",
         "rebuild": "electron-rebuild -f -w ",
-        "dev": "node ./build/dev.js",
-        "electron-builder": "electron-builder --x64 --publish never",
-        "build": "node ./build/build.js"
+        "dev": "node ./build/index.js",
+        "build": "node ./build/index.js --mode production",
+        "electron-builder": "electron-builder --x64 --publish never"
     },
     "build": {
         "appId": "com.ztgame.webcreator",
@@ -81,7 +81,9 @@
         "babel-preset-env": "^1.7.0",
         "babel-preset-stage-2": "^6.13.0",
         "babelify": "^10.0.0",
+        "browser-sync": "^2.26.3",
         "browserify": "^16.2.3",
+        "chalk": "^2.4.1",
         "clipboard": "^1.7.1",
         "css-loader": "^2.1.0",
         "electron": "^4.0.0",
@@ -101,6 +103,7 @@
         "less-loader": "^4.1.0",
         "material-design-icons": "^3.0.1",
         "node-sass": "^4.11.0",
+        "readline-ui": "^2.2.3",
         "sass-loader": "^7.1.0",
         "shelljs": "^0.8.3",
         "style-loader": "^0.23.1",

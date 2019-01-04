@@ -17,7 +17,6 @@ Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
-
 function getPages() {
     var pages = require.context("./pages", true, /\.vue$/);
     var pagerouter = [];
