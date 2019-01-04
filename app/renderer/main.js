@@ -57,24 +57,25 @@ App.props = {
         }
     }
 };
+
 const router = new VueRouter({
     mode: "hash",
     base: __dirname,
     routes: [
-        { path: "/", redirect: { name: "home" }, },
         {
             path: "/",
             name: "app",
             component: App,
-            children: Pages["pagerouter"]
+            children: Pages["pagerouter"],
+            redirect: { name: "qiangpiao_index" }
         }
         
     ]
 });
-
 const store = new Vuex.Store({
     state: {
         count: 0
+
     },
     mutations: {
         increment(state) {

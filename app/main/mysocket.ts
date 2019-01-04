@@ -2,7 +2,7 @@ import WinManager from "./winmanager";
 const electron = require("electron");
 const ipcMain = electron.ipcMain;
 class MySocket {
-    callbacks: { [key: string]: Function };
+    callbacks: { [key: string]: Function } = {};
     private static instance = new MySocket();
     static getInstance(): MySocket {
         return MySocket.instance;
