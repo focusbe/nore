@@ -67,7 +67,7 @@ const router = new VueRouter({
             name: "app",
             component: App,
             children: Pages["pagerouter"],
-            redirect: { name: "qiangpiao_index" }
+            redirect: { name: "home" }
         }
         
     ]

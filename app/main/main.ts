@@ -6,7 +6,6 @@ import {inarar,DEBUG,isproduct} from './libs/env';
 import AutoUpdater from './autodater';
 import mySocket from './mysocket';
 import WinManager from './winmanager'
-
 import initMenu from './initmenu';
 class Main {
     constructor(){
@@ -14,6 +13,7 @@ class Main {
         app.on("ready", function() {
             initMenu(app);
             WinManager.newwindow("main", "index.html");
+            
         });
         app.on("window-all-closed", function() {
             if (process.platform !== "darwin") {
