@@ -31,7 +31,7 @@ config['main'] = function (mode) {
         },
         module: {
             //module.noParse 配置哪些文件可以脱离webpack的解析
-            noParse: /node_modules\/(jquey\.js)/,
+            noParse: /node_modules\/*/,
             rules: [{
                     test: /\.ts?$/,
                     use: [{
@@ -245,6 +245,64 @@ config['renderer'] = function (mode) {
     }
 }
 
+config['client'] = function (mode) {
+    return {
+        target: 'electron-main',
+        entry: './index.js',
+        node: {
+            __filename: false,
+            __dirname: false
+        },
+        devtool: mode == 'develoment' ? 'sourcemap' : false,
+        context: path.resolve(__dirname, "../app/renderer/client/"),
+        mode: mode,
+        output: {
+            filename: 'client.js',
+            path: resolve(__dirname, '../dist/renderer/js'),
+            publicPath: resolve(__dirname, '../dist/renderer/js'),
+        },
+        resolve: {
+            extensions: [
+                '.ts', '.tsx', '.js', '.jsx'
+            ]
+        },
+        module: {
+            //module.noParse 配置哪些文件可以脱离webpack的解析
+            noParse: /node_modules\/*/,
+            rules: [{
+                    test: /\.ts?$/,
+                    use: [{
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: true,
+                            configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
+                        }
+                    }],
+                    exclude: /node_modules/,
+                    include: [path.resolve(__dirname, '../app/renderer') ]
+                },
+
+                {
+                    test: /\.js?$/,
+                    use: {
+                        loader: 'babel-loader?cacheDirectory=true',
+                        options: {
+                            presets: ['env']
+                        }
+                    },
+                    exclude: /node_modules/,
+                    include: [path.resolve(__dirname, '../app/renderer') ]
+                },
+                {
+                    test: /\.json$/,
+                    use: [{
+                        loader: "json-loader"
+                    }]
+                }
+            ]
+        }
+    }
+}
 module.exports = function (target, mode) {
     console.log(mode);
     return config[target](mode);

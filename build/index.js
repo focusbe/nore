@@ -14,11 +14,13 @@ class Build {
     constructor(mode) {
         this.names = {
             main: "主进程",
-            renderer: "渲染进程"
+            renderer: "渲染进程",
+            client:'Node代码'
         };
         this.configs = {
             main: getConfig("main", mode),
-            renderer: getConfig("renderer", mode)
+            renderer: getConfig("renderer", mode),
+            client:getConfig("client", mode),
         };
         this.compilers = {};
         this.mode = mode;
@@ -29,11 +31,19 @@ class Build {
         try {
             deleteFolder("./dist");
             deleteFolder("./output");
+            var browser = await self.startserver();
+            var localurl = browser.options.getIn(["urls", "local"]);
+            this.configs['renderer'].output.publicPath = localurl;
             var renwebpack = await this.webpack('renderer', function (res) {
                 if (res && self.mode == 'development') {
-                    self.startserver();
+                    // browser.reload();
                 }
             });
+            var clientpack = await this.webpack('client', function (res) {
+                if (res && self.mode == 'development') {
+                    // browser.reload();
+                }
+            })
             var mainwebpack = await this.webpack('main', function (res) {
                 if (res && self.mode == 'development') {
                     self.startElectron();
@@ -68,7 +78,7 @@ class Build {
             }
         });
     }
-    webpack(target, onChange) {
+    webpack(target, onChange, onOptions) {
         var self = this;
         let name = this.names[target];
         let config = this.configs[target];
@@ -125,23 +135,26 @@ class Build {
             self.browsersync.reload();
         }
         return new Promise(function (result, reject) {
-            let browsersync = BrowserSync.create();
+            let browsersync = BrowserSync.create('server');
             self.browsersync = browsersync;
             try {
                 browsersync.init({
                         server: {
                             baseDir: self.configs["renderer"].output.path,
                             index: "index.html",
-                            
+
                         },
                         open: false
                     },
-                    function () {
-                        result(browsersync);
+                    function (error, bs) {
+                        if (!!error) {
+                            reject(null);
+                        }
+                        result(bs);
                     }
                 );
             } catch (error) {
-                reject(error);
+                reject(null);
             }
         });
     }

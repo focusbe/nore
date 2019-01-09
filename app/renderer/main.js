@@ -6,13 +6,14 @@ import Vue from "vue";
 import Vuex from "vuex";
 import VueRouter from "vue-router";
 import App from "./pages/app.vue";
+
 import "./css/style.scss";
 import "material-design-icons";
 import iView from "iview";
 import "./css/themes.less";
 import Elelments from "./elements/index.js";
-var path = require('path');
 // console.log(path);
+
 Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);

@@ -17,6 +17,7 @@ const fs = require('fs');
 //         2000 // debounce delay
 //     );
 // }
+
 class Main {
     constructor() {
         var self = this;
@@ -43,7 +44,6 @@ class Main {
                 app.exit();
             });
         }
-
     }
 }
 export default Main;

@@ -71,8 +71,8 @@ class WinManager {
         //console.log(path.join(__dirname, (!isproduct ? "../renderer/" : "../renderer/") + src));
         if (src.indexOf("//") < 0) {
             cururl = url.format({
-                pathname: isproduct?path.join(__dirname, "../renderer/" + src):'localhost:3000/'+src,
-                protocol: isproduct ? "file" : "http",
+                pathname:path.join(__dirname, "../renderer/" + src),
+                protocol: "file",
                 slashes: true,
                 search: search,
                 hash: hash

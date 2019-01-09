@@ -12,8 +12,8 @@
     </div>
 </template>
 <script>
-import mySocket from '../js/mysocket';
-console.log(mySocket);
+// import mySocket from '../js/mysocket';
+// console.log(mySocket);
 // import $ from "jquery";
 export default {
     data: function() {
