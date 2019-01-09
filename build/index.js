@@ -29,30 +29,26 @@ class Build {
         try {
             deleteFolder("./dist");
             deleteFolder("./output");
-            var renwebpack = await this.webpack('renderer');
-            var mainwebpack = await this.webpack('main');
+            var renwebpack = await this.webpack('renderer', function (res) {
+                if (res && self.mode == 'development') {
+                    self.startserver();
+                }
+            });
+            var mainwebpack = await this.webpack('main', function (res) {
+                if (res && self.mode == 'development') {
+                    self.startElectron();
+                }
+
+            });
+            await ui.clearLines();
             if (mode == "production") {
                 await this.builder();
-            } else {
-                var serverobj = await this.startserver();
-                
-                await this.startElectron();
-                // await this.addWatch(renwebpack,function(bool,err){
-                //     if(!!bool){
-                //         //serverobj.reload();
-                //     }
-                // });
-                // await this.addWatch(mainwebpack,function(bool,err){
-                //     if(!!bool){
-                //         self.startElectron();
-                //     }
-                // });
             }
         } catch (error) {
             console.log(error);
         }
     }
-    addWatch(packobj,cb){
+    addWatch(packobj, cb) {
         console.log('开始监听');
         var renwatching = packobj.watch({
             aggregateTimeout: 300,
@@ -66,14 +62,13 @@ class Build {
                     });
                 // 在这里处理错误
                 process.stdout.write(error + "\n");
-                cb(false,error);
-            }
-            else{
+                cb(false, error);
+            } else {
                 cb(true);
             }
         });
     }
-    webpack(target) {
+    webpack(target, onChange) {
         var self = this;
         let name = this.names[target];
         let config = this.configs[target];
@@ -92,7 +87,8 @@ class Build {
             console.log(chalk.blue("------开始打包" + name + "-------"));
             compiler.watch({
                 ignored: /node_modules/
-            },(err, stats) => {
+            }, (err, stats) => {
+                let res = true;
                 if (err || stats.hasErrors()) {
                     let error =
                         err ||
@@ -102,7 +98,10 @@ class Build {
                     // 在这里处理错误
                     process.stdout.write(error + "\n");
                     reject(error);
+                    res = false;
                 } else {
+
+
                     console.log(
                         stats.toString({
                             colors: true
@@ -113,21 +112,29 @@ class Build {
                     );
                     result(compiler);
                 }
+                if (typeof (onChange) == 'function') {
+                    onChange(res);
+                }
                 // 处理完成
             });
         });
     }
     startserver() {
         var self = this;
+        if (!!self.browsersync) {
+            self.browsersync.reload();
+        }
         return new Promise(function (result, reject) {
             let browsersync = BrowserSync.create();
+            self.browsersync = browsersync;
             try {
                 browsersync.init({
                         server: {
                             baseDir: self.configs["renderer"].output.path,
                             index: "index.html",
-                            open: false
-                        }
+                            
+                        },
+                        open: false
                     },
                     function () {
                         result(browsersync);
