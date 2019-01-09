@@ -24,6 +24,7 @@ class Main {
 
             initMenu(app);
             WinManager.newwindow("main", "index.html");
+            
         });
         app.on("window-all-closed", function() {
             if (process.platform !== "darwin") {
@@ -37,7 +38,6 @@ class Main {
         this.watch();
     }
     watch(){
-        console.log(DEBUG);
         if(DEBUG){
             fs.watch(__filename,function(event:any,filename:any){
                 app.exit();
