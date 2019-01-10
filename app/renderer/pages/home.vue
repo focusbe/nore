@@ -20,7 +20,6 @@
 import Vue from "vue";
 import newproject from "../componets/newproject.vue";
 import path from 'fs';
-console.log(path);
 Vue.component("newproject",newproject);
 export default {
   name: "home",

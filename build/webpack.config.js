@@ -7,11 +7,30 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const path = require('path')
 //判断当前运行环境是开发模式还是生产模式
 var config = {};
+var jsonfile = require("jsonfile");
+var configfile = resolve(__dirname, "../package.json");
+const packagejson = jsonfile.readFileSync(configfile);
 
+function noparse (content) {
+    //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
+    if(content.indexOf('main\\libs')>-1){
+        return true;
+    }
+    for (var i in packagejson['dependencies']) {
+        
+        if(content.indexOf('node_modules\\'+i)>-1){
+            console.log('node_modules\\'+i);
+            return true;
+        }
+    }
+    return false;
+
+}
 config['main'] = function (mode) {
     return {
         target: 'electron-main',
         entry: './main.ts',
+        externals:{},
         node: {
             __filename: false,
             __dirname: false
@@ -31,7 +50,7 @@ config['main'] = function (mode) {
         },
         module: {
             //module.noParse 配置哪些文件可以脱离webpack的解析
-            noParse: /node_modules\/*/,
+            // noParse: noparse,
             rules: [{
                     test: /\.ts?$/,
                     use: [{
@@ -44,17 +63,17 @@ config['main'] = function (mode) {
                     exclude: /node_modules/
                 },
 
-                {
-                    test: /\.js?$/,
-                    use: {
-                        loader: 'babel-loader?cacheDirectory=true',
-                        options: {
-                            presets: ['env']
-                        }
-                    },
-                    exclude: /node_modules/,
-                    include: /app\/main/
-                },
+                // {
+                //     test: /\.js?$/,
+                //     use: {
+                //         loader: 'babel-loader?cacheDirectory=true',
+                //         options: {
+                //             presets: ['env']
+                //         }
+                //     },
+                //     exclude: /node_modules/,
+                //     include: /app\/main/
+                // },
                 {
                     test: /\.json$/,
                     use: [{
@@ -62,7 +81,10 @@ config['main'] = function (mode) {
                     }]
                 }
             ]
-        }
+        },
+        plugins:[
+            new webpack.IgnorePlugin(/^\.\/locale$/, /browserify$/),
+        ]
     }
 }
 
@@ -91,7 +113,8 @@ config['renderer'] = function (mode) {
         },
         module: {
             //module.noParse 配置哪些文件可以脱离webpack的解析
-            noParse: /node_modules\/(jquey\.js)/,
+            // noParse: /node_modules\/(jquey\.js)/,
+            noParse: noparse,
             rules: [
                 //html
                 {
@@ -125,10 +148,10 @@ config['renderer'] = function (mode) {
                     ]
 
                 },
-                {
-                    test: /\.js$/,
-                    loader: 'babel-loader'
-                },
+                // {
+                //     test: /\.js$/,
+                //     loader: 'babel-loader'
+                // },
                 {
                     test: /\.jsx?$/,
                     use: ['babel-loader'],
@@ -150,7 +173,6 @@ config['renderer'] = function (mode) {
                     use: [
                         "vue-style-loader", "css-loader"
                     ]
-
                 },
                 {
                     test: /\.(scss)$/,
@@ -253,6 +275,9 @@ config['client'] = function (mode) {
             __filename: false,
             __dirname: false
         },
+        // externals:[
+        //     'browserify'
+        // ],
         devtool: mode == 'develoment' ? 'sourcemap' : false,
         context: path.resolve(__dirname, "../app/renderer/client/"),
         mode: mode,
@@ -268,7 +293,7 @@ config['client'] = function (mode) {
         },
         module: {
             //module.noParse 配置哪些文件可以脱离webpack的解析
-            noParse: /node_modules\/*/,
+            noParse: noparse,
             rules: [{
                     test: /\.ts?$/,
                     use: [{
@@ -279,7 +304,7 @@ config['client'] = function (mode) {
                         }
                     }],
                     exclude: /node_modules/,
-                    include: [path.resolve(__dirname, '../app/renderer') ]
+                    include: [path.resolve(__dirname, '../app/renderer')]
                 },
 
                 {
@@ -291,7 +316,7 @@ config['client'] = function (mode) {
                         }
                     },
                     exclude: /node_modules/,
-                    include: [path.resolve(__dirname, '../app/renderer') ]
+                    include: [path.resolve(__dirname, '../app/renderer')]
                 },
                 {
                     test: /\.json$/,
@@ -300,7 +325,10 @@ config['client'] = function (mode) {
                     }]
                 }
             ]
-        }
+        },
+        plugins:[
+            new webpack.IgnorePlugin(/^\.\/locale$/, /browserify/),
+        ]
     }
 }
 module.exports = function (target, mode) {
