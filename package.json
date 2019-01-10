@@ -18,13 +18,15 @@
     "build": {
         "appId": "com.ztgame.webcreator",
         "asar": true,
-        "publish": [{
-            "provider": "github",
-            "repo": "webcreator",
-            "owner": "foliouTeam",
-            "protocol": "https",
-            "token": "9d6f0554d880238a35b71a40c9bb129618070ff6"
-        }],
+        "publish": [
+            {
+                "provider": "github",
+                "repo": "webcreator",
+                "owner": "foliouTeam",
+                "protocol": "https",
+                "token": "9d6f0554d880238a35b71a40c9bb129618070ff6"
+            }
+        ],
         "asarUnpack": [
             "./template/**/*",
             "./config/**/*",
@@ -74,11 +76,11 @@
     "license": "",
     "devDependencies": {
         "@babel/core": "^7.2.2",
+        "@types/node": "^10.12.18",
         "babel-loader": "^8.0.4",
         "babel-plugin-import": "^1.6.7",
         "babel-preset-env": "^1.7.0",
         "babel-preset-stage-2": "^6.13.0",
-
         "chalk": "^2.4.1",
         "clipboard": "^1.7.1",
         "css-loader": "^2.1.0",
@@ -102,7 +104,6 @@
         "node-sass": "^4.11.0",
         "readline-ui": "^2.2.3",
         "sass-loader": "^7.1.0",
-
         "style-loader": "^0.23.1",
         "ts-loader": "^5.3.2",
         "ts-node": "^7.0.1",
@@ -117,13 +118,14 @@
         "vuex": "^3.0.1",
         "webpack": "^4.28.3",
         "webpack-cli": "^3.1.2",
-        "webpack-dev-server": "^3.1.14"
+        "webpack-dev-server": "^3.1.14",
+        "webpack-node-externals": "^1.7.2"
     },
     "dependencies": {
         "babelify": "^10.0.0",
-        "jsonfile": "^5.0.0",
         "browser-sync": "^2.26.3",
         "browserify": "^16.2.3",
+        "jsonfile": "^5.0.0",
         "shelljs": "^0.8.3"
     }
 }

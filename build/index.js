@@ -15,12 +15,12 @@ class Build {
         this.names = {
             main: "主进程",
             renderer: "渲染进程",
-            client:'Node代码'
+            client: 'Node代码'
         };
         this.configs = {
             main: getConfig("main", mode),
             renderer: getConfig("renderer", mode),
-            client:getConfig("client", mode),
+            client: getConfig("client", mode),
         };
         this.compilers = {};
         this.mode = mode;
@@ -32,25 +32,39 @@ class Build {
             deleteFolder("./dist");
             deleteFolder("./output");
             var browser = await self.startserver();
-            var localurl = browser.options.getIn(["urls", "local"]);
-            this.configs['renderer'].output.publicPath = localurl;
+            //console.log(browser.get('server'));
+            var localurl = browser.options.getIn(["urls", "local"]) + '/';
+            
+            if(self.mode=='development'){
+                this.configs['main'].externals.push(
+                    function(context, request, callback) {
+                        if (request=='_serverurl') {
+                            return callback(null,'"'+localurl+'"');
+                        }
+                        callback();
+                    }
+                );
+                this.configs['renderer'].output.publicPath = localurl;
+            }
+            
             var renwebpack = await this.webpack('renderer', function (res) {
                 if (res && self.mode == 'development') {
-                    // browser.reload();
+                    console.log(chalk.green('刷新页面'));
+                    self.browsersync.reload();
                 }
             });
-            var clientpack = await this.webpack('client', function (res) {
-                if (res && self.mode == 'development') {
-                    // browser.reload();
-                }
-            })
+            // var clientpack = await this.webpack('client', function (res) {
+            //     if (res && self.mode == 'development') {
+            //         BrowserSync.reload();
+            //     }
+            // })
             var mainwebpack = await this.webpack('main', function (res) {
                 if (res && self.mode == 'development') {
-                    self.startElectron();
+                    console.log(chalk.green('启动客户端'));
+                    setTimeout(self.startElectron, 2000);
                 }
-
             });
-            await ui.clearLines();
+            // await ui.pause();
             if (mode == "production") {
                 await this.builder();
             }
@@ -139,13 +153,13 @@ class Build {
             self.browsersync = browsersync;
             try {
                 browsersync.init({
-                        server: {
-                            baseDir: self.configs["renderer"].output.path,
-                            index: "index.html",
+                    server: {
+                        baseDir: self.configs["renderer"].output.path,
+                        index: "index.html",
 
-                        },
-                        open: false
                     },
+                    open: false
+                },
                     function (error, bs) {
                         if (!!error) {
                             reject(null);
@@ -162,7 +176,9 @@ class Build {
         if (!!this.electronPro) {
             try {
                 this.electronPro.kill();
-            } catch (error) {}
+            } catch (error) {
+
+            }
         }
         this.electronPro = runSh("npm run electron", function (event, data) {
             if (event == "close") {

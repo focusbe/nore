@@ -7,7 +7,9 @@ const BrowserWindow = electron.BrowserWindow;
 const url = require("url");
 const path = require("path");
 import { DEBUG, isproduct } from './libs/env';
-
+if(!isproduct){
+    var serverurl:string = require('_serverurl').replace('http://','');
+}
 class WinManager {
     private static defaultWindow: { [key: string]: any } = {
         width: 1000,
@@ -68,11 +70,10 @@ class WinManager {
         let search = config.search || "";
         let hash = config.hash || "";
         let cururl: string;
-        //console.log(path.join(__dirname, (!isproduct ? "../renderer/" : "../renderer/") + src));
         if (src.indexOf("//") < 0) {
             cururl = url.format({
                 pathname:path.join(__dirname, "../renderer/" + src),
-                protocol: "file",
+                protocol: isproduct?"file":'file',
                 slashes: true,
                 search: search,
                 hash: hash

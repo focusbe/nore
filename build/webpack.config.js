@@ -4,6 +4,7 @@ const {
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const nodeExternals = require('webpack-node-externals');
 const path = require('path')
 //判断当前运行环境是开发模式还是生产模式
 var config = {};
@@ -11,26 +12,35 @@ var jsonfile = require("jsonfile");
 var configfile = resolve(__dirname, "../package.json");
 const packagejson = jsonfile.readFileSync(configfile);
 
-function noparse (content) {
+// externals:[
+//     'browserify'
+// ],
+externalDev = nodeExternals({
+    modulesFromFile: {
+        exclude: ['devDependencies'],
+        include: ['dependencies']
+    }
+})
+function noparse(content) {
     //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
-    if(content.indexOf('main\\libs')>-1){
-        return true;
-    }
-    for (var i in packagejson['dependencies']) {
-        
-        if(content.indexOf('node_modules\\'+i)>-1){
-            console.log('node_modules\\'+i);
-            return true;
-        }
-    }
-    return false;
+    // if(content.indexOf('main\\libs')>-1){
+    //     return true;
+    // }
+    // for (var i in packagejson['dependencies']) {
 
+    //     if(content.indexOf('node_modules\\'+i)>-1){
+    //         console.log('node_modules\\'+i);
+    //         return true;
+    //     }console
+    // }
+    // return false;
+    return false;
 }
 config['main'] = function (mode) {
     return {
         target: 'electron-main',
         entry: './main.ts',
-        externals:{},
+        externals: [externalDev],
         node: {
             __filename: false,
             __dirname: false
@@ -50,39 +60,39 @@ config['main'] = function (mode) {
         },
         module: {
             //module.noParse 配置哪些文件可以脱离webpack的解析
-            // noParse: noparse,
+            noParse: noparse,
             rules: [{
-                    test: /\.ts?$/,
-                    use: [{
-                        loader: 'ts-loader',
-                        options: {
-                            transpileOnly: true,
-                            configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
-                        }
-                    }],
-                    exclude: /node_modules/
-                },
+                test: /\.ts?$/,
+                use: [{
+                    loader: 'ts-loader',
+                    options: {
+                        transpileOnly: true,
+                        configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
+                    }
+                }],
+                exclude: /node_modules/
+            },
 
-                // {
-                //     test: /\.js?$/,
-                //     use: {
-                //         loader: 'babel-loader?cacheDirectory=true',
-                //         options: {
-                //             presets: ['env']
-                //         }
-                //     },
-                //     exclude: /node_modules/,
-                //     include: /app\/main/
-                // },
-                {
-                    test: /\.json$/,
-                    use: [{
-                        loader: "json-loader"
-                    }]
-                }
+            // {
+            //     test: /\.js?$/,
+            //     use: {
+            //         loader: 'babel-loader?cacheDirectory=true',
+            //         options: {
+            //             presets: ['env']
+            //         }
+            //     },
+            //     exclude: /node_modules/,
+            //     include: /app\/main/
+            // },
+            {
+                test: /\.json$/,
+                use: [{
+                    loader: "json-loader"
+                }]
+            }
             ]
         },
-        plugins:[
+        plugins: [
             new webpack.IgnorePlugin(/^\.\/locale$/, /browserify$/),
         ]
     }
@@ -97,6 +107,11 @@ config['renderer'] = function (mode) {
                 './main.js'
             ]
         },
+        node: {
+            __filename: false,
+            __dirname: false
+        },
+        externals: [externalDev],
         output: {
             filename: 'js/bundle.js',
             path: resolve(__dirname, '../dist/renderer'),
@@ -126,25 +141,25 @@ config['renderer'] = function (mode) {
                 {
                     test: /\.vue$/,
                     use: [{
-                            loader: 'vue-loader',
-                            options: {
-                                loaders: {
-                                    // Customize to your liking
-                                    js: 'babel-loader',
-                                    scss: [
-                                        'style-loader',
-                                        'css-loader',
-                                        'sass-loader'
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            loader: 'iview-loader',
-                            options: {
-                                prefix: false
+                        loader: 'vue-loader',
+                        options: {
+                            loaders: {
+                                // Customize to your liking
+                                js: 'babel-loader',
+                                scss: [
+                                    'style-loader',
+                                    'css-loader',
+                                    'sass-loader'
+                                ]
                             }
                         }
+                    },
+                    {
+                        loader: 'iview-loader',
+                        options: {
+                            prefix: false
+                        }
+                    }
                     ]
 
                 },
@@ -195,41 +210,41 @@ config['renderer'] = function (mode) {
                 {
                     test: /\.(png|jpg|gif)$/i,
                     use: [{
-                            loader: "url-loader",
+                        loader: "url-loader",
+                        query: {
+                            name: 'images/[name].[ext]?v=[hash:5]',
+                            limit: 20000
+                        }
+                    }, {
+                        loader: 'image-webpack-loader',
+                        options: {
                             query: {
-                                name: 'images/[name].[ext]?v=[hash:5]',
-                                limit: 20000
-                            }
-                        }, {
-                            loader: 'image-webpack-loader',
-                            options: {
-                                query: {
-                                    mozjpeg: {
-                                        progressive: true,
-                                        quality: 65
-                                    },
-                                    pngquant: {
-                                        quality: "10-20",
-                                        speed: 4
-                                    },
-                                    svgo: {
-                                        plugins: [{
-                                            removeViewBox: false
-                                        }, {
-                                            removeEmptyAttrs: false
-                                        }]
-                                    },
-                                    gifsicle: {
-                                        optimizationLevel: 7,
-                                        interlaced: false
-                                    },
-                                    optipng: {
-                                        optimizationLevel: 7,
-                                        interlaced: false
-                                    }
+                                mozjpeg: {
+                                    progressive: true,
+                                    quality: 65
+                                },
+                                pngquant: {
+                                    quality: "10-20",
+                                    speed: 4
+                                },
+                                svgo: {
+                                    plugins: [{
+                                        removeViewBox: false
+                                    }, {
+                                        removeEmptyAttrs: false
+                                    }]
+                                },
+                                gifsicle: {
+                                    optimizationLevel: 7,
+                                    interlaced: false
+                                },
+                                optipng: {
+                                    optimizationLevel: 7,
+                                    interlaced: false
                                 }
                             }
                         }
+                    }
 
                     ]
                 }, {
@@ -278,6 +293,8 @@ config['client'] = function (mode) {
         // externals:[
         //     'browserify'
         // ],
+
+        externals: [externalDev],
         devtool: mode == 'develoment' ? 'sourcemap' : false,
         context: path.resolve(__dirname, "../app/renderer/client/"),
         mode: mode,
@@ -295,43 +312,42 @@ config['client'] = function (mode) {
             //module.noParse 配置哪些文件可以脱离webpack的解析
             noParse: noparse,
             rules: [{
-                    test: /\.ts?$/,
-                    use: [{
-                        loader: 'ts-loader',
-                        options: {
-                            transpileOnly: true,
-                            configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
-                        }
-                    }],
-                    exclude: /node_modules/,
-                    include: [path.resolve(__dirname, '../app/renderer')]
-                },
+                test: /\.ts?$/,
+                use: [{
+                    loader: 'ts-loader',
+                    options: {
+                        transpileOnly: true,
+                        configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
+                    }
+                }],
+                exclude: /node_modules/,
+                include: [path.resolve(__dirname, '../app/renderer')]
+            },
 
-                {
-                    test: /\.js?$/,
-                    use: {
-                        loader: 'babel-loader?cacheDirectory=true',
-                        options: {
-                            presets: ['env']
-                        }
-                    },
-                    exclude: /node_modules/,
-                    include: [path.resolve(__dirname, '../app/renderer')]
+            {
+                test: /\.js?$/,
+                use: {
+                    loader: 'babel-loader?cacheDirectory=true',
+                    options: {
+                        presets: ['env']
+                    }
                 },
-                {
-                    test: /\.json$/,
-                    use: [{
-                        loader: "json-loader"
-                    }]
-                }
+                exclude: /node_modules/,
+                include: [path.resolve(__dirname, '../app/renderer')]
+            },
+            {
+                test: /\.json$/,
+                use: [{
+                    loader: "json-loader"
+                }]
+            }
             ]
         },
-        plugins:[
+        plugins: [
             new webpack.IgnorePlugin(/^\.\/locale$/, /browserify/),
         ]
     }
 }
 module.exports = function (target, mode) {
-    console.log(mode);
     return config[target](mode);
 }

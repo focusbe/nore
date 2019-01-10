@@ -7,8 +7,8 @@ import AutoUpdater from "./autodater";
 import mySocket from "./mysocket";
 import WinManager from "./winmanager";
 import initMenu from "./initmenu";
-const fs = require('fs');
 
+const fs = require('fs');
 // if (DEBUG) {
 //     require("electron-watch")(
 //         __dirname,
@@ -33,7 +33,7 @@ class Main {
             }
         });
         app.on("activate", function() {
-            WinManager.newwindow("main");
+            //WinManager.newwindow("main");
         });
         AutoUpdater.init();
         this.watch();
