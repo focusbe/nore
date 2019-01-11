@@ -1,5 +1,5 @@
 const autoUpdater = require("electron-updater").autoUpdater;
-import {inarar,DEBUG,isproduct} from './libs/env';
+import {inarar,DEBUG,isproduct} from '../libs/env';
 import mySocket from "./mysocket";
 class AutoUpdater{
     static init() {

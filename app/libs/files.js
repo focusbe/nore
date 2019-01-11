@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require('fs-extra');
 class Files {
     static copy(src, dst, callback) {
         var _self = this;
@@ -29,6 +29,10 @@ class Files {
         // var fileslist = fs.readdirSync(src);
         // return fileslist;
         fs.readdir(src, function (err, paths) {
+            if(!!err||!paths){
+                callback(false);
+                return;
+            }
             var filestlist = new Object();
             paths.forEach(function (path) {
                 var _src = src + "/" + path;

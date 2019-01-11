@@ -29,15 +29,20 @@
       ref="projectForm"
       @ok="newprojectok"
     ></newproject>
+    <editconfig
+      ref="configform"
+      @ok="editconfigok"
+    ></editconfig>
   </div>
 </template>
 <script>
 import Vue from "vue";
 import newproject from "../componets/newproject.vue";
-const {Projects,Project,Files} = require('../../main/libs/project');
-
-import path from "fs";
+import editconfig from "../componets/editconfig.vue";
+const {Projects,Project,Files} = require('../../libs/project');
+import Configs from '../../libs/configs';
 Vue.component("newproject", newproject);
+Vue.component("editconfig", editconfig);
 export default {
   name: "home",
   data() {
@@ -45,8 +50,17 @@ export default {
       projectList: {}
     };
   },
+  mounted(){
+    if(!Configs.getItem('workshop')){
+      this.showEditConfig();
+    }
+    else{
+      this.getProjects();
+    }
+    
+  },
   created: function() {
-    this.getProjects();
+    
   },
   methods: {
     getProjects: function() {
@@ -62,6 +76,12 @@ export default {
     newprojectok: function() {
       //return false;
       this.getProjects();
+    },
+    showEditConfig(){
+      this.$refs.configform.show();
+    },
+    editconfigok(){
+
     },
     showprojectadd: function() {
       this.$refs.projectForm.show();

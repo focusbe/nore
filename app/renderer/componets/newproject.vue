@@ -33,8 +33,8 @@
     </Modal>
 </template>
 <script>
-const {Projects,Project,Files} = require('../../main/libs/project');
-import Configs from '../../main/libs/configs'
+const {Projects,Project,Files} = require('../../libs/project');
+import Configs from '../../libs/configs'
 export default {
     name: "newproject",
     data() {

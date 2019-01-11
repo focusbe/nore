@@ -2,16 +2,20 @@ var jsonfile = require("jsonfile");
 var browserify = require("browserify");
 var fs = require("fs");
 var path = require("path");
-var configfile = path.resolve(__dirname , "../../config/config.json");
-const Config = jsonfile.readFileSync(configfile);
+import Configs from './configs';
+
 var juicer = require("juicer");
 var babelify = require("babelify");
 import Files from'./files';
-console.log(Files);
 class Projects {
     constructor() {}
     static getlist(callback) {
-        var workshopdir = __dirname + "/../" + Config.workshop;
+        if(!Configs.getItem('workshop')){
+            callback(false,'没有设置workshop');
+            console.log('没有设置workshop');
+            return;
+        }
+        var workshopdir = path.resolve(__dirname ,'/'+Configs.getItem('workshop'));
         Files.createdir(workshopdir, function () {
             Files.getList(workshopdir, callback);
         });
@@ -19,7 +23,7 @@ class Projects {
     static getProject(actname, callback) {
         var actpath = path.join(
             __dirname,
-            "../" + Config.workshop + "/" + actname + "/"
+            "../" + Configs.getItem('workshop') + "/" + actname + "/"
         );
         var mainsrc = actpath + "main.json";
         var logicsrc = actpath + "main.json";
@@ -50,7 +54,7 @@ class Project {
             this.actname = config;
             this.path = path.join(
                 __dirname,
-                "../" + Config.workshop + "/" + this.actname + "/"
+                "../" + Configs.getItem('workshop') + "/" + this.actname + "/"
             );
             // console.log(1111);
             // console.log(fs.existsSync("xxxx"));
@@ -116,7 +120,7 @@ class Project {
             path.join(__dirname, "../template/" + this.config.template + "/"),
             path.join(
                 __dirname,
-                "../" + Config.workshop + "/" + this.config.actname
+                "../" + Config.getItem('workshop') + "/" + this.config.actname
             ),
             function (err) {
                 if (!err) {
@@ -124,7 +128,7 @@ class Project {
                         path.join(
                             __dirname,
                             "../" +
-                            Config.workshop +
+                            Config.getItem('workshop') +
                             "/" +
                             self.config.actname +
                             "/config.json"

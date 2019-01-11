@@ -5,7 +5,7 @@ const electron = require("electron");
 const BrowserWindow = electron.BrowserWindow;
 const url = require("url");
 const path = require("path");
-import { DEBUG, isproduct } from "./libs/env";
+import { DEBUG, isproduct } from "../libs/env";
 if (!isproduct) {
     var serverurl: string = require("_serverurl").replace("http://", "");
 }

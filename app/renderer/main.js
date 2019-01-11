@@ -1,7 +1,6 @@
 //const {Projects,Project,Files} = require('../main/libs/project');
-const {Configs} = require('../main/libs/lib');
+const Configs = require('../libs/configs');
 console.log(Configs);
-// const {Server} = require('../main/libs/server');
 import Vue from "vue";
 import Vuex from "vuex";
 import VueRouter from "vue-router";

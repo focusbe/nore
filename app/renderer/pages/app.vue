@@ -12,8 +12,8 @@
     </div>
 </template>
 <script>
-// import mySocket from '../js/mysocket';
-// console.log(mySocket);
+import mySocket from '../utli/mysocket';
+console.log(mySocket);
 // import $ from "jquery";
 // const Project = require('../../main/libs/project.js');
 // var jsonfile = require("jsonfile");
@@ -30,7 +30,7 @@ export default {
     updated: function() {},
     mounted: function() {
         var self = this;
-        Socket.on("new_project", function() {
+        mySocket.on("new_project", function() {
             self.showNewProject();
         });
     },

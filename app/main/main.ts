@@ -2,7 +2,7 @@ const electron = require("electron");
 const path = require("path");
 const app = electron.app;
 const Menu = electron.Menu;
-import { inarar, DEBUG, isproduct } from "./libs/env";
+import { inarar, DEBUG, isproduct } from "../libs/env";
 import AutoUpdater from "./autodater";
 import mySocket from "./mysocket";
 import WinManager from "./winmanager";
