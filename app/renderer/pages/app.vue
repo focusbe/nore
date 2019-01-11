@@ -15,7 +15,7 @@
 // import mySocket from '../js/mysocket';
 // console.log(mySocket);
 // import $ from "jquery";
-const Project = require('../../main/libs/project.js');
+// const Project = require('../../main/libs/project.js');
 // var jsonfile = require("jsonfile");
 // const fse = require("fs-extra");
 // var co = require("co");
@@ -30,17 +30,16 @@ export default {
     updated: function() {},
     mounted: function() {
         var self = this;
-        // Socket.on("new_project", function() {
-        //     self.showNewProject();
-        // });
+        Socket.on("new_project", function() {
+            self.showNewProject();
+        });
     },
     methods: {
         exit: function() {
             window.close();
         },
         showNewProject: function() {
-            
-            //this.$router.push({path:'/project/edit'});
+            this.$router.push({path:'/project/edit'});
         },
         closeNew: function() {
             this.newPopup = false;

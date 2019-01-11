@@ -8,4 +8,4 @@ const Configs = {
     }
 }
 
-module.exports = {Configs};
+export default Configs;

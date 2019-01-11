@@ -1,26 +1,43 @@
 <template id="template">
   <div class="page_wrap">
     <ul class="project_list">
-      <li v-for="(item,key) in projectList" v-bind:key="key">
+      <li
+        v-for="(item,key) in projectList"
+        v-bind:key="key"
+      >
         <a @click="projectEdit(key)">
-          <img src="images/bg.jpg" alt>
+          <img
+            src="images/bg.jpg"
+            alt
+          >
           <p>{{key}}</p>
         </a>
       </li>
       <li>
-        <Button type="primary" @click="showprojectadd">
-          <Icon type="ios-add-circle" :size="30"/>
+        <Button
+          type="primary"
+          @click="showprojectadd"
+        >
+          <Icon
+            type="ios-add-circle"
+            :size="30"
+          />
         </Button>
       </li>
     </ul>
-    <newproject ref="projectForm" @ok="newprojectok"></newproject>
+    <newproject
+      ref="projectForm"
+      @ok="newprojectok"
+    ></newproject>
   </div>
 </template>
 <script>
 import Vue from "vue";
 import newproject from "../componets/newproject.vue";
-import path from 'fs';
-Vue.component("newproject",newproject);
+const {Projects,Project,Files} = require('../../main/libs/project');
+
+import path from "fs";
+Vue.component("newproject", newproject);
 export default {
   name: "home",
   data() {
@@ -34,13 +51,13 @@ export default {
   methods: {
     getProjects: function() {
       var self = this;
-    //   Projects.getlist(function(res) {
-    //     if (res) {
-    //       self.projectList = res;
-    //     } else {
-    //       alert("获取项目列表失败");
-    //     }
-    //   });
+      Projects.getlist(function(res) {
+        if (res) {
+          self.projectList = res;
+        } else {
+          alert("获取项目列表失败");
+        }
+      });
     },
     newprojectok: function() {
       //return false;

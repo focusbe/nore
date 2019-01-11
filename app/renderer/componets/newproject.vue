@@ -33,8 +33,8 @@
     </Modal>
 </template>
 <script>
-// const {Projects,Project,Files} = require('../../bin/project');
-
+const {Projects,Project,Files} = require('../../main/libs/project');
+import Configs from '../../main/libs/configs'
 export default {
     name: "newproject",
     data() {
@@ -98,13 +98,14 @@ export default {
     },
     created:function(){
         var self = this;
-        // Projects.getlist(function(res){
-        //     self.ProjectList = res;
-        // })
+        Projects.getlist(function(res){
+            self.ProjectList = res;
+        })
     },
     computed: {
         gameList: function() {
-            //return Configs.gameList();
+            console.log(Configs);
+            return Configs.gameList();
         }
     },
     props: {},

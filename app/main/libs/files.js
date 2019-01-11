@@ -1,3 +1,4 @@
+const fs = require('fs');
 class Files {
     static copy(src, dst, callback) {
         var _self = this;

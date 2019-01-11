@@ -6,7 +6,8 @@ var configfile = path.resolve(__dirname , "../../config/config.json");
 const Config = jsonfile.readFileSync(configfile);
 var juicer = require("juicer");
 var babelify = require("babelify");
-var Files = require('./files');
+import Files from'./files';
+console.log(Files);
 class Projects {
     constructor() {}
     static getlist(callback) {
@@ -268,7 +269,7 @@ class Project {
     uploadToDev() {}
     addWorkTime() {}
 }
-module.exports = {
+export {
     Project,
     Files,
     Projects
