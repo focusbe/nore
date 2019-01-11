@@ -21,6 +21,7 @@ externalDev = nodeExternals({
         include: ['dependencies']
     }
 })
+
 function noparse(content) {
     //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
     // if(content.indexOf('main\\libs')>-1){
@@ -62,34 +63,34 @@ config['main'] = function (mode) {
             //module.noParse 配置哪些文件可以脱离webpack的解析
             noParse: noparse,
             rules: [{
-                test: /\.ts?$/,
-                use: [{
-                    loader: 'ts-loader',
-                    options: {
-                        transpileOnly: true,
-                        configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
-                    }
-                }],
-                exclude: /node_modules/
-            },
+                    test: /\.ts?$/,
+                    use: [{
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: true,
+                            configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
+                        }
+                    }],
+                    exclude: /node_modules/
+                },
 
-            // {
-            //     test: /\.js?$/,
-            //     use: {
-            //         loader: 'babel-loader?cacheDirectory=true',
-            //         options: {
-            //             presets: ['env']
-            //         }
-            //     },
-            //     exclude: /node_modules/,
-            //     include: /app\/main/
-            // },
-            {
-                test: /\.json$/,
-                use: [{
-                    loader: "json-loader"
-                }]
-            }
+                // {
+                //     test: /\.js?$/,
+                //     use: {
+                //         loader: 'babel-loader?cacheDirectory=true',
+                //         options: {
+                //             presets: ['env']
+                //         }
+                //     },
+                //     exclude: /node_modules/,
+                //     include: /app\/main/
+                // },
+                {
+                    test: /\.json$/,
+                    use: [{
+                        loader: "json-loader"
+                    }]
+                }
             ]
         },
         plugins: [
@@ -115,7 +116,7 @@ config['renderer'] = function (mode) {
         output: {
             filename: 'js/bundle.js',
             path: resolve(__dirname, '../dist/renderer'),
-            publicPath: 'http://localhost:3000/'
+            publicPath: './'
         },
         mode: mode,
         resolve: {
@@ -141,25 +142,25 @@ config['renderer'] = function (mode) {
                 {
                     test: /\.vue$/,
                     use: [{
-                        loader: 'vue-loader',
-                        options: {
-                            loaders: {
-                                // Customize to your liking
-                                js: 'babel-loader',
-                                scss: [
-                                    'style-loader',
-                                    'css-loader',
-                                    'sass-loader'
-                                ]
+                            loader: 'vue-loader',
+                            options: {
+                                loaders: {
+                                    // Customize to your liking
+                                    js: 'babel-loader',
+                                    scss: [
+                                        'style-loader',
+                                        'css-loader',
+                                        'sass-loader'
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            loader: 'iview-loader',
+                            options: {
+                                prefix: false
                             }
                         }
-                    },
-                    {
-                        loader: 'iview-loader',
-                        options: {
-                            prefix: false
-                        }
-                    }
                     ]
 
                 },
@@ -210,41 +211,41 @@ config['renderer'] = function (mode) {
                 {
                     test: /\.(png|jpg|gif)$/i,
                     use: [{
-                        loader: "url-loader",
-                        query: {
-                            name: 'images/[name].[ext]?v=[hash:5]',
-                            limit: 20000
-                        }
-                    }, {
-                        loader: 'image-webpack-loader',
-                        options: {
+                            loader: "url-loader",
                             query: {
-                                mozjpeg: {
-                                    progressive: true,
-                                    quality: 65
-                                },
-                                pngquant: {
-                                    quality: "10-20",
-                                    speed: 4
-                                },
-                                svgo: {
-                                    plugins: [{
-                                        removeViewBox: false
-                                    }, {
-                                        removeEmptyAttrs: false
-                                    }]
-                                },
-                                gifsicle: {
-                                    optimizationLevel: 7,
-                                    interlaced: false
-                                },
-                                optipng: {
-                                    optimizationLevel: 7,
-                                    interlaced: false
+                                name: 'images/[name].[ext]?v=[hash:5]',
+                                limit: 20000
+                            }
+                        }, {
+                            loader: 'image-webpack-loader',
+                            options: {
+                                query: {
+                                    mozjpeg: {
+                                        progressive: true,
+                                        quality: 65
+                                    },
+                                    pngquant: {
+                                        quality: "10-20",
+                                        speed: 4
+                                    },
+                                    svgo: {
+                                        plugins: [{
+                                            removeViewBox: false
+                                        }, {
+                                            removeEmptyAttrs: false
+                                        }]
+                                    },
+                                    gifsicle: {
+                                        optimizationLevel: 7,
+                                        interlaced: false
+                                    },
+                                    optipng: {
+                                        optimizationLevel: 7,
+                                        interlaced: false
+                                    }
                                 }
                             }
                         }
-                    }
 
                     ]
                 }, {
@@ -269,7 +270,7 @@ config['renderer'] = function (mode) {
         plugins: [
             //热更新
             new webpack.optimize.OccurrenceOrderPlugin(),
-            new webpack.HotModuleReplacementPlugin(),
+            // new webpack.HotModuleReplacementPlugin(),
             new webpack.NamedModulesPlugin(),
             new VueLoaderPlugin(),
             //html模板
@@ -312,35 +313,35 @@ config['client'] = function (mode) {
             //module.noParse 配置哪些文件可以脱离webpack的解析
             noParse: noparse,
             rules: [{
-                test: /\.ts?$/,
-                use: [{
-                    loader: 'ts-loader',
-                    options: {
-                        transpileOnly: true,
-                        configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
-                    }
-                }],
-                exclude: /node_modules/,
-                include: [path.resolve(__dirname, '../app/renderer')]
-            },
-
-            {
-                test: /\.js?$/,
-                use: {
-                    loader: 'babel-loader?cacheDirectory=true',
-                    options: {
-                        presets: ['env']
-                    }
+                    test: /\.ts?$/,
+                    use: [{
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: true,
+                            configFile: path.resolve(__dirname, '../app/main/tsconfig.json')
+                        }
+                    }],
+                    exclude: /node_modules/,
+                    include: [path.resolve(__dirname, '../app/renderer')]
                 },
-                exclude: /node_modules/,
-                include: [path.resolve(__dirname, '../app/renderer')]
-            },
-            {
-                test: /\.json$/,
-                use: [{
-                    loader: "json-loader"
-                }]
-            }
+
+                {
+                    test: /\.js?$/,
+                    use: {
+                        loader: 'babel-loader?cacheDirectory=true',
+                        options: {
+                            presets: ['env']
+                        }
+                    },
+                    exclude: /node_modules/,
+                    include: [path.resolve(__dirname, '../app/renderer')]
+                },
+                {
+                    test: /\.json$/,
+                    use: [{
+                        loader: "json-loader"
+                    }]
+                }
             ]
         },
         plugins: [

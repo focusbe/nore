@@ -9,7 +9,7 @@
       </li>
       <li>
         <Button type="primary" @click="showprojectadd">
-          <Icon type="ios-add-circle" :size="24"/>
+          <Icon type="ios-add-circle" :size="30"/>
         </Button>
       </li>
     </ul>

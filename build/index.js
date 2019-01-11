@@ -1,7 +1,9 @@
 const webpack = require("webpack");
 const UI = require("readline-ui");
 const ui = new UI();
-const BrowserSync = require("browser-sync");
+const {
+    resolve
+} = require('path');
 const chalk = require("chalk");
 const {
     deleteFolder,
@@ -10,6 +12,11 @@ const {
 } = require("./util");
 const getConfig = require("./webpack.config");
 const ProgressPlugin = require("webpack/lib/ProgressPlugin");
+const WebpackDevServer = require('webpack-dev-server');
+var net = require('net')
+
+// 获取一个可用的端口
+// 执行
 class Build {
     constructor(mode) {
         this.names = {
@@ -24,93 +31,92 @@ class Build {
         };
         this.compilers = {};
         this.mode = mode;
+        this.progress = {
+
+        };
         this.electronPro = null;
+    }
+    getReadyPortFrom(port, cb, times) {
+        var self = this;
+        if (!times) {
+            times = 0;
+        }
+        var server = net.createServer().listen(port)
+        server.on('listening', function () {
+            server.close()
+            cb(port)
+        })
+        server.on('error', function (err) {
+            if (err.code === 'EADDRINUSE') {
+                if (times < 10) {
+                    times++;
+                    port += 2;
+                    self.getReadyPortFrom(port, cb, times);
+                } else {
+                    cb(false)
+                }
+            }
+        })
     }
     async run() {
         var self = this;
         try {
             deleteFolder("./dist");
             deleteFolder("./output");
-            var browser = await self.startserver();
-            //console.log(browser.get('server'));
-            var localurl = browser.options.getIn(["urls", "local"]) + '/';
-            
-            if(self.mode=='development'){
+        } catch {
+            console.log('删除打包文件失败');
+        }
+        try {
+            if (self.mode == 'development') {
+                var devPort = await new Promise(function (result, reject) {
+                    self.getReadyPortFrom(3000, function (port) {
+                        result(port);
+                    });
+                });
+                if (!devPort) {
+                    console.log(chalk.red('获取可用端口失败'));
+                    return;
+                }
+                var localurl = 'http://127.0.0.1:' + devPort + '/';
+                console.log(chalk.green('获取可用端口成功'));
+                var oldentry = this.configs['renderer'].entry['app'];
+                this.configs['renderer']['entry']['app'] = oldentry.concat(['webpack-dev-server/client?' + localurl, 'webpack/hot/dev-server']);
+                this.configs['renderer'].plugins = (this.configs['renderer'].plugins || []).concat([
+                    new webpack.HotModuleReplacementPlugin(),
+                ]);
+                this.configs['renderer'].output.publicPath = localurl;
                 this.configs['main'].externals.push(
-                    function(context, request, callback) {
-                        if (request=='_serverurl') {
-                            return callback(null,'"'+localurl+'"');
+                    function (context, request, callback) {
+                        if (request == '_serverurl') {
+                            return callback(null, '"' + localurl + '"');
                         }
                         callback();
                     }
                 );
-                this.configs['renderer'].output.publicPath = localurl;
             }
-            
-            var renwebpack = await this.webpack('renderer', function (res) {
-                if (res && self.mode == 'development') {
-                    console.log(chalk.green('刷新页面'));
-                    self.browsersync.reload();
-                }
-            });
-            // var clientpack = await this.webpack('client', function (res) {
-            //     if (res && self.mode == 'development') {
-            //         BrowserSync.reload();
-            //     }
-            // })
-            var mainwebpack = await this.webpack('main', function (res) {
-                if (res && self.mode == 'development') {
-                    console.log(chalk.green('启动客户端'));
-                    setTimeout(self.startElectron, 2000);
-                }
-            });
-            // await ui.pause();
-            if (mode == "production") {
+            var renwebpack = await this.webpack('renderer');
+            var mainwebpack = await this.webpack('main');
+            if (self.mode == 'development') {
+                await this.startserver(renwebpack, devPort);
+                await this.addWatch(mainwebpack, function (res) {
+                    if (res && self.mode == 'development') {
+                        console.log(chalk.green('启动客户端'));
+                        setTimeout(self.startElectron, 2000);
+                    }
+                });
+            } else {
+                await this.runWebpack(renwebpack);
+                await this.runWebpack(mainwebpack);
                 await this.builder();
             }
         } catch (error) {
             console.log(error);
         }
     }
-    addWatch(packobj, cb) {
-        console.log('开始监听');
-        var renwatching = packobj.watch({
-            aggregateTimeout: 300,
-            ignored: /node_modules|dist|output/
-        }, (err, stats) => {
-            if (err || stats.hasErrors()) {
-                let error =
-                    err ||
-                    stats.toString({
-                        colors: true
-                    });
-                // 在这里处理错误
-                process.stdout.write(error + "\n");
-                cb(false, error);
-            } else {
-                cb(true);
-            }
-        });
-    }
-    webpack(target, onChange, onOptions) {
-        var self = this;
-        let name = this.names[target];
-        let config = this.configs[target];
+    runWebpack(packobj) {
         return new Promise(function (result, reject) {
-            let compiler = webpack(config);
-            self.compilers[target] = compiler;
-            compiler.apply(
-                new ProgressPlugin(function (percentage, msg) {
-                    ui.render(
-                        name +
-                        "：" +
-                        chalk.green(parseInt(percentage * 100) + "%")
-                    );
-                })
-            );
-            console.log(chalk.blue("------开始打包" + name + "-------"));
-            compiler.watch({
-                ignored: /node_modules/
+            packobj.run({
+                ignored: /node_modules|dist|output/
             }, (err, stats) => {
                 let res = true;
                 if (err || stats.hasErrors()) {
@@ -121,55 +127,96 @@ class Build {
                         });
                     // 在这里处理错误
                     process.stdout.write(error + "\n");
-                    reject(error);
-                    res = false;
+                    result(false);
                 } else {
-
-
                     console.log(
                         stats.toString({
                             colors: true
                         })
                     );
                     console.log(
-                        chalk.green("------" + name + "打包完成-------")
+                        chalk.green("------打包完成-------")
                     );
-                    result(compiler);
+                    result(true);
                 }
-                if (typeof (onChange) == 'function') {
-                    onChange(res);
-                }
-                // 处理完成
-            });
+            })
         });
     }
-    startserver() {
+    addWatch(packobj, onChange) {
+        packobj.watch({
+            ignored: /node_modules|dist|output/
+        }, (err, stats) => {
+            let res = true;
+            if (err || stats.hasErrors()) {
+                let error =
+                    err ||
+                    stats.toString({
+                        colors: true
+                    });
+                // 在这里处理错误
+                process.stdout.write(error + "\n");
+                res = false;
+            } else {
+                console.log(
+                    stats.toString({
+                        colors: true
+                    })
+                );
+                console.log(
+                    chalk.green("------打包完成-------")
+                );
+            }
+            if (typeof (onChange) == 'function') {
+                onChange(res);
+            }
+        })
+    }
+    printProgress() {
+        var progressStr = '';
+        for (var i in this.progress) {
+            progressStr += this.names[i] +
+                "：" +
+                chalk.green(this.progress[i]) + '       ';
+        }
+        ui.render(progressStr);
+    }
+    webpack(target, onChange) {
+        var self = this;
+        let config = this.configs[target];
+        return new Promise(function (result, reject) {
+            try {
+                let compiler = webpack(config);
+                self.compilers[target] = compiler;
+                compiler.apply(
+                    new ProgressPlugin(function (percentage, msg) {
+                        self.progress[target] = parseInt(percentage * 100) + "%";
+                        self.printProgress();
+                    })
+                );
+                result(compiler);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    }
+    startserver(compiler, port) {
         var self = this;
         if (!!self.browsersync) {
             self.browsersync.reload();
         }
         return new Promise(function (result, reject) {
-            let browsersync = BrowserSync.create('server');
-            self.browsersync = browsersync;
-            try {
-                browsersync.init({
-                    server: {
-                        baseDir: self.configs["renderer"].output.path,
-                        index: "index.html",
+            let server = new WebpackDevServer(compiler, {
+                hot: true,
+                contentBase: resolve(__dirname, '../dist/renderer/'),
+                publicPath: '/',
+                // port: '3000',
+                writeToDisk: true
+            });
+            server.listen(port, "localhost", function () {
 
-                    },
-                    open: false
-                },
-                    function (error, bs) {
-                        if (!!error) {
-                            reject(null);
-                        }
-                        result(bs);
-                    }
-                );
-            } catch (error) {
-                reject(null);
-            }
+                console.log('Listening at http://127.0.0.1:' + port);
+                result(server);
+            })
         });
     }
     startElectron() {
