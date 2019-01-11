@@ -2,7 +2,7 @@ const webpack = require("webpack");
 const UI = require("readline-ui");
 const ui = new UI();
 ui.rl.on('SIGINT', function(){
-    console.log('再次按Ctrl+C退出');
+    console.log(chalk.yellow('再次按Ctrl+C退出'));
 });
 const {
     resolve
@@ -81,7 +81,7 @@ class Build {
                     return;
                 }
                 var localurl = 'http://127.0.0.1:' + devPort + '/';
-                console.log(chalk.green('获取可用端口成功'));
+                console.log(chalk.green(devPort+'端口可用'));
                 var oldentry = this.configs['renderer'].entry['app'];
                 this.configs['renderer']['entry']['app'] = oldentry.concat(['webpack-dev-server/client?' + localurl, 'webpack/hot/dev-server']);
                 this.configs['renderer'].plugins = (this.configs['renderer'].plugins || []).concat([
