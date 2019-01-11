@@ -1,6 +1,9 @@
 const webpack = require("webpack");
 const UI = require("readline-ui");
 const ui = new UI();
+ui.rl.on('SIGINT', function(){
+    console.log('再次按Ctrl+C退出');
+});
 const {
     resolve
 } = require('path');
