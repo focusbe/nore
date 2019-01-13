@@ -6,16 +6,16 @@ import Configs from './configs';
 
 var juicer = require("juicer");
 var babelify = require("babelify");
-import Files from'./files';
+import Files from './files';
 class Projects {
-    constructor() {}
+    constructor() { }
     static getlist(callback) {
-        if(!Configs.getItem('workshop')){
-            callback(false,'没有设置workshop');
+        if (!Configs.getItem('workshop')) {
+            callback(false, '没有设置workshop');
             console.log('没有设置workshop');
             return;
         }
-        var workshopdir = path.resolve(__dirname ,'/'+Configs.getItem('workshop'));
+        var workshopdir = path.resolve(Configs.getItem('workshop'));
         Files.createdir(workshopdir, function () {
             Files.getList(workshopdir, callback);
         });
@@ -37,7 +37,7 @@ class Projects {
         callback(result);
     }
     static getTempList(callback) {
-        var tempdir = __dirname + "/../template";
+        var tempdir = path.resolve(__dirname , "../../template");
         Files.createdir(tempdir, function () {
             Files.getList(tempdir, callback);
         });
@@ -116,53 +116,59 @@ class Project {
             return result;
         }
         var self = this;
-        Files.copy(
-            path.join(__dirname, "../template/" + this.config.template + "/"),
-            path.join(
-                __dirname,
-                "../" + Config.getItem('workshop') + "/" + this.config.actname
-            ),
-            function (err) {
-                if (!err) {
-                    jsonfile.writeFile(
-                        path.join(
-                            __dirname,
-                            "../" +
-                            Config.getItem('workshop') +
-                            "/" +
-                            self.config.actname +
-                            "/config.json"
-                        ),
-                        self.config, {
-                            spaces: 2
-                        },
-                        function (err) {
-                            if (!err) {
-                                result.msg = "创建配置文件失败";
-                                result.ret = -1;
-                                callback(result);
-                                return;
-                            } else {
-                                result.msg = "成功";
-                                result.ret = 1;
-                                callback(result);
-                                return;
+        try {
+            console.log(path.resolve(__dirname, "../../template/" + this.config.template + "/"))
+            console.log(path.resolve(Configs.getItem('workshop'),this.config.actname));
+        } catch (error) {
+            console.log(error);
+        }
+        try {
+            Files.copy(
+                path.resolve(__dirname, "../../template/" + this.config.template + "/"),
+                path.resolve(Configs.getItem('workshop'),this.config.actname),
+                function (err) {
+                    if (!err) {
+                        jsonfile.writeFile(
+                            path.join(
+                                Configs.getItem('workshop') +
+                                "/" +
+                                self.config.actname +
+                                "/config.json"
+                            ),
+                            self.config, {
+                                spaces: 2
+                            },
+                            function (err) {
+                                if (!err) {
+                                    result.msg = "创建配置文件失败";
+                                    result.ret = -1;
+                                    callback(result);
+                                    return;
+                                } else {
+                                    result.msg = "成功";
+                                    result.ret = 1;
+                                    callback(result);
+                                    return;
+                                }
                             }
-                        }
-                    );
-                } else {
-                    result.msg = "复制文件失败";
-                    result.ret = -1;
-                    callback(result);
-                    return result;
+                        );
+                    } else {
+                        result.msg = "复制文件失败";
+                        result.ret = -1;
+                        callback(result);
+                        return result;
+                    }
                 }
-            }
-        );
+            );
+        } catch (error) {
+            console.log(error);
+        }
+        
     }
 
-    delete() {}
-    isexit() {}
-    save() {}
+    delete() { }
+    isexit() { }
+    save() { }
     saveMain(main, callback) {
         if (main) {
             var result = jsonfile.writeFileSync(this.path + "main.json", main);
@@ -171,7 +177,7 @@ class Project {
             callback(false);
         }
     }
-    saveHtml(canvasHtml, callback) {}
+    saveHtml(canvasHtml, callback) { }
     saveLogic(logic, callback) {
         if (logic) {
             var result = jsonfile.writeFileSync(
@@ -268,10 +274,10 @@ class Project {
             });
         });
     }
-    runCmd() {}
-    commitSvn() {}
-    uploadToDev() {}
-    addWorkTime() {}
+    runCmd() { }
+    commitSvn() { }
+    uploadToDev() { }
+    addWorkTime() { }
 }
 export {
     Project,

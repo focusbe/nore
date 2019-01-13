@@ -118,7 +118,7 @@ class vnode {
                 curView.props[i]['default'] = null;
             }
             props[i] = curView.props[i]['default'];
-        }
+        }  
         this.styles = Object.assign(styles,this.styles);
         this.props = Object.assign(props,this.props);
     }

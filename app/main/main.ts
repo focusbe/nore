@@ -19,6 +19,7 @@ class Main {
         app.on("window-all-closed", function() {
             if (process.platform !== "darwin") {
                 app.quit();
+                app.exit();
             }
         });
         app.on("activate", function() {
@@ -34,7 +35,7 @@ class Main {
         if(DEBUG){
             
             fs.watch(__filename,function(event:any,filename:any){
-                
+                app.exit();
                 app.quit();
             });
         }

@@ -31,6 +31,8 @@ class MySocket {
         }
     }
     public on(event: string, callback: Function) {
+        console.log('绑定事件',event);
+        console.log(this.callbacks);
         this.callbacks[event] = callback;
     }
     private constructor() {

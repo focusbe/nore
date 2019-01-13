@@ -1,48 +1,32 @@
 <template id="template">
   <div class="page_wrap">
     <ul class="project_list">
-      <li
-        v-for="(item,key) in projectList"
-        v-bind:key="key"
-      >
+      <li v-for="(item,key) in projectList" v-bind:key="key">
         <a @click="projectEdit(key)">
-          <img
-            src="images/bg.jpg"
-            alt
-          >
+          <img src="../images/bg.jpg" alt>
           <p>{{key}}</p>
         </a>
       </li>
       <li>
-        <Button
-          type="primary"
-          @click="showprojectadd"
-        >
-          <Icon
-            type="ios-add-circle"
-            :size="30"
-          />
+        <Button type="primary" @click="showprojectadd">
+          <Icon type="ios-add-circle" :size="30"/>
         </Button>
       </li>
     </ul>
-    <newproject
-      ref="projectForm"
-      @ok="newprojectok"
-    ></newproject>
-    <editconfig
-      ref="configform"
-      @ok="editconfigok"
-    ></editconfig>
+    <newproject ref="projectForm" @ok="newprojectok"></newproject>
+    <editconfig ref="configform" @ok="editconfigok"></editconfig>
   </div>
 </template>
 <script>
 import Vue from "vue";
 import newproject from "../componets/newproject.vue";
 import editconfig from "../componets/editconfig.vue";
-const {Projects,Project,Files} = require('../../libs/project');
-import Configs from '../../libs/configs';
+const { Projects, Project, Files } = require("../../libs/project");
+import Configs from "../../libs/configs";
+import mySocket from "../utli/mysocket";
 Vue.component("newproject", newproject);
 Vue.component("editconfig", editconfig);
+
 export default {
   name: "home",
   data() {
@@ -50,18 +34,14 @@ export default {
       projectList: {}
     };
   },
-  mounted(){
-    if(!Configs.getItem('workshop')){
+  mounted() {
+    if (!Configs.getItem("workshop")) {
       this.showEditConfig();
-    }
-    else{
+    } else {
       this.getProjects();
     }
-    
   },
-  created: function() {
-    
-  },
+  created: function() {},
   methods: {
     getProjects: function() {
       var self = this;
@@ -77,17 +57,15 @@ export default {
       //return false;
       this.getProjects();
     },
-    showEditConfig(){
+    showEditConfig() {
       this.$refs.configform.show();
     },
-    editconfigok(){
-
-    },
+    editconfigok() {},
     showprojectadd: function() {
       this.$refs.projectForm.show();
     },
     projectEdit: function(id) {
-      Socket.sendTo("MAIN", "open", {
+      mySocket.sendTo("MAIN", "open", {
         tag: "project_edit_" + id,
         hash: "#/project/edit?actname=" + id
       });

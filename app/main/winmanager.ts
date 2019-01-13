@@ -5,12 +5,14 @@ const electron = require("electron");
 const BrowserWindow = electron.BrowserWindow;
 const url = require("url");
 const path = require("path");
+import mySocket from './mySocket';
 import { DEBUG, isproduct } from "../libs/env";
 if (!isproduct) {
     var serverurl: string = require("_serverurl").replace("http://", "");
 }
+
 class WinManager {
-    private static defaultWindow: { [key: string]: any } = {
+    private defaultWindow: { [key: string]: any } = {
         width: 1000,
         height: 800,
         frame: true,
@@ -21,41 +23,56 @@ class WinManager {
         titleBarStyle: "hidden",
         backgroundColor: "#3c3c3c"
     };
-    public static winCache: { [key: string]: any } = {};
-    constructor() {}
-    static newwindow(
+    public winCache: { [key: string]: any } = {};
+    private constructor() {
+        var self = this;
+        mySocket.on('open', function (data: any) {
+            console.log('打开页面事件');
+            console.log('参数为');
+            console.log(data);
+            self.newwindow(data.tag, '', data);
+        });
+    }
+    private static instance = new WinManager();
+    static getInstance(): WinManager {
+        return WinManager.instance
+    }
+    public newwindow(
         tag: string,
-        src: string = "",
+        src: string = "index.html",
         config: { [key: string]: any } = {}
     ) {
         var self = this;
         for (var i in config) {
             this.defaultWindow[i] = config[i];
         }
-
+        if(!src){
+            src = 'index.html';
+        }
         if (!this.winCache[tag]) {
-            if (!src) {
-                return;
-            }
+            // if (!src) {
+            //     return;
+            // }
             self.winCache[tag] = new BrowserWindow(config);
 
-            self.winCache[tag].once("ready-to-show", function() {
+            self.winCache[tag].once("ready-to-show", function () {
                 let hwnd = self.winCache[tag].getNativeWindowHandle(); //获取窗口句柄。
                 self.winCache[tag].show();
                 if (typeof config.onShow == "function") {
                     config.onShow();
                 }
             });
-            self.winCache[tag].webContents.on("dom-ready", function() {
+            self.winCache[tag].webContents.on("dom-ready", function () {
                 self.winCache[tag].webContents.executeJavaScript(
                     'window.WINDOWTAG="' + tag + '"'
                 );
             });
+            console.log(this.getUrl(src, config));
             self.winCache[tag].loadURL(this.getUrl(src, config));
             if (DEBUG) {
                 this.winCache[tag].webContents.openDevTools();
             }
-            self.winCache[tag].on("closed", function() {
+            self.winCache[tag].on("closed", function () {
                 if (typeof config.onClose == "function") {
                     config.onClose();
                 }
@@ -68,13 +85,13 @@ class WinManager {
         }
         // and load the index.html of the app.
     }
-    static closeAll() {
+    closeAll() {
         for (var i in this.winCache) {
             this.winCache[i].webContents.closeDevTools();
             this.winCache[i].close();
         }
     }
-    static getUrl(src: string, config: { [key: string]: any }) {
+    getUrl(src: string = 'index.html', config: { [key: string]: any }) {
         let search = config.search || "";
         let hash = config.hash || "";
         let cururl: string;
@@ -93,5 +110,5 @@ class WinManager {
         return cururl;
     }
 }
-
-export default WinManager;
+const winManager = WinManager.getInstance();
+export default winManager;
