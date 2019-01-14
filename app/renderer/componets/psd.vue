@@ -33,7 +33,9 @@ import Configs from "libs/configs";
 import Files from "libs/files";
 const PSD = require("psd");
 import path from "path";
-
+import aRemote from "libs/aremote";
+console.log(aRemote);
+aRemote.require(path.resolve(__dirname,'../../libs/psd.js'));
 export default {
 	name: "my-psd",
 	computed: {},
