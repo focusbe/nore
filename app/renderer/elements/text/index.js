@@ -1,6 +1,6 @@
 import createview from '../createview';
 var container =  createview({
-    icon:'document-text',
+    icon:'md-text',
     label:'文字',
     name:'text',
     defaultStyle:{

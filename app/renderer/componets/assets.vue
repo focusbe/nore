@@ -11,8 +11,10 @@
 </template>
 <style lang="scss" scoped>
 	.filelist{
+		max-height: 200px;
+		overflow: auto;
 		li{
-
+			
 		}
 	}
 </style>

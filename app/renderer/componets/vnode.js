@@ -191,7 +191,12 @@ class vnode {
                     }
 
             }
-            
+            for(var i in styles){
+                if(!isNaN(styles[i])){
+                    if(i=='left'||i=='top'||i=='width'||i=='height')
+                    styles[i] = styles[i]+'px';
+                }
+            }
             console.log(styles);
             return styles;
         }

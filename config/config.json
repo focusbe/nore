@@ -1,11 +1,11 @@
 {
   "devpath": {
     "name": "测试目录",
-    "value": "/Users/liu/www"
+    "value": "\\\\192.168.150.116\\common"
   },
   "workshop": {
     "name": "工作区目录",
-    "value": "/Users/liu/www/workshop"
+    "value": "D:\\www\\workshop"
   },
   "svnFolders": {
     "name": "svn代码目录",
@@ -13,7 +13,7 @@
   },
   "gitFolders": {
     "name": "git代码目录",
-    "value": ""
+    "value": "D:\\www\\ztgamegit"
   },
   "svnClient": {
     "name": "乌龟SVN安装目录",

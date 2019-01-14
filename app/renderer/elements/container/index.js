@@ -1,7 +1,7 @@
 import createview from '../createview';
 
 var container =  createview({
-    icon:'ios-box',
+    icon:'ios-cube',
     label:'容器',
     name:'container',
     styles:{

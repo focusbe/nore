@@ -13,14 +13,15 @@
 				</ul>
 			</div>
 			<br>
-			<br>
 			<div class="options_section">
 				<h2>素材</h2>
 				<assets :actname="actname"></assets>
 			</div>
-
 			<br>
-			<br>
+			<div class="options_section">
+				<h2>PSD</h2>
+				<my-psd :actname="actname" @savedesign="savedesign" @finish="psdfinish"></my-psd>
+			</div>
 			<div class="options_section">
 				<h2>节点数</h2>
 				<ul class="element_list"></ul>
@@ -78,10 +79,12 @@ import Options from "../../componets/options.vue";
 import stylesPanels from "../../componets/panels/styles.vue";
 import { Project } from "../../../libs/project";
 import Assets from "../../componets/assets";
+import PSD from "../../componets/psd";
 Vue.component("my-options", Options);
 Vue.component("styles-panel", stylesPanels);
 Vue.component("my-canvas", Canvas);
 Vue.component("assets", Assets);
+Vue.component("my-psd", PSD);
 export default {
 	name: "project_edit",
 	data() {
@@ -103,8 +106,8 @@ export default {
 					height: "1080px"
 				},
 				phone: {
-					width: "640px",
-					height: "1008px"
+					width: "750px",
+					height: "90%"
 				},
 				pad: {
 					width: "1024px",
@@ -118,7 +121,6 @@ export default {
 		var self = this;
 		//console.log(this.$route);
 		this.actname = this.$route.query.actname;
-
 		var project = new Project(this.actname);
 		this.project = project;
 		// Server.start(function(res) {
@@ -179,6 +181,12 @@ export default {
 	},
 
 	methods: {
+		psdfinish(vnodetree){
+			this.$refs.canvas.initFromTree(vnodetree);
+		},
+		savedesign(){
+
+		},
 		onCanvasChange: function(event, params) {
 			switch (event) {
 				case "root":
@@ -189,11 +197,11 @@ export default {
 					this.setPanles(params);
 			}
 		},
-		beforeupload(file) {
-			alert(1);
-			console.log(file);
-			return false;
-		},
+		// beforeupload(file) {
+		// 	alert(1);
+		// 	console.log(file);
+		// 	return false;
+		// },
 		addAssets() {},
 		changeDevice: function(device) {
 			this.curdevice = device;
@@ -217,6 +225,7 @@ export default {
 			}
 		},
 		addView: function(viewData) {
+			console.log(viewData);
 			this.$refs.canvas.addVnode(viewData);
 		},
 

@@ -27,12 +27,13 @@ class Files {
 
     }
     static async createdirAsync(src) {
-        let exists = fse.exists(src);
+        let exists = await fse.exists(src);
         if (exists) {
             return true;
         }
         var res = await new Promise(function (result, reject) {
             fse.mkdir(src, function (err) {
+                console.log(src);
                 if (!err)
                     result(true);
 
@@ -174,5 +175,5 @@ class Files {
         });
     }
 }
-// export default Files;
-module.exports = Files;
+export default Files;
+// module.exports = Files;

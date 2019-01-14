@@ -10,16 +10,43 @@ var curviewObj = null;
 // const renderer = require("vue-server-renderer").createRenderer();
 export default {
     data: {
-        vnodeData: [],
         curvnode: null,
         rootvnode: null
     },
     created: function() {
-        this.rootvnode = new vnode("root", null, null);
+        this.rootvnode = new vnode("root", {overflow:'auto'}, null);
         this.curvnode = this.rootvnode;
         this.$emit("onChange", "curvnode", this.curvnode);
     },
+    
     methods: {
+        initFromTree(tree){
+            // console.log(tree);
+            this.curvnode = this.rootvnode;
+            this.rootvnode.childrens = [];
+            this.addTreenodes(tree);
+            this.refresh();
+            // console.log(this.rootvnode);
+        },
+        addTreenodes(treenodes,curvnode){
+            if(!curvnode){
+                curvnode = this.curvnode;
+            }
+            var curnode;
+            for(var i in treenodes.reverse()){
+                curnode = treenodes[i];
+                console.log(viewObj[curnode.view]);
+                var newnode = new vnode(viewObj[curnode.view], curnode.styles, curnode.props);
+                curvnode.push(newnode);
+                if(!!curnode.childrens&&curnode.childrens.length>0){
+                    this.addTreenodes(curnode.childrens,newnode);
+                }
+            }
+            
+            // this.changeCurVnode(newnode);
+            // this.$emit("onChange", "root", this.rootvnode);
+            // this.$emit("onChange", "curvnode", this.curvnode);
+        },
         addVnode: function(viewdata) {
             var newnode = new vnode(viewdata, null, null);
             this.curvnode.push(newnode);
@@ -85,18 +112,22 @@ export default {
             var _this = this;
             var body = $("body")[0];
             body.addEventListener("mousemove", function(event) {
+                event.preventDefault();
                 _this.mouseMove(event);
                 event.cancelBubble = true;
             });
             body.addEventListener("mouseup", function(event) {
+                event.preventDefault();
                 _this.mouseUp(event);
                 event.cancelBubble = true;
             });
         },
         changeMouseStyle: function(event, curusor) {
+            event.preventDefault();
             $(event.target).css("cursor", curusor);
         },
         mouseDown: function(event, vnode) {
+            event.preventDefault();
             this.changeMouseStyle(event, "move");
             this.isdmousedown = true;
             this.startPos = new Position(event.clientX, event.clientY);
@@ -135,6 +166,7 @@ export default {
             return xNum + (yNum - 1) * 3;
         },
         mouseUp: function(event) {
+            event.preventDefault();
             this.isDrage = false;
             this.isdmousedown = false;
             if (!this.isdmousedown) {
@@ -147,6 +179,7 @@ export default {
             // this.movePosition(this.delta);
         },
         mouseMove: function(event) {
+            event.preventDefault();
             var posAreanum = this.incorner(event);
             switch (posAreanum) {
                 case 5:

@@ -1,7 +1,7 @@
 import createview from '../createview';
 
 var container =  createview({
-    icon:'images',
+    icon:'ios-albums',
     label:'幻灯片',
     name:'swiper',
     defaultStyle:{

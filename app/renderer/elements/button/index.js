@@ -1,7 +1,7 @@
 import createview from '../createview';
 var Button = createview({
     tagName: 'a',
-    icon: 'link',
+    icon: 'ios-link',
     label: '按钮',
     name: 'my-button',
     props: {

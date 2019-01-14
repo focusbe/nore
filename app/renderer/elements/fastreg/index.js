@@ -1,7 +1,7 @@
 import createview from '../createview';
 
 var container =  createview({
-    icon:'person-add',
+    icon:'md-person-add',
     label:'快速注册',
     name:'fastreg',
     defaultStyle:{
