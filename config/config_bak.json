@@ -5,7 +5,7 @@
   },
   "workshop": {
     "name": "工作区目录",
-    "value": "D:\\www\\workshop"
+    "value": "/Users/liu/www/workshop"
   },
   "svnFolders": {
     "name": "svn代码目录",
@@ -13,7 +13,7 @@
   },
   "gitFolders": {
     "name": "git代码目录",
-    "value": "D:\\www\\ztgamegit"
+    "value": ""
   },
   "svnClient": {
     "name": "乌龟SVN安装目录",

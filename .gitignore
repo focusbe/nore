@@ -6,3 +6,5 @@ package-lock.json
 dist/
 output/
 yarn-error.log
+config/config.json
+config/config.json

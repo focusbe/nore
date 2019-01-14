@@ -128,6 +128,7 @@ export default {
         },
         mouseDown: function(event, vnode) {
             event.preventDefault();
+            event.stopPropagation();
             this.changeMouseStyle(event, "move");
             this.isdmousedown = true;
             this.startPos = new Position(event.clientX, event.clientY);

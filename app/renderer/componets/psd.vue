@@ -100,8 +100,8 @@ export default {
 						curview.styles = {
 							width: curnode.get("width"),
 							height: curnode.get("height"),
-							x: curnode.get("left") - curnode.parent.styles.x,
-							y: curnode.get("top") - curnode.parent.styles.y,
+							x: curnode.get("left") - curnode.parent.get('left'),
+							y: curnode.get("top") - curnode.parent.get('top'),
 							position:'absolute'
 						};
 						
