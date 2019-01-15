@@ -10,4 +10,16 @@ class aRemote{
         return libobject;
     }
 }
+class aRemoteMain{
+    private static instance:aRemoteMain
+    static getInstance(): aRemoteMain {
+        if (!aRemoteMain.instance) {
+            aRemoteMain.instance = new aRemoteMain()
+        }
+        return this.instance
+    }
+    constructor(){
+        
+    }
+}
 export default aRemote

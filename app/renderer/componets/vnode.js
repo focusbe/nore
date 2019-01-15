@@ -218,6 +218,7 @@ class vnode {
                     isoptioning:!!this.isoptioning
                 },
                 attrs: {
+                    class:this.props.className||"",
                     id: this.domid
                 },
                 nativeOn: {

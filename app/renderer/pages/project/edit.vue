@@ -29,13 +29,13 @@
 		</div>
 		<div class="top_options_bar">
 			<Button @click="changeDevice('pc')" type="primary">
-				<Icon type="laptop" size="30" color/>
+				<Icon type="ios-laptop" size="30" color/>
 			</Button>
-			<Button @click="changeDevice('pad')" type="primary">
+			<!-- <Button @click="changeDevice('pad')" type="primary">
 				<Icon type="ipad" size="30" color/>
-			</Button>
+			</Button> -->
 			<Button @click="changeDevice('phone')" type="primary">
-				<Icon type="iphone" size="30" color/>
+				<Icon type="ios-phone-portrait" size="30" color/>
 			</Button>
 
 			<Button @click="preview" type="primary">
