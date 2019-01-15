@@ -5,7 +5,6 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const nodeExternals = require('webpack-node-externals');
-var ExtractTextPlugin = require("extract-text-webpack-plugin")
 const path = require('path')
 //判断当前运行环境是开发模式还是生产模式
 var config = {};
@@ -29,9 +28,9 @@ externalDev = nodeExternals({
 
 function noparse(content) {
     //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
-    // if(content.indexOf('main\\libs')>-1){
-    //     return true;
-    // }
+    if(content.indexOf('app\\libs')>-1){
+        return false;
+    }
     // for (var i in packagejson['dependencies']) {
 
     //     if(content.indexOf('node_modules\\'+i)>-1){
