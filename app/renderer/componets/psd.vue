@@ -73,8 +73,12 @@ export default {
 			var self = this;
 			try {
 				// console.log(this.uploadpath);
-				var mypsd = new PSD(file.path,this.uploadpath,this.uploadpath)
-				var res = await mypsd.parse(false,true);
+				var mypsd = new PSD(
+					file.path,
+					this.uploadpath,
+					this.uploadpath
+				);
+				var res = await mypsd.parse(false, true);
 				console.log(res);
 			} catch (error) {
 				console.error(error);
