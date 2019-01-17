@@ -198,7 +198,17 @@ class PSD {
             relativeheight = 0;
         }
         let curvnode;
-        for (var i in vnodetree.reverse()) {
+        var isallRealtive = true;
+        for(var i in vnodetree){
+            if(!!vnodetree[i].styles&&!!vnodetree[i].styles.position!='relative'){
+                isallRealtive = false;
+                break;
+            }
+        }
+        if(!isallRealtive){
+            vnodetree = vnodetree.reverse();
+        }
+        for (var i in vnodetree) {
             curvnode = vnodetree[i];
             if(!!parent){
                 curvnode.styles.x += parent.styles.x;
@@ -208,7 +218,11 @@ class PSD {
                 }
             }
             if (!!curvnode.childrens && curvnode.childrens.length > 0) {
+                // if (curvnode.styles.position != 'relative') {
+                //     curvnode.childrens = curvnode.childrens.reverse();
+                // }
                 this.paiping(curvnode.childrens, yiweitree, relativeheight, curvnode);
+
                 if (curvnode.styles.position == 'relative') {
                     relativeheight += curvnode.styles.height;
                 }
