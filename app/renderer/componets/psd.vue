@@ -78,7 +78,7 @@ export default {
 					this.uploadpath,
 					this.uploadpath
 				);
-				var res = await mypsd.parse(false, true);
+				var res = await mypsd.parse(false, false);
 				console.log(res);
 			} catch (error) {
 				console.error(error);

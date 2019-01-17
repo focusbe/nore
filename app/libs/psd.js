@@ -1,7 +1,7 @@
 const psdjs = require("psd");
 const fse = require("fs-extra");
 const path = require("path");
-const systemFont = ['MicrosoftYaHei', 'SimSun', 'SimHei', 'KaiTi', 'YouYuan']
+const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 class PSD {
     constructor(psdpath, imgdir, asseturl) {
         this.psdpath = psdpath;
@@ -17,8 +17,8 @@ class PSD {
         }
         exists = await fse.exists(this.imgdir);
         if (!exists) {
-            var res = await new Promise(function (result, reject) {
-                fse.mkdir(this.imgdir, function (err) {
+            var res = await new Promise(function(result, reject) {
+                fse.mkdir(self.imgdir, function(err) {
                     if (!err) result(true);
                     else reject(err);
                 });
@@ -29,15 +29,15 @@ class PSD {
         var res = this.getvnodetree(psdtree);
         var errorimg = null;
         if (!debug) {
-            await new Promise(function (result, reject) {
+            new Promise(function(result, reject) {
                 self.saveimg(
                     res.saveimgPool,
                     0,
-                    function (res) {
+                    function(res) {
                         result(res);
                     },
                     null,
-                    function (img) {
+                    function(img) {
                         if (!errorimg) {
                             errorimg = [];
                         }
@@ -65,10 +65,12 @@ class PSD {
         }
         var ismutilBoard = false;
         if (!curtree) {
-            curtree = [{
-                view: "container",
-                childrens: []
-            }];
+            curtree = [
+                {
+                    view: "container",
+                    childrens: []
+                }
+            ];
             //需要保存的图片
             saveimgPool = [];
             var psdtree = parent;
@@ -101,62 +103,66 @@ class PSD {
                 }
                 //设置当前节点的类名
                 curview.props = {
-                    className: this.isChina(curnode.name) ? '' : curnode.name
+                    className: this.isChina(curnode.name) ? "" : curnode.name
                 };
                 //设置当前节点的样式
                 curview.styles = {
                     width: artboard ? artboard.width : curnode.get("width"),
                     height: artboard ? artboard.height : curnode.get("height"),
-                    x: artboard ?
-                        0 : curnode.get("left") -
-                        (typeof curnode.parent.artboard != "undefined" ?
-                            curnode.parent.artboard.left :
-                            curnode.parent.get("left")),
-                    y: artboard ?
-                        0 : curnode.get("top") -
-                        (typeof curnode.parent.artboard != "undefined" ?
-                            curnode.parent.artboard.top :
-                            curnode.parent.get("top")),
+                    x: artboard
+                        ? 0
+                        : curnode.get("left") -
+                          (typeof curnode.parent.artboard != "undefined"
+                              ? curnode.parent.artboard.left
+                              : curnode.parent.get("left")),
+                    y: artboard
+                        ? 0
+                        : curnode.get("top") -
+                          (typeof curnode.parent.artboard != "undefined"
+                              ? curnode.parent.artboard.top
+                              : curnode.parent.get("top")),
                     position: artboard ? "relative" : "absolute",
                     background: "none"
                 };
                 curjson = curnode.export();
                 //判断当前节点对应前端的哪个组件
                 if (curnode.type == "group") {
-                    if (curnode.name.indexOf('button') > -1) {
-                        curview.view = 'my-button';
+                    if (curnode.name.indexOf("button") > -1) {
+                        curview.view = "my-button";
                     } else {
                         curview.view = "container";
                     }
                     if (!!curnode.children()) {
                         curview.childrens = [];
-                        this.getvnodetree(
-                            curnode,
-                            curview,
-                            saveimgPool
-                        );
+                        this.getvnodetree(curnode, curview, saveimgPool);
                     }
                 } else if (curnode.type == "layer") {
-                    if (!!curjson.text && !!curjson.text.font && self.isSystemFont(curjson.text.font.name)) {
+                    if (
+                        !!curjson.text &&
+                        !!curjson.text.font &&
+                        self.isSystemFont(curjson.text.font.name)
+                    ) {
                         //是文字节点
                         let font = curjson.text.font;
-                        curview.props.text = curjson.text.value.replace(/↵/g, "<br/>").replace(/\n|\r/g, "<br/>");
-                        if (curnode.name.indexOf('button') > -1) {
+                        curview.props.text = curjson.text.value
+                            .replace(/↵/g, "<br/>")
+                            .replace(/\n|\r/g, "<br/>");
+                        if (curnode.name.indexOf("button") > -1) {
                             curview.view = "my-button";
                         } else {
-                            if (curnode.name.indexOf('title') > -1) {
+                            if (curnode.name.indexOf("title") > -1) {
                                 curview.props.istitle = true;
                             }
                             curview.view = "text";
                         }
-                        let fontstyle = {}
+                        let fontstyle = {};
                         if (!!font.sizes && font.sizes.length > 0) {
-                            fontstyle.fontSize = font.sizes[0] + 'px';
+                            fontstyle.fontSize = font.sizes[0] + "px";
                         }
                         if (!!font.colors && font.colors.length > 0) {
-                            fontstyle.color = this.colorRGB2Hex(font.colors[0])
+                            fontstyle.color = this.colorRGB2Hex(font.colors[0]);
                         }
-                        Object.assign(curview.styles, fontstyle)
+                        Object.assign(curview.styles, fontstyle);
                     } else {
                         imgname = curnode.path().replace(/\//g, "_");
                         saveimgPool.push({
@@ -170,13 +176,13 @@ class PSD {
                         //     continue;
                         // } else {
                         curview.view = "image";
-                        curview.props.img = this.asseturl +'/'+ imgname + ".png"
+                        curview.props.img =
+                            this.asseturl + "/" + imgname + ".png";
                         // }
                     }
-
                 }
                 if (!curnode.layer.visible) {
-                    curview.styles.display = 'none';
+                    curview.styles.display = "none";
                 }
                 curtree.childrens.push(curview);
                 if (ismutilBoard) {
@@ -199,21 +205,24 @@ class PSD {
         }
         let curvnode;
         var isallRealtive = true;
-        for(var i in vnodetree){
-            if(!!vnodetree[i].styles&&!!vnodetree[i].styles.position!='relative'){
+        for (var i in vnodetree) {
+            if (
+                !!vnodetree[i].styles &&
+                !!vnodetree[i].styles.position != "relative"
+            ) {
                 isallRealtive = false;
                 break;
             }
         }
-        if(!isallRealtive){
+        if (!isallRealtive) {
             vnodetree = vnodetree.reverse();
         }
         for (var i in vnodetree) {
             curvnode = vnodetree[i];
-            if(!!parent){
+            if (!!parent) {
                 curvnode.styles.x += parent.styles.x;
                 curvnode.styles.y += parent.styles.y;
-                if (parent.styles.display == 'none') {
+                if (parent.styles.display == "none") {
                     curvnode.styles.display = "none";
                 }
             }
@@ -221,18 +230,23 @@ class PSD {
                 // if (curvnode.styles.position != 'relative') {
                 //     curvnode.childrens = curvnode.childrens.reverse();
                 // }
-                this.paiping(curvnode.childrens, yiweitree, relativeheight, curvnode);
+                this.paiping(
+                    curvnode.childrens,
+                    yiweitree,
+                    relativeheight,
+                    curvnode
+                );
 
-                if (curvnode.styles.position == 'relative') {
+                if (curvnode.styles.position == "relative") {
                     relativeheight += curvnode.styles.height;
                 }
             } else {
-                if (curvnode.view == 'my-button') {
+                if (curvnode.view == "my-button") {
                     if (!!curvnode.props.text) {
-                        curvnode.view = 'text';
+                        curvnode.view = "text";
                     }
                 }
-                curvnode.styles.y += (relativeheight);
+                curvnode.styles.y += relativeheight;
                 yiweitree.push(curvnode);
             }
         }
@@ -240,36 +254,45 @@ class PSD {
         return yiweitree;
     }
     saveimg(pool, i, callback, onsuccess, onerror) {
-        if (!!pool) {
-            pool[i]["image"]
-                .saveAsPng(pool[i]["path"])
-                .then(function () {
-                    if (!!onsuccess) {
-                        onsuccess(i);
-                    }
-                    if (i >= pool.length - 1) {
-                        callback(true);
-                    } else {
-                        i++;
-                        this.saveimg(pool, i, callback);
-                    }
-                })
-                .catch(function (err) {
-                    if (!!onerror) {
-                        onerror(pool[i]);
-                        throw err;
-                    }
-                    if (i >= pool.length - 1) {
-                        callback(true);
-                    } else {
-                        saveimg(i++, callback);
-                    }
-                });
-        }
+        // for (var i in pool) {
+        //     pool[i]["image"].saveAsPng(pool[i]["path"]);
+        // }
+        // return;
+        var self = this;
+        setTimeout(function() {
+            if (!!pool) {
+                pool[i]["image"]
+                    .saveAsPng(pool[i]["path"])
+                    .then(function() {
+                        pool[i]["image"] = null;
+                        if (!!onsuccess) {
+                            onsuccess(i);
+                        }
+                        if (i >= pool.length - 1) {
+                            callback(true);
+                        } else {
+                            i++;
+                            self.saveimg(pool, i, callback);
+                        }
+                    })
+                    .catch(function(err) {
+                        if (!!onerror) {
+                            onerror(pool[i]);
+                            throw err;
+                        }
+                        if (i >= pool.length - 1) {
+                            callback(true);
+                        } else {
+                            i++;
+                            self.saveimg(pool, i, callback);
+                        }
+                    });
+            }
+        }, 500);
+
         return true;
     }
     isSystemFont(fontname) {
-
         if (!fontname) {
             return false;
         }
@@ -284,7 +307,8 @@ class PSD {
         var r = parseInt(rgb[0]);
         var g = parseInt(rgb[1]);
         var b = parseInt(rgb[2]);
-        var hex = "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        var hex =
+            "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         return hex;
     }
     isChina(s) {
