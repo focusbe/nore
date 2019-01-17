@@ -12,11 +12,9 @@ var container = createview({
         background: 'none'
     },
     render: function (dom) {
-        console.log(dom.props);
         //alert('容器渲染');
         return {
             attrs: {
-                
                 src: dom.props.img,
                 id: dom.props.id
             }
