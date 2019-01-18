@@ -72,13 +72,18 @@ export default {
 		async upload(file) {
 			var self = this;
 			try {
-				var {vnodetree,errorimg} = await PSD.parse(file.path,this.uploadpath);
+				// console.log(this.uploadpath);
+				var mypsd = new PSD(
+					file.path,
+					this.uploadpath,
+					this.uploadpath
+				);
+				var res = await mypsd.parse(false, false);
+				console.log(res);
 			} catch (error) {
-				console.log(error);
+				console.error(error);
 			}
-			
-			console.log({vnodetree,errorimg});
-			// self.$emit("finish", vnodetree);
+			self.$emit("finish", res.vnodetree);
 			return false;
 		}
 	}

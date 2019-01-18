@@ -197,7 +197,6 @@ class vnode {
                     styles[i] = styles[i]+'px';
                 }
             }
-            console.log(styles);
             return styles;
         }
     }

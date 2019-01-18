@@ -32,7 +32,7 @@ export default {
                 curvnode = this.curvnode;
             }
             var curnode;
-            for(var i in treenodes.reverse()){
+            for(var i in treenodes){
                 curnode = treenodes[i];
                 // console.log(viewObj[curnode.view]);
                 // if(!curnode.props){

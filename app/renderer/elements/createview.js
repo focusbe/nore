@@ -20,6 +20,9 @@ function createview(compon){
                 },{
                     label:'行内快',
                     value:'inline-block'
+                },{
+                    label:'隐藏',
+                    value:'none'
                 }],
                 default:'block',
             },
