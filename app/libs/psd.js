@@ -3,10 +3,15 @@ const fse = require("fs-extra");
 const path = require("path");
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 class PSD {
-    constructor(psdpath, imgdir, asseturl) {
+    constructor(psdpath, imgdir, asseturl,pixelMax) {
+        if(!pixelMax){
+            pixelMax = 1000*10000;
+        }
+        this.pixelMax = pixelMax;
         this.psdpath = psdpath;
         this.imgdir = imgdir;
         this.asseturl = asseturl;
+
     }
     async parse(duowei, debug) {
         var self = this;
@@ -17,8 +22,8 @@ class PSD {
         }
         exists = await fse.exists(this.imgdir);
         if (!exists) {
-            var res = await new Promise(function(result, reject) {
-                fse.mkdir(self.imgdir, function(err) {
+            var res = await new Promise(function (result, reject) {
+                fse.mkdir(self.imgdir, function (err) {
                     if (!err) result(true);
                     else reject(err);
                 });
@@ -29,15 +34,14 @@ class PSD {
         var res = this.getvnodetree(psdtree);
         var errorimg = null;
         if (!debug) {
-            new Promise(function(result, reject) {
+            await new Promise(function (result, reject) {
                 self.saveimg(
                     res.saveimgPool,
-                    0,
-                    function(res) {
+                    function (res) {
                         result(res);
                     },
                     null,
-                    function(img) {
+                    function (img) {
                         if (!errorimg) {
                             errorimg = [];
                         }
@@ -65,12 +69,10 @@ class PSD {
         }
         var ismutilBoard = false;
         if (!curtree) {
-            curtree = [
-                {
-                    view: "container",
-                    childrens: []
-                }
-            ];
+            curtree = [{
+                view: "container",
+                childrens: []
+            }];
             //需要保存的图片
             saveimgPool = [];
             var psdtree = parent;
@@ -88,6 +90,8 @@ class PSD {
             let curnode, curview, imgname, artboard, curjson;
             for (var i in children) {
                 curnode = children[i];
+                
+                
                 curview = {};
                 //当前组是否是一个画布
                 if (!!curnode.layer.artboard) {
@@ -109,18 +113,16 @@ class PSD {
                 curview.styles = {
                     width: artboard ? artboard.width : curnode.get("width"),
                     height: artboard ? artboard.height : curnode.get("height"),
-                    x: artboard
-                        ? 0
-                        : curnode.get("left") -
-                          (typeof curnode.parent.artboard != "undefined"
-                              ? curnode.parent.artboard.left
-                              : curnode.parent.get("left")),
-                    y: artboard
-                        ? 0
-                        : curnode.get("top") -
-                          (typeof curnode.parent.artboard != "undefined"
-                              ? curnode.parent.artboard.top
-                              : curnode.parent.get("top")),
+                    x: artboard ?
+                        0 : curnode.get("left") -
+                        (typeof curnode.parent.artboard != "undefined" ?
+                            curnode.parent.artboard.left :
+                            curnode.parent.get("left")),
+                    y: artboard ?
+                        0 : curnode.get("top") -
+                        (typeof curnode.parent.artboard != "undefined" ?
+                            curnode.parent.artboard.top :
+                            curnode.parent.get("top")),
                     position: artboard ? "relative" : "absolute",
                     background: "none"
                 };
@@ -137,6 +139,7 @@ class PSD {
                         this.getvnodetree(curnode, curview, saveimgPool);
                     }
                 } else if (curnode.type == "layer") {
+                    
                     if (
                         !!curjson.text &&
                         !!curjson.text.font &&
@@ -164,20 +167,25 @@ class PSD {
                         }
                         Object.assign(curview.styles, fontstyle);
                     } else {
-                        imgname = curnode.path().replace(/\//g, "_");
-                        saveimgPool.push({
-                            image: curnode.layer.image,
-                            path: path.resolve(this.imgdir, imgname + ".png")
-                        });
-                        // if (curnode.name == 'bg') {
-                        //     //是父级的背景；
-                        //     curtree.styles.backgroundImage = 'url(file:///'+path.resolve(this.imgdir, imgname + ".png").replace(/\\/g,'/')+')'
-                        //     curtree.styles.backgroundSize = ''
-                        //     continue;
-                        // } else {
                         curview.view = "image";
-                        curview.props.img =
-                            this.asseturl + "/" + imgname + ".png";
+                        if(curnode.get("width")*curnode.get("height")<self.pixelMax){
+                            imgname = curnode.path().replace(/\//g, "_");
+                            saveimgPool.push({
+                                image: curnode.layer.image,
+                                path: path.resolve(this.imgdir, imgname + ".png")
+                            });
+                            // if (curnode.name == 'bg') {
+                            //     //是父级的背景；
+                            //     curtree.styles.backgroundImage = 'url(file:///'+path.resolve(this.imgdir, imgname + ".png").replace(/\\/g,'/')+')'
+                            //     curtree.styles.backgroundSize = ''
+                            //     continue;
+                            // } else {
+                            curview.props.img =
+                                this.asseturl + "/" + imgname + ".png";
+                        }
+                        else{
+                            curview.props.img = "";
+                        }
                         // }
                     }
                 }
@@ -253,17 +261,53 @@ class PSD {
         // console.log(yiweitree);
         return yiweitree;
     }
-    saveimg(pool, i, callback, onsuccess, onerror) {
+    saveOneimg(img, callback) {
+        
+        img['image']
+            .saveAsPng(img['path'])
+            .then(function () {
+                callback(true);
+            })
+            .catch(function (err) {
+                callback(false,error)
+            });
+    }
+    saveimg(pool, callback, onsuccess, onerror) {
         // for (var i in pool) {
         //     pool[i]["image"].saveAsPng(pool[i]["path"]);
         // }
         // return;
+
         var self = this;
-        setTimeout(function() {
+        var n = pool.length;
+        
+        function saveNextImg(i) {
+            if (i >= n) {
+                callback(true);
+                return;
+            }
+            self.saveOneimg(pool[i], function (res,error) {
+                if(!!res){
+                    if(typeof onsuccess =='function'){
+                        onsuccess(res);
+                    }
+                }
+                else{
+                    if(typeof onerror =='function'){
+                        onerror(error);
+                    }
+                }
+                saveNextImg(i + 1);
+            });
+        }
+        saveNextImg(0);
+
+        return;
+        setTimeout(function () {
             if (!!pool) {
                 pool[i]["image"]
                     .saveAsPng(pool[i]["path"])
-                    .then(function() {
+                    .then(function () {
                         pool[i]["image"] = null;
                         if (!!onsuccess) {
                             onsuccess(i);
@@ -275,7 +319,7 @@ class PSD {
                             self.saveimg(pool, i, callback);
                         }
                     })
-                    .catch(function(err) {
+                    .catch(function (err) {
                         if (!!onerror) {
                             onerror(pool[i]);
                             throw err;
