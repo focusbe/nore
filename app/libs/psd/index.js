@@ -2,16 +2,11 @@ const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
-const childProcess = require('child_process');
-const worker = childProcess.fork('./saveimg.js');
-worker.send('Hello world.');
-worker.on('message', (msg) => {
-    console.log('[Master] Received message from worker: ' + msg)
-})
+
 class PSD {
     constructor(psdpath, imgdir, asseturl, pixelMax) {
         if (!pixelMax) {
-            pixelMax = 1000 * 10000;
+            pixelMax = 10000 * 10000;
         }
         this.pixelMax = pixelMax;
         this.psdpath = psdpath;
@@ -28,39 +23,43 @@ class PSD {
         }
         exists = await fse.exists(this.imgdir);
         if (!exists) {
-            var res = await new Promise(function (result, reject) {
+            let res = await new Promise(function (result, reject) {
                 fse.mkdir(self.imgdir, function (err) {
                     if (!err) result(true);
                     else reject(err);
                 });
             });
         }
-        var psd = await psdjs.open(this.psdpath);
-        var psdtree = psd.tree();
-        var res = this.getvnodetree(psdtree);
-        var errorimg = null;
+        let psd = await psdjs.open(this.psdpath);
+        let psdtree = psd.tree();
+        let res = this.getvnodetree(psdtree);
+        let errorimg = null;
         if (!debug) {
 
-            self.saveimg(
-                res.saveimgPool,
-                function (res) {
-                    result(res);
-                },
-                null,
-                function (img) {
-                    if (!errorimg) {
-                        errorimg = [];
+            await new Promise(function(result,reject){
+                self.saveimg(
+                    res.saveimgPool,
+                    function (saveresult) {
+                        psdtree = null;
+                        // res = null;
+                        res.saveimgPool = null;
+                        result(saveresult);
+                    },
+                    null,
+                    function (img) {
+                        if (!errorimg) {
+                            errorimg = [];
+                        }
+                        errorimg.push(img);
                     }
-                    errorimg.push(img);
-                }
-            );
+                );
+            })
         }
         if (!duowei) {
-            console.log('paiping');
             let vnodetree = res.curtree;
-            console.log(vnodetree);
+
             let newvnodetree = this.paiping(vnodetree);
-            console.log(newvnodetree);
+
             res.curtree = newvnodetree;
         }
         return {
@@ -69,11 +68,11 @@ class PSD {
         };
     }
     getvnodetree(parent, curtree, saveimgPool) {
-        var self = this;
+        let self = this;
         if (!parent || parent.length == 0) {
             return;
         }
-        var ismutilBoard = false;
+        let ismutilBoard = false;
         if (!curtree) {
             curtree = [{
                 view: "container",
@@ -81,7 +80,7 @@ class PSD {
             }];
             //需要保存的图片
             saveimgPool = [];
-            var psdtree = parent;
+            let psdtree = parent;
             curtree[0].styles = {
                 width: psdtree.get("width"),
                 height: psdtree.get("height"),
@@ -92,9 +91,9 @@ class PSD {
             };
             this.getvnodetree(parent, curtree[0], saveimgPool);
         } else {
-            var children = parent.children();
+            let children = parent.children();
             let curnode, curview, imgname, artboard, curjson;
-            for (var i in children) {
+            for (let i in children) {
                 curnode = children[i];
 
 
@@ -217,8 +216,8 @@ class PSD {
             relativeheight = 0;
         }
         let curvnode;
-        var isallRealtive = true;
-        for (var i in vnodetree) {
+        let isallRealtive = true;
+        for (let i in vnodetree) {
             if (
                 !!vnodetree[i].styles &&
                 !!vnodetree[i].styles.position != "relative"
@@ -230,7 +229,7 @@ class PSD {
         if (!isallRealtive) {
             vnodetree = vnodetree.reverse();
         }
-        for (var i in vnodetree) {
+        for (let i in vnodetree) {
             curvnode = vnodetree[i];
             if (!!parent) {
                 curvnode.styles.x += parent.styles.x;
@@ -284,7 +283,7 @@ class PSD {
         //     pool[i]["image"].saveAsPng(pool[i]["path"]);
         // }
         // return;
-        var self = this;
+        let self = this;
         // for (var i in pool) {
         //     console.log(i);
         //     if (pool[i].path.indexOf('01_main_person') > -1) {
@@ -296,7 +295,7 @@ class PSD {
         //     continue;
         // }
         // return;
-        var n = pool.length;
+        let n = pool.length;
         function saveNextImg(i) {
             if (i >= n) {
                 callback(true);
@@ -333,15 +332,15 @@ class PSD {
         return false;
     }
     colorRGB2Hex(rgb) {
-        var r = parseInt(rgb[0]);
-        var g = parseInt(rgb[1]);
-        var b = parseInt(rgb[2]);
-        var hex =
+        let r = parseInt(rgb[0]);
+        let g = parseInt(rgb[1]);
+        let b = parseInt(rgb[2]);
+        let hex =
             "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
         return hex;
     }
     isChina(s) {
-        var patrn = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
+        let patrn = /[\u4E00-\u9FA5]|[\uFE30-\uFFA0]/gi;
         if (!patrn.exec(s)) {
             return false;
         } else {

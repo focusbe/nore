@@ -27,6 +27,11 @@ export default {
             this.addTreenodes(tree);
             this.refresh();
         },
+        clearCanvas(){
+            alert('clear');
+            this.$set(this.rootvnode,'childrens',[]);
+            this.refresh();
+        },
         addTreenodes(treenodes,curvnode){
             if(!curvnode){
                 curvnode = this.curvnode;
@@ -47,7 +52,6 @@ export default {
                     this.addTreenodes(curnode.childrens,newnode);
                 }
             }
-            
             // this.changeCurVnode(newnode);
             // this.$emit("onChange", "root", this.rootvnode);
             // this.$emit("onChange", "curvnode", this.curvnode);

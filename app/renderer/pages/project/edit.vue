@@ -26,6 +26,7 @@
 				<h2>节点数</h2>
 				<ul class="element_list"></ul>
 			</div>
+			<Button @click="clearCanvas">清空画布</Button>
 		</div>
 		<div class="top_options_bar">
 			<Button @click="changeDevice('pc')" type="primary">
@@ -186,6 +187,9 @@ export default {
 		},
 		savedesign(){
 
+		},
+		clearCanvas(){
+			this.$refs.canvas.clearCanvas();
 		},
 		onCanvasChange: function(event, params) {
 			switch (event) {
