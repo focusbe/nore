@@ -2,10 +2,16 @@ const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
+const childProcess = require('child_process');
+const worker = childProcess.fork('./saveimg.js');
+worker.send('Hello world.');
+worker.on('message', (msg) => {
+    console.log('[Master] Received message from worker: ' + msg)
+})
 class PSD {
-    constructor(psdpath, imgdir, asseturl,pixelMax) {
-        if(!pixelMax){
-            pixelMax = 1000*10000;
+    constructor(psdpath, imgdir, asseturl, pixelMax) {
+        if (!pixelMax) {
+            pixelMax = 1000 * 10000;
         }
         this.pixelMax = pixelMax;
         this.psdpath = psdpath;
@@ -34,23 +40,23 @@ class PSD {
         var res = this.getvnodetree(psdtree);
         var errorimg = null;
         if (!debug) {
-            await new Promise(function (result, reject) {
-                self.saveimg(
-                    res.saveimgPool,
-                    function (res) {
-                        result(res);
-                    },
-                    null,
-                    function (img) {
-                        if (!errorimg) {
-                            errorimg = [];
-                        }
-                        errorimg.push(img);
+
+            self.saveimg(
+                res.saveimgPool,
+                function (res) {
+                    result(res);
+                },
+                null,
+                function (img) {
+                    if (!errorimg) {
+                        errorimg = [];
                     }
-                );
-            });
+                    errorimg.push(img);
+                }
+            );
         }
         if (!duowei) {
+            console.log('paiping');
             let vnodetree = res.curtree;
             console.log(vnodetree);
             let newvnodetree = this.paiping(vnodetree);
@@ -90,8 +96,8 @@ class PSD {
             let curnode, curview, imgname, artboard, curjson;
             for (var i in children) {
                 curnode = children[i];
-                
-                
+
+
                 curview = {};
                 //当前组是否是一个画布
                 if (!!curnode.layer.artboard) {
@@ -139,7 +145,7 @@ class PSD {
                         this.getvnodetree(curnode, curview, saveimgPool);
                     }
                 } else if (curnode.type == "layer") {
-                    
+
                     if (
                         !!curjson.text &&
                         !!curjson.text.font &&
@@ -168,7 +174,7 @@ class PSD {
                         Object.assign(curview.styles, fontstyle);
                     } else {
                         curview.view = "image";
-                        if(curnode.get("width")*curnode.get("height")<self.pixelMax){
+                        if (curnode.get("width") * curnode.get("height") < self.pixelMax) {
                             imgname = curnode.path().replace(/\//g, "_");
                             saveimgPool.push({
                                 image: curnode.layer.image,
@@ -182,8 +188,7 @@ class PSD {
                             // } else {
                             curview.props.img =
                                 this.asseturl + "/" + imgname + ".png";
-                        }
-                        else{
+                        } else {
                             curview.props.img = "";
                         }
                         // }
@@ -262,14 +267,16 @@ class PSD {
         return yiweitree;
     }
     saveOneimg(img, callback) {
-        
+
         img['image']
             .saveAsPng(img['path'])
             .then(function () {
                 callback(true);
+                img['image'] = null;
+                // delete img['image'];
             })
             .catch(function (err) {
-                callback(false,error)
+                callback(false, err)
             });
     }
     saveimg(pool, callback, onsuccess, onerror) {
@@ -277,23 +284,34 @@ class PSD {
         //     pool[i]["image"].saveAsPng(pool[i]["path"]);
         // }
         // return;
-
         var self = this;
+        // for (var i in pool) {
+        //     console.log(i);
+        //     if (pool[i].path.indexOf('01_main_person') > -1) {
+        //         self.saveOneimg(pool[i], function (err) {
+        //             console.log(err);
+        //         });
+        //         break;
+        //     }
+        //     continue;
+        // }
+        // return;
         var n = pool.length;
-        
         function saveNextImg(i) {
             if (i >= n) {
                 callback(true);
                 return;
             }
-            self.saveOneimg(pool[i], function (res,error) {
-                if(!!res){
-                    if(typeof onsuccess =='function'){
+            if (!pool[i]) {
+                pool[i] = null;
+            }
+            self.saveOneimg(pool[i], function (res, error) {
+                if (!!res) {
+                    if (typeof onsuccess == 'function') {
                         onsuccess(res);
                     }
-                }
-                else{
-                    if(typeof onerror =='function'){
+                } else {
+                    if (typeof onerror == 'function') {
                         onerror(error);
                     }
                 }
@@ -301,40 +319,7 @@ class PSD {
             });
         }
         saveNextImg(0);
-
         return;
-        setTimeout(function () {
-            if (!!pool) {
-                pool[i]["image"]
-                    .saveAsPng(pool[i]["path"])
-                    .then(function () {
-                        pool[i]["image"] = null;
-                        if (!!onsuccess) {
-                            onsuccess(i);
-                        }
-                        if (i >= pool.length - 1) {
-                            callback(true);
-                        } else {
-                            i++;
-                            self.saveimg(pool, i, callback);
-                        }
-                    })
-                    .catch(function (err) {
-                        if (!!onerror) {
-                            onerror(pool[i]);
-                            throw err;
-                        }
-                        if (i >= pool.length - 1) {
-                            callback(true);
-                        } else {
-                            i++;
-                            self.saveimg(pool, i, callback);
-                        }
-                    });
-            }
-        }, 500);
-
-        return true;
     }
     isSystemFont(fontname) {
         if (!fontname) {
@@ -364,4 +349,6 @@ class PSD {
         }
     }
 }
+
+
 module.exports = PSD;
