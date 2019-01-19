@@ -1,4 +1,4 @@
-const psdjs = require("psd");
+const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
