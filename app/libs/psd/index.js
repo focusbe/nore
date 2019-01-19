@@ -212,6 +212,7 @@ class PSD {
     }
     paiping(vnodetree, yiweitree, relativeheight, parent) {
         if (!yiweitree) {
+            let isroot = true;
             yiweitree = [];
             relativeheight = 0;
         }
@@ -262,8 +263,10 @@ class PSD {
                 yiweitree.push(curvnode);
             }
         }
-        // console.log(yiweitree);
-        return yiweitree;
+        if(!!isroot){
+            return yiweitree;
+        }
+        
     }
     saveOneimg(img, callback) {
 
