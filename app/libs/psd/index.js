@@ -2,7 +2,16 @@ const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
-
+//显示内存占用
+function showMem(log) {
+    if (typeof (global.gc) == 'function') {
+        console.log('手动gc一次');
+        global.gc();
+    }
+    let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
+    console.log('内存占用'+memused + 'M');
+    memused = null;
+};
 class PSD {
     constructor(psdpath, imgdir, asseturl, pixelMax) {
         if (!pixelMax) {
@@ -12,7 +21,6 @@ class PSD {
         this.psdpath = psdpath;
         this.imgdir = imgdir;
         this.asseturl = asseturl;
-
     }
     async parse(duowei, debug) {
         var self = this;
@@ -30,6 +38,7 @@ class PSD {
                 });
             });
         }
+        exists = null;
         let psd = await psdjs.open(this.psdpath);
         let psdtree = psd.tree();
         psd = null;
@@ -57,9 +66,7 @@ class PSD {
         }
         if (!duowei) {
             let vnodetree = res.curtree;
-
             let newvnodetree = this.paiping(vnodetree);
-
             res.curtree = newvnodetree;
         }
         return {
@@ -72,10 +79,8 @@ class PSD {
         if (!parent || parent.length == 0) {
             return;
         }
-        let ismutilBoard = false;
-        let isfirst = null;
+        
         if (!curtree) {
-            isfirst = true;
             curtree = [{
                 view: "container",
                 childrens: []
@@ -92,9 +97,14 @@ class PSD {
                 background: "none"
             };
             this.getvnodetree(parent, curtree[0], saveimgPool);
+            return {
+                curtree,
+                saveimgPool
+            };
         } else {
             let children = parent.children();
             let curnode, curview, imgname, artboard, curjson;
+            let ismutilBoard = false;
             for (let i in children) {
                 curnode = children[i];
                 curview = {};
@@ -144,7 +154,6 @@ class PSD {
                         this.getvnodetree(curnode, curview, saveimgPool);
                     }
                 } else if (curnode.type == "layer") {
-
                     if (
                         !!curjson.text &&
                         !!curjson.text.font &&
@@ -171,6 +180,7 @@ class PSD {
                             fontstyle.color = this.colorRGB2Hex(font.colors[0]);
                         }
                         Object.assign(curview.styles, fontstyle);
+                        fontstyle = null;
                     } else {
                         curview.view = "image";
                         if (curnode.get("width") * curnode.get("height") < self.pixelMax) {
@@ -204,30 +214,26 @@ class PSD {
                 }
             }
         }
-        if (isfirst) {
-            return {
-                curtree,
-                saveimgPool
-            };
-        }
-
     }
     paiping(vnodetree, yiweitree, relativeheight, parent) {
         if (!yiweitree) {
             yiweitree = [];
             relativeheight = 0;
+            this.paiping(vnodetree,yiweitree,relativeheight,null)
+            return yiweitree;
         }
         let curvnode;
-        let isallRealtive = true;
-        for (let i in vnodetree) {
-            if (
-                !!vnodetree[i].styles &&
-                !!vnodetree[i].styles.position != "relative"
-            ) {
-                isallRealtive = false;
-                break;
-            }
-        }
+        // let isallRealtive = true;
+        // for (let i in vnodetree) {
+        //     if (
+        //         !!vnodetree[i].styles &&
+        //         !!vnodetree[i].styles.position != "relative"
+        //     ) {
+        //         isallRealtive = false;
+        //         break;
+        //     }
+        // }
+        //如果采用绝对定位在网页中反序
         if (!isallRealtive) {
             vnodetree = vnodetree.reverse();
         }
@@ -265,10 +271,10 @@ class PSD {
             }
         }
         // console.log(yiweitree);
-        return yiweitree;
+        
     }
     saveOneimg(img, callback) {
-
+        showMem();
         img['image']
             .saveAsPng(img['path'])
             .then(function () {
@@ -281,22 +287,7 @@ class PSD {
             });
     }
     saveimg(pool, callback, onsuccess, onerror) {
-        // for (var i in pool) {
-        //     pool[i]["image"].saveAsPng(pool[i]["path"]);
-        // }
-        // return;
         let self = this;
-        // for (var i in pool) {
-        //     console.log(i);
-        //     if (pool[i].path.indexOf('01_main_person') > -1) {
-        //         self.saveOneimg(pool[i], function (err) {
-        //             console.log(err);
-        //         });
-        //         break;
-        //     }
-        //     continue;
-        // }
-        // return;
         let n = pool.length;
         function saveNextImg(i) {
             if (i >= n) {
