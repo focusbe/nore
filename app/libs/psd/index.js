@@ -32,11 +32,11 @@ class PSD {
         }
         let psd = await psdjs.open(this.psdpath);
         let psdtree = psd.tree();
+        psd = null;
         let res = this.getvnodetree(psdtree);
         let errorimg = null;
         if (!debug) {
-
-            await new Promise(function(result,reject){
+            await new Promise(function (result, reject) {
                 self.saveimg(
                     res.saveimgPool,
                     function (saveresult) {
@@ -73,7 +73,9 @@ class PSD {
             return;
         }
         let ismutilBoard = false;
+        let isfirst = null;
         if (!curtree) {
+            isfirst = true;
             curtree = [{
                 view: "container",
                 childrens: []
@@ -95,8 +97,6 @@ class PSD {
             let curnode, curview, imgname, artboard, curjson;
             for (let i in children) {
                 curnode = children[i];
-
-
                 curview = {};
                 //当前组是否是一个画布
                 if (!!curnode.layer.artboard) {
@@ -204,11 +204,13 @@ class PSD {
                 }
             }
         }
+        if (isfirst) {
+            return {
+                curtree,
+                saveimgPool
+            };
+        }
 
-        return {
-            curtree,
-            saveimgPool
-        };
     }
     paiping(vnodetree, yiweitree, relativeheight, parent) {
         if (!yiweitree) {
