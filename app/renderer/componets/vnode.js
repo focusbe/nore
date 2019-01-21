@@ -71,6 +71,9 @@ class Styles{
 
 class vnode {
     constructor(view, styles, props) {
+        if(!view){
+            return;
+        }
         this.name = view.name;
         if(view=='root'){
             this.name = 'root';
@@ -206,6 +209,7 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
+        console.log(styles);
         this.vuenode = createElement(
             "vnoderender",
             {

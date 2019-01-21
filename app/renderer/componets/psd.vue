@@ -22,6 +22,7 @@
 <style lang="scss" scoped>
 .filelist {
 	li {
+		
 	}
 }
 </style>
@@ -36,7 +37,6 @@ import path from "path";
 import aRemote from "libs/aremote";
 // console.log(aRemote);
 // aRemote.require(path.resolve(__dirname,'../../libs/psd.js'));
-
 
 // function isEven(num, arr) {
 // 	if (!arr) {
@@ -111,12 +111,16 @@ export default {
 					this.uploadpath
 				);
 				var res = await mypsd.parse();
-				res = null;
+				console.log(res);
+				// res = null;
+				// mypsd = null;
+				self.$emit("finish", res.vnodetree);
 				mypsd = null;
+				res = null;
 			} catch (error) {
 				console.error(error);
 			}
-			self.$emit("finish", res.vnodetree);
+
 			return false;
 		}
 	}
