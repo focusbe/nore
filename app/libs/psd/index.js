@@ -1,20 +1,22 @@
 const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
+//识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
 function showMem(log) {
     //开启--exprose-gc时显示内存占用
-    if (typeof (global.gc) == 'function') {
-        console.log('手动gc一次');
+    if (typeof global.gc == "function") {
+        console.log("手动gc一次");
         global.gc();
-        let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
-        let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
-        console.log('rss":' + rss + 'M');
-        console.log('memused":' + memused + 'M');
     }
+    let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
+    let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
+    console.log('rss":' + rss + "M");
+    console.log('memused":' + memused + "M");
     memused = null;
-};
+}
+
 class PSD {
     constructor(psdpath, imgdir, asseturl, pixelMax) {
         if (!pixelMax) {
@@ -65,14 +67,19 @@ class PSD {
                         errorimg.push(img);
                     }
                 );
-            })
+            });
         }
         return {
             vNode: res.vNode,
             errorimg
         };
     }
+
     getvnodetree(psdNode, vNode, imgPool, istree) {
+        //params psdNode:psd中的节点
+        //vNode:虚拟节点
+        //vNode:待保存的图片数组
+        //istree：最终生成树形结构还是一维数组
         let self = this;
         if (!psdNode) {
             return;
@@ -85,82 +92,135 @@ class PSD {
             };
             //需要保存的图片
             imgPool = [];
-            curtree[0].styles = {
-                width: psdNode.get("width"),
-                height: psdNode.get("height"),
+            this.getvnodetree(psdNode, vNode, imgPool, istree);
+            let pageSize;
+            if (!!psdNode.hasArtboard) {
+                //多个画布高度是画布的和，宽度是第一个画布的宽度；
+                let totalHeight = 0;
+                let perWidth;
+                let psdChildren = psdNode.children();
+                for (var i in psdChildren) {
+                    if (!psdChildren[i].artboard) {
+                        continue;
+                    }
+                    totalHeight += psdChildren[i].artboard.height;
+                    if (!perWidth) {
+                        perWidth = psdChildren[i].artboard.width;
+                    }
+                }
+                pageSize = {
+                    width: perWidth,
+                    height: totalHeight
+                };
+            } else {
+                pageSize = {
+                    width: psdNode.get("width"),
+                    height: psdNode.get("height")
+                };
+            }
+            vNode.styles = Object.assign(pageSize, {
                 x: 0,
                 position: "relative",
                 y: 0,
-                background: "none"
-            };
-            this.getvnodetree(psdNode, vNode, imgPool, istree);
+                background: "none",
+                overflow: "hidden"
+            });
             return {
                 vNode,
                 imgPool
             };
         } else {
-            let childrenLayer = psdNode.children();
+            let childrenLayers = psdNode.children();
             let curLayer, curVNode, imgname, artboard, curLayerJson;
-            let ismutilBoard = false;
             let artRealTop = 0;
-            for (let i in childrenLayer) {
-                curLayer = children[i];
+            if (!psdNode.offsetY) {
+                psdNode.offsetY = 0;
+            }
+            for (let i in childrenLayers) {
+                curLayer = childrenLayers[i];
                 curVNode = {};
                 artboard = null;
                 curLayerJson = null;
                 //当前组是否是一个画布
-                if (!!childrenLayer.layer.artboard) {
+                if (!!curLayer.layer.artboard) {
                     curVNode.isArtboard = true;
                     vNode.hasArtboard = true;
                     artboard = curLayer.layer.artboard().export().coords;
                     artboard.width = artboard.right - artboard.left;
                     artboard.height = artboard.bottom - artboard.top;
                     //记录一下实际拼接后 画布所处位置；
+                    curLayer.offsetY = artRealTop;
                     artboard.realTop = artRealTop;
                     artRealTop += artboard.height;
                     curLayer.artboard = artboard;
+                    if (!psdNode.hasArtboard) {
+                        psdNode.hasArtboard = true;
+                    }
+                } else {
+                    curLayer.offsetY = !!psdNode.offsetY ? psdNode.offsetY : 0;
                 }
+
                 //设置当前节点的类名,需要判断是否包含中文
                 curVNode.props = {
                     className: this.isChina(curLayer.name) ? "" : curLayer.name
                 };
 
-
                 //父级的绝对位置；如果是树形结构会用到
                 let parentAbsPos = {
-                    left: !!curLayer.parent.artboard ? curLayer.parent.artboard.left : curLayer.parent.get("left"),
-                    top: !!curLayer.parent.artboard ? (istree ? curLayer.parent.artboard.top : curLayer.parent.artboard.realTop) : curLayer.parent.get("top")
-                }
-                if (istree) {
-                    let curStyles;
+                    left: istree ? (!!psdNode.artboard ? psdNode.artboard.left : psdNode.get("left")) : (!!psdNode.artboard ? psdNode.artboard.left : 0),
+                    top: istree ? (!!psdNode.artboard ? psdNode.artboard.top : psdNode.get("top")) : (!!psdNode.artboard ? (psdNode.artboard.top - psdNode.offsetY) : -psdNode.offsetY)
+                };
+                console.log(parentAbsPos);
+                //设置样式
+
+                if ((!(!istree && curLayer.type == "group"))) {
+                    let curStyles = {};
+                    if (!curLayer.layer.visible) {
+                        curStyles.display = "none";
+                    }
+                    curStyles.background = 'none';
                     if (!!artboard) {
                         //当前节点是一个画布 采用相对布局的方式
-                        curStyles = {
+                        Object.assign(curStyles, {
                             x: 0,
                             y: 0,
                             width: artboard.width,
                             height: artboard.height,
-                            position: 'relative'
-                        }
+                            position: "relative"
+                        });
+                        vNode.childrens.push(curVNode);
                     } else {
                         //当前节点不是一个画布采用绝对定位
-                        curStyles = {
-                            width: curLayer.get("width"),
-                            height: curLayer.get("height"),
-                            x: curLayer.get("left") - parentAbsPos.left,
-                            y: curLayer.get("top") - parentAbsPos.top,
-                            position: "absolute"
-                        };
+                        if (!!istree) {
+                            Object.assign(curStyles, {
+                                width: curLayer.get("width"),
+                                height: curLayer.get("height"),
+                                x: curLayer.get("left") - parentAbsPos.left,
+                                y: curLayer.get("top") - parentAbsPos.top,
+                                position: "absolute"
+                            });
+                        } else {
+                            Object.assign(curStyles, {
+                                width: curLayer.get("width"),
+                                height: curLayer.get("height"),
+                                x: curLayer.get("left") - parentAbsPos.left,
+                                y: curLayer.get("top") - parentAbsPos.top,
+                                position: "absolute"
+                            });
+                        }
+
+
+                        vNode.childrens.splice(0, 0, curVNode);
                     }
                     curVNode.styles = curStyles;
-                }
 
+                }
 
                 curLayerJson = curLayer.export();
                 //判断当前节点对应前端的哪个组件
                 if (curLayer.type == "group") {
                     if (curLayer.name.indexOf("button") > -1) {
-                        curVNode.view = "my-button";
+                        curVNode.view = "button";
                     } else {
                         curVNode.view = "container";
                     }
@@ -172,21 +232,16 @@ class PSD {
                         } else {
                             //生成多维数组；
                             curVNode.childrens = [];
-                            this.getvnodetree(curLayer, curVNode, imgPool, istree);
+                            this.getvnodetree(
+                                curLayer,
+                                curVNode,
+                                imgPool,
+                                istree
+                            );
                         }
                     }
+
                 } else if (curLayer.type == "layer") {
-                    if (!istree) {
-                        //如果导出是一维结构
-                        let curStyles = {
-                            width: curLayer.get("width"),
-                            height: curLayer.get("height"),
-                            x: curLayer.get("left") - parentAbsPos.left,
-                            y: curLayer.get("top") - parentAbsPos.top,
-                            position: "absolute"
-                        };
-                        curVNode.styles = curStyles;
-                    }
                     if (
                         !!curLayerJson.text &&
                         !!curLayerJson.text.font &&
@@ -198,7 +253,7 @@ class PSD {
                             .replace(/↵/g, "<br/>")
                             .replace(/\n|\r/g, "<br/>");
                         if (curLayer.name.indexOf("button") > -1) {
-                            curVNode.view = "my-button";
+                            curVNode.view = "button";
                         } else {
                             if (curLayer.name.indexOf("title") > -1) {
                                 curVNode.props.istitle = true;
@@ -216,11 +271,17 @@ class PSD {
                         fontstyle = null;
                     } else {
                         curVNode.view = "image";
-                        if (curLayer.get("width") * curLayer.get("height") < self.pixelMax) {
+                        if (
+                            curLayer.get("width") * curLayer.get("height") <
+                            self.pixelMax
+                        ) {
                             imgname = curLayer.path().replace(/\//g, "_");
                             imgPool.push({
                                 image: curLayer.layer.image,
-                                path: path.resolve(this.imgdir, imgname + ".png")
+                                path: path.resolve(
+                                    this.imgdir,
+                                    imgname + ".png"
+                                )
                             });
                             curVNode.props.img =
                                 this.asseturl + "/" + imgname + ".png";
@@ -229,31 +290,23 @@ class PSD {
                         }
                     }
                 }
-
-                if (!curLayer.layer.visible) {
-                    curVNode.styles.display = "none";
-                }
-                vNode.childrens.push(curVNode);
             }
         }
     }
 
-
-
     saveOneimg(img, callback) {
-        img['image']
-            .saveAsPng(img['path'])
+        img["image"]
+            .saveAsPng(img["path"])
             .then(function () {
                 callback(true);
-                img['image'] = null;
+                img["image"] = null;
                 // delete img['image'];
                 showMem();
             })
             .catch(function (err) {
-                callback(false, err)
+                callback(false, err);
                 showMem();
             });
-
     }
     saveimg(pool, callback, onsuccess, onerror) {
         let self = this;
@@ -264,11 +317,11 @@ class PSD {
             }
             self.saveOneimg(pool[i], function (res, error) {
                 if (!!res) {
-                    if (typeof onsuccess == 'function') {
+                    if (typeof onsuccess == "function") {
                         onsuccess(res);
                     }
                 } else {
-                    if (typeof onerror == 'function') {
+                    if (typeof onerror == "function") {
                         onerror(error);
                     }
                 }

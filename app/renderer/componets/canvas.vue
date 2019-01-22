@@ -22,6 +22,7 @@ export default {
 	methods: {
 		initFromTree(tree) {
 			// console.log(tree);
+			debugger;
 			this.curvnode = this.rootvnode;
 			this.rootvnode.childrens = [];
 			this.addTreenodes(tree);
@@ -41,19 +42,18 @@ export default {
                 var curnode;
 				for (var i in treenodes) {
 					curnode = treenodes[i];
-					// console.log(viewObj[curnode.view]);
-					// if(!curnode.props){
-					//     curnode.props={className:curnode.name}
-					// }
-					// else{
-					//     curnode.props.className = curnode.name;
-					// }
+					if(curnode.view=='button'){
+						curnode.view='my-button'
+					}
 					var newnode = new vnode(
 						viewObj[curnode.view],
 						curnode.styles,
 						curnode.props
 					);
-					curvnode.push(newnode);
+					if(!!curvnode.childrens){
+						curvnode.childrens.push(newnode);
+					}
+					
 					if (!!curnode.childrens && curnode.childrens.length > 0) {
 						this.addTreenodes(curnode.childrens, newnode);
 					}

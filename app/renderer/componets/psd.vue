@@ -35,40 +35,7 @@ import Files from "libs/files";
 const PSD = require("libs/psd/index");
 import path from "path";
 import aRemote from "libs/aremote";
-// console.log(aRemote);
-// aRemote.require(path.resolve(__dirname,'../../libs/psd.js'));
 
-// function isEven(num, arr) {
-// 	if (!arr) {
-// 		arr = [];
-// 		for (var i = 0; i < 100000000; i++) {
-// 			arr.push(1);
-// 		}
-// 	}
-// 	arr.push(1);
-// 	if (num === 0) {
-// 		return true;
-// 	}
-// 	if (num === 1) {
-// 		return false;
-// 	}
-// 	//web前端中文站lisa33xiaoq.net
-// 	return function() {
-// 		return isEven(Math.abs(num) - 2, arr);
-// 	};
-// }
-// function trampoline(func, ...arg) {
-// 	console.log(arg);
-// 	var value = func(arg);
-// 	while (typeof value === "function") {
-// 		value = value();
-// 	}
-// 	return value;
-// }
-//Outputs:
-//console.log(trampoline(isEven, 10000, "canshu2"));
-//Outputs:
-// console.log(isEven(9));
 
 export default {
 	name: "my-psd",
@@ -93,9 +60,6 @@ export default {
 			this.actname,
 			"uploads"
 		);
-		// this.upload({
-		// 	path: "C:\\Users\\liupeng\\Desktop\\testpsd\\qiuqiu.psd"
-		// });
 	},
 	methods: {
 		async getList() {
@@ -110,11 +74,11 @@ export default {
 					this.uploadpath,
 					this.uploadpath
 				);
-				var res = await mypsd.parse();
-				console.log(res);
+				var res = await mypsd.parse(false,true);
+				// console.log(res);
 				// res = null;
 				// mypsd = null;
-				self.$emit("finish", res.vnodetree);
+				self.$emit("finish", res.vNode);
 				mypsd = null;
 				res = null;
 			} catch (error) {
