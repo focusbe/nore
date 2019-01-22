@@ -209,7 +209,6 @@ class PSD {
                             });
                         }
 
-
                         vNode.childrens.splice(0, 0, curVNode);
                     }
                     curVNode.styles = curStyles;
