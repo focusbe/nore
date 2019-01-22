@@ -52,14 +52,13 @@ var Button = createview({
     },
     render: function (dom) {
         return {
-            attrs:
-            {
+            attrs: {
                 href: dom.props.href,
                 class: dom.props.class,
                 id: dom.props.id
             },
-            domProps: {
-                innerHTML: dom.props.text
+            scopedSlots: {
+                default: props => createElement('span', props.text)
             }
         };
     },

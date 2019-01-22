@@ -209,7 +209,6 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
-        console.log(styles);
         this.vuenode = createElement(
             "vnoderender",
             {
