@@ -5,6 +5,14 @@ var container = createview({
     tagName: 'img',
     label: '图片',
     name: 'image',
+    props: {
+        src: {
+            label: '图片地址',
+            key: 'src',
+            type: 'text',
+            default: ''
+        }
+    },
     styles: {
         position: 'relative',
         width: '100px',
