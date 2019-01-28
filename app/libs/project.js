@@ -37,7 +37,7 @@ class Projects {
         callback(result);
     }
     static getTempList(callback) {
-        var tempdir = path.resolve(__dirname , "../../template");
+        var tempdir = path.resolve(__dirname, "../../template");
         Files.createdir(tempdir, function () {
             Files.getList(tempdir, callback);
         });
@@ -118,52 +118,47 @@ class Project {
         var self = this;
         try {
             console.log(path.resolve(__dirname, "../../template/" + this.config.template + "/"))
-            console.log(path.resolve(Configs.getItem('workshop'),this.config.actname));
+            console.log(path.resolve(Configs.getItem('workshop'), this.config.actname));
         } catch (error) {
             console.log(error);
         }
         try {
-            Files.copy(
-                path.resolve(__dirname, "../../template/" + this.config.template + "/"),
-                path.resolve(Configs.getItem('workshop'),this.config.actname),
-                function (err) {
-                    if (!err) {
-                        jsonfile.writeFile(
-                            path.join(
-                                Configs.getItem('workshop') +
-                                "/" +
-                                self.config.actname +
-                                "/config.json"
-                            ),
-                            self.config, {
-                                spaces: 2
-                            },
-                            function (err) {
-                                if (!err) {
-                                    result.msg = "创建配置文件失败";
-                                    result.ret = -1;
-                                    callback(result);
-                                    return;
-                                } else {
-                                    result.msg = "成功";
-                                    result.ret = 1;
-                                    callback(result);
-                                    return;
-                                }
-                            }
-                        );
-                    } else {
-                        result.msg = "复制文件失败";
-                        result.ret = -1;
-                        callback(result);
-                        return result;
+            let projectDir = path.resolve(Configs.getItem('workshop'), this.config.actname);
+            Files.createdirAsync(projectDir).then(function () {
+                jsonfile.writeFile(
+                    path.join(
+                        Configs.getItem('workshop') +
+                        "/" +
+                        self.config.actname +
+                        "/config.json"
+                    ),
+                    self.config, {
+                        spaces: 4
+                    },
+                    function (err) {
+                        if (!err) {
+                            result.msg = "创建配置文件失败";
+                            result.ret = -1;
+                            callback(result);
+                            return;
+                        } else {
+                            result.msg = "成功";
+                            result.ret = 1;
+                            callback(result);
+                            return;
+                        }
                     }
-                }
-            );
+                );
+            }).catch(function () {
+                result.msg = "复制文件失败";
+                result.ret = -1;
+                callback(result);
+                return result;
+            });
         } catch (error) {
             console.log(error);
         }
-        
+
     }
 
     delete() { }
