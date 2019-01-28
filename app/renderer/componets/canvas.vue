@@ -7,7 +7,7 @@ import { hoverStyles } from "../configs";
 import $ from "jquery";
 var viewObj = viewList;
 var curviewObj = null;
-// const renderer = require("vue-server-renderer").createRenderer();
+const renderer = require("vue-server-renderer").createRenderer();
 export default {
 	data: {
 		curvnode: null,
@@ -77,10 +77,10 @@ export default {
 		renderToServer: function(project, callback) {
 			var self = this;
 			this.clearHoverStyles();
-			// renderer.renderToString(this, (err, html) => {
-			//     if (err) throw err;
-			//     project.render(self.rootvnode, html, callback);
-			// });
+			renderer.renderToString(this, (err, html) => {
+			    if (err) throw err;
+			    project.render(self.rootvnode, html, callback);
+			});
 		},
 		resizeElement: function(delta, keepRatio) {
 			//keepRatio = true;

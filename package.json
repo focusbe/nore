@@ -115,7 +115,6 @@
         "vue": "^2.5.21",
         "vue-loader": "^15.4.2",
         "vue-router": "^3.0.2",
-        "vue-server-renderer": "^2.5.21",
         "vue-style-loader": "^4.1.2",
         "vue-template-compiler": "^2.5.21",
         "vuex": "^3.0.1",
@@ -125,6 +124,7 @@
         "webpack-node-externals": "^1.7.2"
     },
     "dependencies": {
+        "vue-server-renderer": "^2.5.21",
         "babelify": "^10.0.0",
         "browser-sync": "^2.26.3",
         "browserify": "^16.2.3",
