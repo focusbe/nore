@@ -4,9 +4,20 @@
 			<div class="options_section">
 				<h2>元素</h2>
 				<ul class="element_list">
-					<li v-for="item in viewList" v-bind:key="item.name" v-if="!item.hidden">
-						<a @click="addView(item)" href="javascript:void(0)">
-							<Icon :type="item.icon" size="24" color/>
+					<li
+					 v-for="item in viewList"
+					 v-bind:key="item.name"
+					 v-if="!item.hidden"
+					>
+						<a
+						 @click="addView(item)"
+						 href="javascript:void(0)"
+						>
+							<Icon
+							 :type="item.icon"
+							 size="24"
+							 color
+							/>
 							<p>{{item.label}}</p>
 						</a>
 					</li>
@@ -20,7 +31,11 @@
 			<br>
 			<div class="options_section">
 				<h2>PSD</h2>
-				<my-psd :actname="actname" @savedesign="savedesign" @finish="psdfinish"></my-psd>
+				<my-psd
+				 :actname="actname"
+				 @savedesign="savedesign"
+				 @finish="psdfinish"
+				></my-psd>
 			</div>
 			<div class="options_section">
 				<h2>节点数</h2>
@@ -29,44 +44,75 @@
 			<Button @click="clearCanvas">清空画布</Button>
 		</div>
 		<div class="top_options_bar">
-			<Button @click="changeDevice('pc')" type="primary">
-				<Icon type="ios-laptop" size="30" color/>
+			<Button
+			 @click="changeDevice('pc')"
+			 type="primary"
+			>
+				<Icon
+				 type="ios-laptop"
+				 size="30"
+				 color
+				/>
 			</Button>
 			<!-- <Button @click="changeDevice('pad')" type="primary">
 				<Icon type="ipad" size="30" color/>
 			</Button> -->
-			<Button @click="changeDevice('phone')" type="primary">
-				<Icon type="ios-phone-portrait" size="30" color/>
+			<Button
+			 @click="changeDevice('phone')"
+			 type="primary"
+			>
+				<Icon
+				 type="ios-phone-portrait"
+				 size="30"
+				 color
+				/>
 			</Button>
 
-			<Button @click="preview" type="primary">
-				<Icon type="arrow-right-b" size="30" color/>
+			<Button
+			 @click="preview"
+			 type="primary"
+			>
+				<Icon
+				 type="logo-chrome"
+				 size="30"
+				 color
+				/>
 			</Button>
 		</div>
 		<div class="canvas_outer">
-			<div class="canvas" @keydown.delete="deletecur" v-bind:style="designeSize[curdevice]">
-				<my-canvas ref="canvas" @onChange="onCanvasChange"></my-canvas>
+			<div
+			 class="canvas"
+			 @keydown.delete="deletecur"
+			 v-bind:style="designeSize[curdevice]"
+			>
+				<my-canvas
+				 ref="canvas"
+				 @onChange="onCanvasChange"
+				></my-canvas>
 			</div>
 		</div>
 		<div class="right_area">
 			<styles-panel
-				@onChange="onCurStylesChange"
-				v-if="styleOptions"
-				:options="styleOptions"
-				:optionsValue="curStyles"
-				title="样式布局"
+			 @onChange="onCurStylesChange"
+			 v-if="styleOptions"
+			 :options="styleOptions"
+			 :optionsValue="curStyles"
+			 title="样式布局"
 			></styles-panel>
 			<br>
 			<my-options
-				@onChange="onCurPropsChange"
-				v-if="propOptions"
-				:options="propOptions"
-				:optionsValue="curProps"
-				title="组件参数"
+			 @onChange="onCurPropsChange"
+			 v-if="propOptions"
+			 :options="propOptions"
+			 :optionsValue="curProps"
+			 title="组件参数"
 			></my-options>
 			<br>
 		</div>
-		<div v-show="dragover" class="dragover"></div>
+		<div
+		 v-show="dragover"
+		 class="dragover"
+		></div>
 	</div>
 </template>
 <style>
@@ -81,6 +127,7 @@ import stylesPanels from "../../componets/panels/styles.vue";
 import { Project } from "../../../libs/project";
 import Assets from "../../componets/assets";
 import PSD from "../../componets/psd";
+import Server from "../../../libs/server";
 Vue.component("my-options", Options);
 Vue.component("styles-panel", stylesPanels);
 Vue.component("my-canvas", Canvas);
@@ -125,18 +172,19 @@ export default {
 		var project = new Project(this.actname);
 		this.project = project;
 		// Server.start(function(res) {
-		//   if (
-		//     !!res &&
-		//     !!res.instance &&
-		//     !!res.instance.server &&
-		//     !!res.instance.server._connectionKey
-		//   ) {
-		//     var port = res.instance.server._connectionKey;
-		//     port = port.split(":");
-		//     port = port[port.length - 1];
-		//     self.serverpath = "http://localhost:" + port + "/" + self.actname;
-		//   } else {
-		//   }
+		// 	if (
+		// 		!!res &&
+		// 		!!res.instance &&
+		// 		!!res.instance.server &&
+		// 		!!res.instance.server._connectionKey
+		// 	) {
+		// 		var port = res.instance.server._connectionKey;
+		// 		port = port.split(":");
+		// 		port = port[port.length - 1];
+		// 		self.serverpath =
+		// 			"http://localhost:" + port + "/" + self.actname;
+		// 	} else {
+		// 	}
 		// });
 		project.getinfo(function(res) {
 			self.prejectInfo = res;
@@ -182,13 +230,11 @@ export default {
 	},
 
 	methods: {
-		psdfinish(vnodetree){
+		psdfinish(vnodetree) {
 			this.$refs.canvas.initFromTree(vnodetree);
 		},
-		savedesign(){
-
-		},
-		clearCanvas(){
+		savedesign() {},
+		clearCanvas() {
 			this.$refs.canvas.clearCanvas();
 		},
 		onCanvasChange: function(event, params) {
@@ -212,24 +258,24 @@ export default {
 		},
 		preview: function() {
 			var self = this;
-			if (this.serverpath) {
+			//if (this.serverpath) {
 				this.$refs.canvas.renderToServer(this.project, function(res) {
-					if (res) {
-						Socket.sendTo("MAIN", "open", {
-							tag: "preview_" + self.actname,
-							url: self.serverpath
-						});
-					} else {
-						alert("预览失败");
-					}
+					// if (res) {
+					// 	Socket.sendTo("MAIN", "open", {
+					// 		tag: "preview_" + self.actname,
+					// 		url: self.serverpath
+					// 	});
+					// } else {
+					// 	alert("预览失败");
+					// }
 				});
 				//window.open(this.serverpath);
-			} else {
-				alert("本地服务器启动失败");
-			}
+			// } else {
+			// 	alert("本地服务器启动失败");
+			// }
 		},
 		addView: function(viewData) {
-			console.log(viewData);
+			//console.log(viewData);
 			this.$refs.canvas.addVnode(viewData);
 		},
 

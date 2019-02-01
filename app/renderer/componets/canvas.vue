@@ -5,9 +5,14 @@ import viewList from "../elements/list.js";
 import { vnode } from "./vnode";
 import { hoverStyles } from "../configs";
 import $ from "jquery";
+import path from "path";
 var viewObj = viewList;
 var curviewObj = null;
-const renderer = require("vue-server-renderer").createRenderer();
+const renderer = require("vue-server-renderer").createRenderer({
+	template:
+		"<!--vue-ssr-outlet-->" ,
+		inject:false
+});
 export default {
 	data: {
 		curvnode: null,
@@ -37,31 +42,30 @@ export default {
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
-            
+
 			if (Array.isArray(treenodes)) {
-                var curnode;
+				var curnode;
 				for (var i in treenodes) {
 					curnode = treenodes[i];
-					if(curnode.view=='button'){
-						curnode.view='my-button'
+					if (curnode.view == "button") {
+						curnode.view = "my-button";
 					}
 					var newnode = new vnode(
 						viewObj[curnode.view],
 						curnode.styles,
 						curnode.props
 					);
-					if(!!curvnode.childrens){
+					if (!!curvnode.childrens) {
 						curvnode.childrens.push(newnode);
 					}
-					
+
 					if (!!curnode.childrens && curnode.childrens.length > 0) {
 						this.addTreenodes(curnode.childrens, newnode);
 					}
 				}
-            }
-            else{
-                this.addTreenodes([treenodes], curvnode);
-            }
+			} else {
+				this.addTreenodes([treenodes], curvnode);
+			}
 
 			// this.changeCurVnode(newnode);
 			// this.$emit("onChange", "root", this.rootvnode);
@@ -78,8 +82,9 @@ export default {
 			var self = this;
 			this.clearHoverStyles();
 			renderer.renderToString(this, (err, html) => {
-			    if (err) throw err;
-			    project.render(self.rootvnode, html, callback);
+				if (err) throw err;
+				console.log(html);
+				// project.render(self.rootvnode, html, callback);
 			});
 		},
 		resizeElement: function(delta, keepRatio) {
