@@ -79,7 +79,10 @@ class vnode {
             this.name = 'root';
         }
         this.view = view;
-        this.domid = (new Date()).valueOf();
+        if(!window.vnodeIdEND){
+            window.vnodeIdEND = 0;
+        }
+        this.domid = 'vnode_'+(window.vnodeIdEND++);
         this.styles = styles;
         this.props = props;
         this.childrens = [];
@@ -209,7 +212,6 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
-        console.log(styles);
         this.vuenode = createElement(
             "vnoderender",
             {
@@ -221,7 +223,7 @@ class vnode {
                     isoptioning:!!this.isoptioning
                 },
                 attrs: {
-                    class:this.props.className||"",
+                    class:(this.props.className||"")+' vnodeDom',
                     id: this.domid
                 },
                 nativeOn: {

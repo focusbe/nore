@@ -74,7 +74,9 @@ class PSD {
             errorimg
         };
     }
+    checkLayer(layer){
 
+    }
     getvnodetree(psdNode, vNode, imgPool, istree) {
         //params psdNode:psd中的节点
         //vNode:虚拟节点
@@ -170,7 +172,6 @@ class PSD {
                     left: istree ? (!!psdNode.artboard ? psdNode.artboard.left : psdNode.get("left")) : (!!psdNode.artboard ? psdNode.artboard.left : 0),
                     top: istree ? (!!psdNode.artboard ? psdNode.artboard.top : psdNode.get("top")) : (!!psdNode.artboard ? (psdNode.artboard.top - psdNode.offsetY) : -psdNode.offsetY)
                 };
-                console.log(parentAbsPos);
                 //设置样式
 
                 if ((!(!istree && curLayer.type == "group"))) {
@@ -208,8 +209,7 @@ class PSD {
                                 position: "absolute"
                             });
                         }
-
-
+                        
                         vNode.childrens.splice(0, 0, curVNode);
                     }
                     curVNode.styles = curStyles;
@@ -276,6 +276,7 @@ class PSD {
                             self.pixelMax
                         ) {
                             imgname = curLayer.path().replace(/\//g, "_");
+                            
                             imgPool.push({
                                 image: curLayer.layer.image,
                                 path: path.resolve(
