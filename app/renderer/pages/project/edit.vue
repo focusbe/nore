@@ -259,16 +259,7 @@ export default {
 		preview: function() {
 			var self = this;
 			//if (this.serverpath) {
-				this.$refs.canvas.renderToServer(this.project, function(res) {
-					// if (res) {
-					// 	Socket.sendTo("MAIN", "open", {
-					// 		tag: "preview_" + self.actname,
-					// 		url: self.serverpath
-					// 	});
-					// } else {
-					// 	alert("预览失败");
-					// }
-				});
+				this.$refs.canvas.renderToString();
 				//window.open(this.serverpath);
 			// } else {
 			// 	alert("本地服务器启动失败");

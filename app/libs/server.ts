@@ -4,6 +4,7 @@ var url = require('url');
 var fs = require('fs');
 var mine = require('./mine').types;
 var path = require('path');
+var net = require('net');
 function getReadyPortFrom(port, cb, times) {
 	if (!times) {
 		times = 0;

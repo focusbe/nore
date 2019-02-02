@@ -65,9 +65,6 @@ Vue.component("vnoderender", {
     }
 });
 
-class Styles{
-    
-}
 
 class vnode {
     constructor(view, styles, props) {
@@ -82,7 +79,7 @@ class vnode {
         if(!window.vnodeIdEND){
             window.vnodeIdEND = 0;
         }
-        this.domid = 'vnode_'+(window.vnodeIdEND++);
+        this.domid = 'vnode_'+(new Date().getTime());
         this.styles = styles;
         this.props = props;
         this.childrens = [];

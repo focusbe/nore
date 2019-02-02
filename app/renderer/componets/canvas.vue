@@ -6,13 +6,12 @@ import { vnode } from "./vnode";
 import { hoverStyles } from "../configs";
 import $ from "jquery";
 import path from "path";
+// var babel = require('@babel/core');
+var jsx = require("jsx-transform");
+
 var viewObj = viewList;
 var curviewObj = null;
-const renderer = require("vue-server-renderer").createRenderer({
-	template:
-		"<!--vue-ssr-outlet-->" ,
-		inject:false
-});
+
 export default {
 	data: {
 		curvnode: null,
@@ -42,7 +41,6 @@ export default {
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
-
 			if (Array.isArray(treenodes)) {
 				var curnode;
 				for (var i in treenodes) {
@@ -58,7 +56,6 @@ export default {
 					if (!!curvnode.childrens) {
 						curvnode.childrens.push(newnode);
 					}
-
 					if (!!curnode.childrens && curnode.childrens.length > 0) {
 						this.addTreenodes(curnode.childrens, newnode);
 					}
@@ -66,7 +63,6 @@ export default {
 			} else {
 				this.addTreenodes([treenodes], curvnode);
 			}
-
 			// this.changeCurVnode(newnode);
 			// this.$emit("onChange", "root", this.rootvnode);
 			// this.$emit("onChange", "curvnode", this.curvnode);
@@ -78,14 +74,65 @@ export default {
 			this.$emit("onChange", "root", this.rootvnode);
 			this.$emit("onChange", "curvnode", this.curvnode);
 		},
-		renderToServer: function(project, callback) {
-			var self = this;
-			this.clearHoverStyles();
-			renderer.renderToString(this, (err, html) => {
-				if (err) throw err;
-				console.log(html);
-				// project.render(self.rootvnode, html, callback);
+		renderToString: function() {
+			var res = this.vnodeToJsx(this.rootvnode);
+			console.log(res.css);
+			var test1 = jsx.fromString(res.jsx, {
+				factory: "createVnode"
 			});
+		},
+		vnodeToJsx: function(vnode, tabstr) {
+			if (!vnode) {
+				return;
+			}
+			if (!tabstr) {
+				tabstr = "";
+			}
+			console.log(vnode);
+			var tag = vnode.view;
+			if (typeof tag == "object") {
+				tag = !!tag.name ? tag.name : "div";
+			}
+			var css = "";
+			var jsx = "";
+			jsx = tabstr + `<${tag} id="${vnode.domid}"`;
+			let proptype;
+			for (var i in vnode.props) {
+				proptype = typeof vnode.props[i];
+				if (proptype != "function" && proptype != "object") {
+					jsx += ` ${i}="${vnode.props[i]}"`;
+				}
+			}
+			if (!!vnode.styles) {
+				css = `#${vnode.domid}{\n`;
+				for (var i in vnode.styles) {
+					css += `\t${i}:${vnode.styles[i]};\n`;
+				}
+				css += `\n}\n`;
+			}
+			jsx += ">";
+
+			if (!!vnode.childrens && vnode.childrens.length > 0) {
+				for (var j in vnode.childrens) {
+					let childjsx = this.vnodeToJsx(
+						vnode.childrens[j],
+						tabstr + "\t"
+					);
+					jsx += "\n" + childjsx.jsx;
+					css += childjsx.css;
+				}
+			}
+
+			jsx += `\n${tabstr}</${tag}>`;
+
+			return { css: css, jsx: jsx };
+			// this.clearHoverStyles();
+			// renderer.renderToString(this, (err, html) => {
+			// 	if (err) throw err;
+
+			// 	console.log(html);
+			// 	// project.render(self.rootvnode, html, callback);
+			// });
 		},
 		resizeElement: function(delta, keepRatio) {
 			//keepRatio = true;
