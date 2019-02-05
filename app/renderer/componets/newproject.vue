@@ -18,13 +18,13 @@
 			:rules="projectRules"
 		>
 			<FormItem prop="actname" label="活动名称">
-				<Input placeholder="请填写英文或拼音" v-model="projectInfo.actname"></Input>
+				<Input placeholder="请填写英文或拼音" v-model="projectInfo.actname"/>
 			</FormItem>
 			<FormItem prop="title" label="标题">
-				<Input v-model="projectInfo.title"></Input>
+				<Input v-model="projectInfo.title"/>
 			</FormItem>
 			<FormItem prop="desc" label="描述">
-				<Input v-model="projectInfo.desc"></Input>
+				<Input v-model="projectInfo.desc"/>
 			</FormItem>
 			<FormItem prop="game" label="游戏">
 				<Select v-model="projectInfo.game">
