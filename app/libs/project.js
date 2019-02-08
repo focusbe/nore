@@ -3,9 +3,10 @@ var browserify = require("browserify");
 var fs = require("fs");
 var path = require("path");
 import Configs from './configs';
-
 var juicer = require("juicer");
 var babelify = require("babelify");
+const low = require('lowdb');
+const FileSync = require('lowdb/adapters/FileSync');  // 有多种适配器可选择
 import Files from './files';
 class Projects {
     constructor() { }
@@ -25,15 +26,15 @@ class Projects {
             __dirname,
             "../" + Configs.getItem('workshop') + "/" + actname + "/"
         );
-        var mainsrc = actpath + "main.json";
-        var logicsrc = actpath + "main.json";
-        var result = {};
-        try {
-            result["main"] = jsonfile.readFileSync(mainsrc);
-            result["logic"] = jsonfile.readFileSync(logicsrc);
-        } catch (e) {
-            callback(false);
-        }
+        // var mainsrc = actpath + "main.json";
+        // var logicsrc = actpath + "main.json";
+        // var result = {};
+        // try {
+        //     result["main"] = jsonfile.readFileSync(mainsrc);
+        //     result["logic"] = jsonfile.readFileSync(logicsrc);
+        // } catch (e) {
+        //     callback(false);
+        // }
         callback(result);
     }
     static getTempList(callback) {
@@ -44,7 +45,6 @@ class Projects {
     }
 }
 
-
 class Project {
     constructor(config) {
         if (!config) {
@@ -52,27 +52,70 @@ class Project {
         }
         if (typeof config == "string") {
             this.actname = config;
-            this.path = path.join(
-                __dirname,
-                "../" + Configs.getItem('workshop') + "/" + this.actname + "/"
-            );
+            this.path = path.resolve(Configs.getItem('workshop'), this.config.actname);
             // console.log(1111);
             // console.log(fs.existsSync("xxxx"));
             if (fs.existsSync(this.path + "config.json")) {
                 this.config = jsonfile.readFileSync(this.path + "config.json");
-
             }
         } else {
             this.config = config;
-
             if (!this.config.template) {
                 this.config.template = "blank";
             }
         }
-
+        let adapter = new FileSync(path.resolve(path, 'data/data.json')); // 申明一个适配器
+        this.db = low(adapter);
+        this.db.defaults({ pages: [], info: {} })
+            .write();
         return true;
     }
 
+    getPageList() {
+        let pages = this.db.get('pages')
+            .value();
+        return pages;
+    }
+    addPage(config) {
+        if (!config || !config.name) {
+            return -1;
+        }
+        if(this.hasPage(name)){
+            return -2;
+        }
+        var id = this.db.get('pages').push(
+            Object.assign({ id: shortid.generate() }, config, { tree: null })
+        ).write();
+        return id;
+    }
+    delPage(name) {
+        if(!name||!this.hasPage(name)){
+            return -1;
+        }
+        var res = this.db.get('pages')
+            .remove({ name: name })
+            .write();
+        return res;
+    }
+    hasPage(name){
+        var hasname = this.db.get({ name: name }).size();
+        return !!hasname;
+    }
+    savePage(name, tree) {
+        if(!name||!tree||!this.hasPage(name)){
+            return -1;
+        }
+        var res = this.db.get('pages')
+        .find({name:name})
+        .assign({tree:tree}).write();
+        return res;
+    }
+    saveToFile(){
+
+    }
+    parseFile(){
+
+    }
     getinfo(callback) {
         var mainsrc = this.path + "main.json";
         //console.log(logicsrc);
@@ -163,7 +206,9 @@ class Project {
 
     delete() { }
     isexit() { }
-    save() { }
+    save(data) {
+
+    }
     saveMain(main, callback) {
         if (main) {
             var result = jsonfile.writeFileSync(this.path + "main.json", main);
@@ -274,8 +319,19 @@ class Project {
     uploadToDev() { }
     addWorkTime() { }
 }
+class Page {
+    constructor(name, template) {
+        this.name = name;
+        this.template = template;
+
+    }
+    save() {
+
+    }
+}
 export {
     Project,
     Files,
-    Projects
+    Projects,
+    Page
 };

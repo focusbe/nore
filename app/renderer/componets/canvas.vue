@@ -33,7 +33,6 @@ export default {
 			this.refresh();
 		},
 		clearCanvas() {
-			alert("clear");
 			this.$set(this.rootvnode, "childrens", []);
 			this.refresh();
 		},
@@ -124,7 +123,6 @@ export default {
 			}
 
 			jsx += `\n${tabstr}</${tag}>`;
-
 			return { css: css, jsx: jsx };
 			// this.clearHoverStyles();
 			// renderer.renderToString(this, (err, html) => {
