@@ -1,39 +1,68 @@
 <template>
 	<Modal
-		v-model="modalshow"
-		title="新建项目"
-		@on-ok="ok"
-		@on-cancel="cancel"
-		:loading="loading"
-		:footer="''"
+	 v-model="modalshow"
+	 title="新建项目"
+	 @on-ok="ok"
+	 @on-cancel="cancel"
+	 :loading="loading"
+	 :footer="''"
 	>
 		<div slot="footer">
-			<Button @click="submitData" type="primary">提交</Button>
+			<Button
+			 @click="submitData"
+			 type="primary"
+			>提交</Button>
 		</div>
 		<Form
-			ref="form"
-			:model="projectInfo"
-			label-position="left"
-			:label-width="100"
-			:rules="projectRules"
+		 ref="form"
+		 :model="projectInfo"
+		 label-position="left"
+		 :label-width="100"
+		 :rules="projectRules"
 		>
-			<FormItem prop="actname" label="活动名称">
-				<Input placeholder="请填写英文或拼音" v-model="projectInfo.actname"/>
+			<FormItem
+			 prop="actname"
+			 label="活动名称"
+			>
+				<Input
+				 placeholder="请填写英文或拼音"
+				 v-model="projectInfo.actname"
+				/>
 			</FormItem>
-			<FormItem prop="title" label="标题">
-				<Input v-model="projectInfo.title"/>
+			<FormItem
+			 prop="title"
+			 label="标题"
+			>
+				<Input v-model="projectInfo.title" />
 			</FormItem>
-			<FormItem prop="desc" label="描述">
-				<Input v-model="projectInfo.desc"/>
+			<FormItem
+			 prop="desc"
+			 label="描述"
+			>
+				<Input v-model="projectInfo.desc" />
 			</FormItem>
-			<FormItem prop="game" label="游戏">
+			<FormItem
+			 prop="game"
+			 label="游戏"
+			>
 				<Select v-model="projectInfo.game">
-					<Option v-for="(item, key) in gameList" :value="key" :key="key">{{ item.cname }}</Option>
+					<Option
+					 v-for="(item, key) in gameList"
+					 :value="key"
+					 :key="key"
+					>{{ item.cname }}</Option>
 				</Select>
 			</FormItem>
-			<FormItem prop="template" label="模板">
+			<FormItem
+			 prop="template"
+			 label="模板"
+			>
 				<Select v-model="projectInfo.template">
-					<Option v-for="(item, key) in templateList" :value="item.path" :key="key">{{ item.name }}</Option>
+					<Option
+					 v-for="(item, key) in templateList"
+					 :value="item.path"
+					 :key="key"
+					>{{ item.name }}</Option>
 				</Select>
 			</FormItem>
 		</Form>
@@ -68,14 +97,14 @@ export default {
 				title: [
 					{
 						required: true,
-						message: "请填写标题",
+						message: "请填写项目标题",
 						trigger: "blur"
 					}
 				],
 				desc: [
 					{
 						required: true,
-						message: "请填写描述",
+						message: "请填写项目描述",
 						trigger: "blur"
 					}
 				],
@@ -137,20 +166,25 @@ export default {
 				if (valid) {
 					//this.$Message.success("Success!");
 					console.log(self.projectInfo);
-					var newproject = new Project(self.projectInfo);
-					newproject.create(function() {
-						self.hide();
-						self.$Message.info("创建成功");
-						//let routeData = self.$router.resolve({ path: '/project/edit', query: {  actname: self.projectInfo.actname } });
-						mySocket.sendTo("MAIN", "open", {
-							tag: "project_edit",
-							hash: "#/project/edit",
-							search: "?actname=" + self.projectInfo.actname
+					try {
+						var newproject = new Project(self.projectInfo);
+						console.log(newproject);
+						newproject.create(function() {
+							self.hide();
+							self.$Message.info("创建成功");
+							//let routeData = self.$router.resolve({ path: '/project/edit', query: {  actname: self.projectInfo.actname } });
+							mySocket.sendTo("MAIN", "open", {
+								tag: "project_edit",
+								hash: "#/project/edit",
+								search: "?actname=" + self.projectInfo.actname
+							});
+							// alert(routeData.href);
+							// window.open(routeData.href);
+							self.ok();
 						});
-						// alert(routeData.href);
-						// window.open(routeData.href);
-						self.ok();
-					});
+					} catch (error) {
+						console.log(error);
+					}
 				} else {
 					this.$Message.error("Fail!");
 				}

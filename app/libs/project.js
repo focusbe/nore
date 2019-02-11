@@ -6,10 +6,10 @@ import Configs from './configs';
 var juicer = require("juicer");
 var babelify = require("babelify");
 const low = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');  // 有多种适配器可选择
+const FileSync = require('lowdb/adapters/FileSync'); // 有多种适配器可选择
 import Files from './files';
 class Projects {
-    constructor() { }
+    constructor() {}
     static getlist(callback) {
         if (!Configs.getItem('workshop')) {
             callback(false, '没有设置workshop');
@@ -50,25 +50,58 @@ class Project {
         if (!config) {
             return;
         }
+
         if (typeof config == "string") {
+            //项目已经存在
             this.actname = config;
-            this.path = path.resolve(Configs.getItem('workshop'), this.config.actname);
-            // console.log(1111);
-            // console.log(fs.existsSync("xxxx"));
-            if (fs.existsSync(this.path + "config.json")) {
-                this.config = jsonfile.readFileSync(this.path + "config.json");
-            }
+            // this.path = path.resolve(Configs.getItem('workshop'), this.actname);
+            // // console.log(1111);
+            // // console.log(fs.existsSync("xxxx"));
+            // if (fs.existsSync(this.path + "config.json")) {
+            //     this.config = jsonfile.readFileSync(this.path + "config.json");
+            // }
+            this.config = {};
         } else {
             this.config = config;
+            this.actname = config.actname;
             if (!this.config.template) {
                 this.config.template = "blank";
             }
         }
-        let adapter = new FileSync(path.resolve(path, 'data/data.json')); // 申明一个适配器
-        this.db = low(adapter);
-        this.db.defaults({ pages: [], info: {} })
-            .write();
+        this.path = path.resolve(Configs.getItem('workshop'), this.actname);
+        this.initDB();
         return true;
+    }
+    initDB(callback) {
+        var self = this;
+        let datadir = path.resolve(this.path, 'data');
+        if(!fs.existsSync(this.path)){
+            return;
+        }
+        if(!!this.db){
+            callback(true);
+            return;
+        }
+        
+        Files.createdir(datadir, function (res) {
+            if (!!res) {
+                let adapter = new FileSync(path.resolve(self.path, 'data/db.json')); // 申明一个适配器
+                self.db = low(adapter);
+                self.db.defaults({
+                        pages: [],
+                        info: {}
+                    })
+                    .write();
+                if (!!callback) {
+                    callback(true,null);
+                }
+            } else {
+                if (!!callback) {
+                    callback(false, '创建数据目录失败');
+                }
+            }
+
+        });
     }
 
     getPageList() {
@@ -80,40 +113,52 @@ class Project {
         if (!config || !config.name) {
             return -1;
         }
-        if(this.hasPage(name)){
+        if (this.hasPage(name)) {
             return -2;
         }
         var id = this.db.get('pages').push(
-            Object.assign({ id: shortid.generate() }, config, { tree: null })
+            Object.assign({
+                id: shortid.generate()
+            }, config, {
+                tree: null
+            })
         ).write();
         return id;
     }
     delPage(name) {
-        if(!name||!this.hasPage(name)){
+        if (!name || !this.hasPage(name)) {
             return -1;
         }
         var res = this.db.get('pages')
-            .remove({ name: name })
+            .remove({
+                name: name
+            })
             .write();
         return res;
     }
-    hasPage(name){
-        var hasname = this.db.get({ name: name }).size();
+    hasPage(name) {
+        var hasname = this.db.get({
+            name: name
+        }).size();
         return !!hasname;
     }
     savePage(name, tree) {
-        if(!name||!tree||!this.hasPage(name)){
+        if (!name || !tree || !this.hasPage(name)) {
             return -1;
         }
         var res = this.db.get('pages')
-        .find({name:name})
-        .assign({tree:tree}).write();
+            .find({
+                name: name
+            })
+            .assign({
+                tree: tree
+            }).write();
         return res;
     }
-    saveToFile(){
+    saveToFile() {
 
     }
-    parseFile(){
+    parseFile() {
 
     }
     getinfo(callback) {
@@ -147,65 +192,51 @@ class Project {
             return result;
         }
         if (!this.config.title) {
-            result.msg = "请填写页面标题";
+            result.msg = "请填写项目标题标题";
             result.ret = -1;
             callback(result);
             return result;
         }
         if (!this.config.desc) {
-            result.msg = "请填写页面描述";
+            result.msg = "请填写项目描述";
             result.ret = -1;
             callback(result);
             return result;
         }
         var self = this;
-        try {
-            console.log(path.resolve(__dirname, "../../template/" + this.config.template + "/"))
-            console.log(path.resolve(Configs.getItem('workshop'), this.config.actname));
-        } catch (error) {
-            console.log(error);
-        }
-        try {
-            let projectDir = path.resolve(Configs.getItem('workshop'), this.config.actname);
-            Files.createdirAsync(projectDir).then(function () {
-                jsonfile.writeFile(
-                    path.join(
-                        Configs.getItem('workshop') +
-                        "/" +
-                        self.config.actname +
-                        "/config.json"
-                    ),
-                    self.config, {
-                        spaces: 4
-                    },
-                    function (err) {
-                        if (!err) {
-                            result.msg = "创建配置文件失败";
-                            result.ret = -1;
-                            callback(result);
-                            return;
-                        } else {
-                            result.msg = "成功";
-                            result.ret = 1;
-                            callback(result);
-                            return;
-                        }
-                    }
-                );
-            }).catch(function () {
-                result.msg = "复制文件失败";
-                result.ret = -1;
-                callback(result);
-                return result;
-            });
-        } catch (error) {
-            console.log(error);
-        }
+        let projectDir = path.resolve(Configs.getItem('workshop'), this.config.actname);
 
+        Files.createdirAsync(projectDir).then(function () {
+            //保存基本信息
+            self.initDB(function(res,msg){
+                if(!res){
+                    if(!!callback){
+                        callback({ret:res,msg:msg});
+                    }
+                    return;
+                }
+                self.db.set('info', self.config)
+                .write().then(function () {
+                    result.msg = "成功";
+                    result.ret = 1;
+                    callback(result);
+                    return;
+                }).catch(function () {
+                    result.msg = "保存项目信息失败";
+                    result.ret = -1;
+                    callback(result);
+                })
+            });
+        }).catch(function () {
+            result.msg = "复制文件失败";
+            result.ret = -1;
+            callback(result);
+            return result;
+        });
     }
 
-    delete() { }
-    isexit() { }
+    delete() {}
+    isexit() {}
     save(data) {
 
     }
@@ -217,7 +248,7 @@ class Project {
             callback(false);
         }
     }
-    saveHtml(canvasHtml, callback) { }
+    saveHtml(canvasHtml, callback) {}
     saveLogic(logic, callback) {
         if (logic) {
             var result = jsonfile.writeFileSync(
@@ -314,10 +345,10 @@ class Project {
             });
         });
     }
-    runCmd() { }
-    commitSvn() { }
-    uploadToDev() { }
-    addWorkTime() { }
+    runCmd() {}
+    commitSvn() {}
+    uploadToDev() {}
+    addWorkTime() {}
 }
 class Page {
     constructor(name, template) {

@@ -166,10 +166,11 @@ export default {
 	},
 	created: function() {
 		var self = this;
-		var self = this;
-		//console.log(this.$route);
+		console.log(this.$route);
+		let actname = this.$route.query.actname;
 		this.actname = this.$route.query.actname;
-		var project = new Project(this.actname);
+		
+		var project = new Project(actname);
 		this.project = project;
 		// Server.start(function(res) {
 		// 	if (
@@ -187,6 +188,7 @@ export default {
 		// 	}
 		// });
 		project.getinfo(function(res) {
+			console.log();
 			self.prejectInfo = res;
 		});
 		var body = document.getElementsByTagName("body")[0];
