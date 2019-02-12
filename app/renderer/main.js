@@ -7,7 +7,6 @@ import VueRouter from "vue-router";
 import App from "./pages/app.vue";
 
 import "./css/style.scss";
-import "material-design-icons";
 import iView from "iview";
 import "./css/themes.less";
 import Elelments from "./elements/index.js";
