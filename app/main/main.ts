@@ -1,14 +1,11 @@
 const electron = require("electron");
-const path = require("path");
 const app = electron.app;
-const Menu = electron.Menu;
 import { inarar, DEBUG, isproduct } from "../libs/env";
 import AutoUpdater from "./autodater";
-import mySocket from "./mysocket";
 import WinManager from "./winmanager";
 import initMenu from "./initmenu";
 
-const fs = require('fs');
+const fs = require("fs");
 class Main {
     constructor() {
         var self = this;
@@ -25,16 +22,15 @@ class Main {
         app.on("activate", function() {
             //WinManager.newwindow("main");
         });
-        app.on("quit",function(){
+        app.on("quit", function() {
             WinManager.closeAll();
-        })
+        });
         AutoUpdater.init();
         this.watch();
     }
-    watch(){
-        if(DEBUG){
-            
-            fs.watch(__filename,function(event:any,filename:any){
+    watch() {
+        if (DEBUG) {
+            fs.watch(__filename, function(event: any, filename: any) {
                 app.exit();
                 app.quit();
             });

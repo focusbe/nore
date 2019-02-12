@@ -11,7 +11,10 @@ import iView from "iview";
 import "./css/themes.less";
 import Elelments from "./elements/index.js";
 // console.log(path);
+import contentmenu from 'v-contextmenu'
+import 'v-contextmenu/dist/index.css'
 
+Vue.use(contentmenu)
 Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);

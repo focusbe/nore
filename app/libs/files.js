@@ -66,51 +66,62 @@ class Files {
         if (!folder) {
             folder = [];
         }
+        
         return new Promise(function (result, reject) {
-            fse.readdir(src, function (err, paths) {
-                if (!err) {
-                    var promisArr = [];
-                    var length = paths.length;
-                    var done = 0;
-                    paths.forEach(async function (curpath) {
-                        var _src = src + "/" + curpath;
-                        var filestat = fse.statSync(_src);
-                        if (filestat) {
-                            if (filestat.isDirectory()) {
-                                var _folder = { name: curpath, children: [] };
-                                folder.push(_folder);
-                                Files.getTree(_src, _folder['children']).then(function (res) {
+            fse.pathExists(src,function(err,exists){
+                if(!!err){
+                    reject(err);
+                    return;
+                }
+                if(!exists){
+                    result(folder);
+                }
+                fse.readdir(src, function (err, paths) {
+                    if (!err) {
+                        var promisArr = [];
+                        var length = paths.length;
+                        var done = 0;
+                        paths.forEach(async function (curpath) {
+                            var _src = src + "/" + curpath;
+                            var filestat = fse.statSync(_src);
+                            if (filestat) {
+                                if (filestat.isDirectory()) {
+                                    var _folder = { name: curpath, children: [] };
+                                    folder.push(_folder);
+                                    Files.getTree(_src, _folder['children']).then(function (res) {
+                                        done++;
+                                        if (done >= length) {
+                                            result(folder);
+                                        }
+                                    }).catch(function () {
+                                        done++;
+                                        if (done >= length) {
+                                            result(folder);
+                                        }
+                                    });
+                                }
+                                else {
                                     done++;
+                                    folder.push({ 'path': _src, 'name': path.basename(_src) });
                                     if (done >= length) {
                                         result(folder);
                                     }
-                                }).catch(function () {
-                                    done++;
-                                    if (done >= length) {
-                                        result(folder);
-                                    }
-                                });
+                                }
                             }
                             else {
                                 done++;
-                                folder.push({ 'path': _src, 'name': path.basename(_src) });
-                                if (done >= length) {
-                                    result(folder);
-                                }
+                                reject('获取文件状态失败');
                             }
-                        }
-                        else {
-                            done++;
-                            reject('获取文件状态失败');
-                        }
-
-                    });
-                }
-                else {
-
-                    reject(err);
-                }
+    
+                        });
+                    }
+                    else {
+    
+                        reject(err);
+                    }
+                });
             });
+            
 
         });
     }

@@ -53,7 +53,7 @@
 					>{{ item.cname }}</Option>
 				</Select>
 			</FormItem>
-			<FormItem
+			<!-- <FormItem
 			 prop="template"
 			 label="模板"
 			>
@@ -64,7 +64,7 @@
 					 :key="key"
 					>{{ item.name }}</Option>
 				</Select>
-			</FormItem>
+			</FormItem> -->
 		</Form>
 	</Modal>
 </template>
@@ -122,14 +122,14 @@ export default {
 						trigger: "blur"
 					},
 					{ validator: this.validateTitle, trigger: "blur" }
-				],
-				template: [
-					{
-						required: true,
-						message: "请选择模板",
-						trigger: "blur"
-					}
 				]
+				// template: [
+				// 	{
+				// 		required: true,
+				// 		message: "请选择模板",
+				// 		trigger: "blur"
+				// 	}
+				// ]
 			}
 		};
 	},
@@ -175,8 +175,7 @@ export default {
 							//let routeData = self.$router.resolve({ path: '/project/edit', query: {  actname: self.projectInfo.actname } });
 							mySocket.sendTo("MAIN", "open", {
 								tag: "project_edit",
-								hash: "#/project/edit",
-								search: "?actname=" + self.projectInfo.actname
+								hash: "#/project/edit"+"?actname=" + self.projectInfo.actname
 							});
 							// alert(routeData.href);
 							// window.open(routeData.href);

@@ -35,6 +35,10 @@ class Config {
         svnClient: {
             name: "乌龟SVN安装目录",
             value: ''
+        },
+        vscodePath: {
+            name: "vsCode路径",
+            value: ''
         }
     }
 

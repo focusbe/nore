@@ -1,6 +1,7 @@
 var jsonfile = require("jsonfile");
 var browserify = require("browserify");
 var fs = require("fs");
+var fse = require("fs-extra");
 var path = require("path");
 import Configs from './configs';
 var juicer = require("juicer");
@@ -37,11 +38,52 @@ class Projects {
         // }
         callback(result);
     }
+    static delete(actname, callback) {
+        let projectDir = path.resolve(Configs.getItem('workshop'), actname);
+        fse.remove(projectDir, err => {
+            if (err) return callback(false)
+            callback(true)
+        })
+    }
     static getTempList(callback) {
         var tempdir = path.resolve(__dirname, "../../template");
         Files.createdir(tempdir, function () {
             Files.getList(tempdir, callback);
         });
+    }
+    static openWithIed(actid) {
+        var vcodedir = Configs.getItem('iedpath');
+        if (!vcodedir) {
+
+            return -1;
+        }
+        let project = this.getProjectDir(actid);
+        if (project) {
+            // shelljs.cd(path);
+            let sh = vcodedir + ' ' + path;
+            console.log(sh);
+            // console.log(path);
+            // shell.showItemInFolder(path)
+            // return;
+            var child = shelljs.exec(sh, {
+                async: true,
+                silent: true,
+            }, function (code, stdout, stderr) {
+                console.log(stderr);
+                console.log(stdout);
+                if (!!stderr) {
+                    //resolve(false)
+                } else {
+                    //resolve(true)
+                }
+            });
+            return true;
+        }
+        return -2;
+    }
+    static getProjectDir(actname) {
+        let projectDir = path.resolve(Configs.getItem('workshop'), actname);
+        return projectDir;
     }
 }
 
@@ -64,9 +106,9 @@ class Project {
         } else {
             this.config = config;
             this.actname = config.actname;
-            if (!this.config.template) {
-                this.config.template = "blank";
-            }
+            // if (!this.config.template) {
+            //     this.config.template = "blank";
+            // }
         }
         this.path = path.resolve(Configs.getItem('workshop'), this.actname);
         this.initDB();
@@ -75,14 +117,14 @@ class Project {
     initDB(callback) {
         var self = this;
         let datadir = path.resolve(this.path, 'data');
-        if(!fs.existsSync(this.path)){
+        if (!fs.existsSync(this.path)) {
             return;
         }
-        if(!!this.db){
+        if (!!this.db) {
             callback(true);
             return;
         }
-        
+
         Files.createdir(datadir, function (res) {
             if (!!res) {
                 let adapter = new FileSync(path.resolve(self.path, 'data/db.json')); // 申明一个适配器
@@ -93,7 +135,7 @@ class Project {
                     })
                     .write();
                 if (!!callback) {
-                    callback(true,null);
+                    callback(true, null);
                 }
             } else {
                 if (!!callback) {
@@ -208,24 +250,38 @@ class Project {
 
         Files.createdirAsync(projectDir).then(function () {
             //保存基本信息
-            self.initDB(function(res,msg){
-                if(!res){
-                    if(!!callback){
-                        callback({ret:res,msg:msg});
+            self.initDB(function (res, msg) {
+                if (!res) {
+                    if (!!callback) {
+                        callback({
+                            ret: res,
+                            msg: msg
+                        });
                     }
                     return;
                 }
-                self.db.set('info', self.config)
-                .write().then(function () {
+                try {
+                    self.db.set('info', self.config)
+                        .write();
                     result.msg = "成功";
                     result.ret = 1;
                     callback(result);
-                    return;
-                }).catch(function () {
+                } catch (error) {
                     result.msg = "保存项目信息失败";
                     result.ret = -1;
                     callback(result);
-                })
+                }
+
+                // .then(function () {
+                //     result.msg = "成功";
+                //     result.ret = 1;
+                //     callback(result);
+                //     return;
+                // }).catch(function () {
+                //     result.msg = "保存项目信息失败";
+                //     result.ret = -1;
+                //     callback(result);
+                // })
             });
         }).catch(function () {
             result.msg = "复制文件失败";
@@ -235,8 +291,14 @@ class Project {
         });
     }
 
-    delete() {}
-    isexit() {}
+
+    getProjectDir(actname) {
+        let projectDir = path.resolve(Configs.getItem('workshop'), actname);
+        return projectDir;
+    }
+    isexit() {
+
+    }
     save(data) {
 
     }
@@ -261,7 +323,6 @@ class Project {
         }
     }
     render(canvaData, canvashtml, callback) {
-
         var self = this;
         this.saveMain(canvaData.toJson(), function (res) {
             console.log("保存文件成功");
@@ -285,7 +346,6 @@ class Project {
                 if (err) {
                     callback(false);
                 } else {
-
                     var bundlejs = buff.toString();
                     try {
                         fs.writeFileSync(
@@ -350,6 +410,7 @@ class Project {
     uploadToDev() {}
     addWorkTime() {}
 }
+
 class Page {
     constructor(name, template) {
         this.name = name;
