@@ -43,7 +43,19 @@
 			</div>
 			<Button @click="clearCanvas">清空画布</Button>
 		</div>
-		<div class="top_options_bar">
+		<div class="center">
+			<Tag
+			 v-for="item in pagelist"
+			 closable
+			>{{name.title}}</Tag>
+			<i-button
+			 icon="ios-plus-empty"
+			 type="dashed"
+			 size="small"
+			 @click="addPage"
+			>添加页面</i-button>
+		</div>
+		<!-- <div class="top_options_bar">
 			<Button
 			 @click="changeDevice('pc')"
 			 type="primary"
@@ -54,9 +66,6 @@
 				 color
 				/>
 			</Button>
-			<!-- <Button @click="changeDevice('pad')" type="primary">
-				<Icon type="ipad" size="30" color/>
-			</Button> -->
 			<Button
 			 @click="changeDevice('phone')"
 			 type="primary"
@@ -90,7 +99,7 @@
 				 @onChange="onCanvasChange"
 				></my-canvas>
 			</div>
-		</div>
+		</div> -->
 		<div class="right_area">
 			<styles-panel
 			 @onChange="onCurStylesChange"
@@ -113,9 +122,15 @@
 		 v-show="dragover"
 		 class="dragover"
 		></div>
+		<add-page ref="pageForm" :curProject="project"
+		 @ok="addPageOk"></add-page>
 	</div>
 </template>
-<style>
+<style lang="scss" scoped>
+	.page_wrap {
+		display: flex;
+		flex-direction: row;
+	}
 </style>
 
 <script>
@@ -128,11 +143,14 @@ import { Project } from "../../../libs/project";
 import Assets from "../../componets/assets";
 import PSD from "../../componets/psd";
 import Server from "../../../libs/server";
+import addpage from "../../componets/addpage.vue";
+
 Vue.component("my-options", Options);
 Vue.component("styles-panel", stylesPanels);
 Vue.component("my-canvas", Canvas);
 Vue.component("assets", Assets);
 Vue.component("my-psd", PSD);
+Vue.component("add-page", addpage);
 export default {
 	name: "project_edit",
 	data() {
@@ -140,8 +158,10 @@ export default {
 			prejectInfo: {},
 			serverpath: null,
 			actname: "",
+			project:null,
 			viewList: viewList,
 			styleOptions: {},
+			pagelist:[],
 			curStyles: {},
 			curdevice: "phone",
 			propOptions: {},
@@ -169,9 +189,13 @@ export default {
 		console.log(this.$route);
 		let actname = this.$route.query.actname;
 		this.actname = this.$route.query.actname;
-		
+
 		var project = new Project(actname);
 		this.project = project;
+		setTimeout(function(){
+			self.pagelist = project.getPageList();
+		},1000);
+		
 		// Server.start(function(res) {
 		// 	if (
 		// 		!!res &&
@@ -232,6 +256,12 @@ export default {
 	},
 
 	methods: {
+		addPage(){
+			this.$refs.pageForm.show();
+		},
+		addPageOk(){
+
+		},
 		psdfinish(vnodetree) {
 			this.$refs.canvas.initFromTree(vnodetree);
 		},
@@ -261,8 +291,8 @@ export default {
 		preview: function() {
 			var self = this;
 			//if (this.serverpath) {
-				this.$refs.canvas.renderToString();
-				//window.open(this.serverpath);
+			this.$refs.canvas.renderToString();
+			//window.open(this.serverpath);
 			// } else {
 			// 	alert("本地服务器启动失败");
 			// }

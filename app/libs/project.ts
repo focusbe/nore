@@ -4,7 +4,7 @@ var fs = require("fs");
 var fse = require("fs-extra");
 var path = require("path");
 var shortid = require("shortid");
-import Configs from './configs';
+var Configs = require("./configs");
 var juicer = require("juicer");
 var babelify = require("babelify");
 const low = require('lowdb');
@@ -12,60 +12,120 @@ const FileSync = require('lowdb/adapters/FileSync'); // 有多种适配器可选
 import Files from './files';
 const shelljs = require('shelljs');
 class Projects {
-    constructor() {}
-    static getlist(callback) {
-        if (!Configs.getItem('workshop')) {
-            callback(false, '没有设置workshop');
-            return;
+    private projectCache:{ [key: string]: any } = {}
+    private static instance: Projects;
+    private constructor() {}
+    static getInstance(): Projects {
+        if (!Projects.instance) {
+            Projects.instance = new Projects();
         }
-        var workshopdir = path.resolve(Configs.getItem('workshop'));
-        Files.createdir(workshopdir, function () {
-            Files.getList(workshopdir, callback);
-        });
+        return this.instance;
     }
-    static delete(actname, callback) {
-        let projectDir = path.resolve(Configs.getItem('workshop'), actname);
-        fse.remove(projectDir, err => {
-            if (err) return callback(false)
-            callback(true)
-        })
-    }
-    static getTempList(callback) {
-        var tempdir = path.resolve(__dirname, "../../template");
-        Files.createdir(tempdir, function () {
-            Files.getList(tempdir, callback);
-        });
-    }
-    static openWithIed(actid, callback) {
-        var vcodedir = path.resolve(Configs.getItem('vscodePath'), 'bin/code');
-        if (!vcodedir) {
-            callback(false, '请配置VSCOD路径', -1);
-        }
-        let project = this.getProjectDir(actid);
-        let sh = '"' + vcodedir + '" ' + project;
-        var child = shelljs.exec(sh, {
-            async: true,
-            silent: true,
-        }, function (code, stdout, stderr) {
-            if (!!stderr) {
-                callback(false, stdout, -2)
-            } else {
-                callback(true)
+    getlist() {
+        return new Promise(function(reject,result){
+            if (!Configs.getItem('workshop')) {
+                reject('没有设置workshop');
+                return;
             }
+            let workshopdir = path.resolve(Configs.getItem('workshop'));
+            Files.createdir(workshopdir, function () {
+                Files.getList(workshopdir, function(list){
+                    if(!list){
+                        reject('获取文件失败');
+                    }
+                    result(list);
+                });
+            });
         });
     }
-    static getProjectDir(actname) {
+    add(config){
+
+    }
+    has(actname){
+        
+    }
+    delete(actname) {
+        return new Promise(function(reject,result){
+            let projectDir = path.resolve(Configs.getItem('workshop'), actname);
+            fse.remove(projectDir, err => {
+                if (err){
+                    reject(err);
+                    return;
+                }
+                result(true);
+            })
+        });
+        
+    }
+    getTempList() {
+        return new Promise(function(reject,result){
+            var tempdir = path.resolve(__dirname, "../../template");
+            Files.createdir(tempdir, function () {
+                Files.getList(tempdir, function(list){
+                    if(!list){
+                        reject('获取列表失败');
+                        return;
+                    }
+                    result(list);
+                });
+            });
+        });
+        
+    }
+    openWithIed(actname) {
+        return new Promise(function(reject,result){
+            let vcodedir = path.resolve(Configs.getItem('vscodePath'), 'bin/code');
+            if (!vcodedir) {
+                reject('请配置VSCOD路径');
+                return;
+                // callback(false, '请配置VSCOD路径', -1);
+            }
+            let project = this.getProjectDir(actname);
+            let sh = '"' + vcodedir + '" ' + project;
+            shelljs.exec(sh, {
+                async: true,
+                silent: true,
+            }, function (code, stdout, stderr) {
+                if (!!stderr) {
+                    reject(stderr);
+                } else {
+                    result(true);
+                }
+            });
+        });
+        
+    }
+    getProjectDir(actname) {
         let projectDir = path.resolve(Configs.getItem('workshop'), actname);
         return projectDir;
+    }
+    getProject(actname){
+        if(!actname){
+            return -1;
+        }
+        if(!!this.projectCache[actname]){
+            return this.projectCache[actname];
+        }
+        let projectroot = path.resolve(Configs.getItem('workshop'), actname);
+        if (!fs.existsSync(projectroot)) {
+            return -2;
+        }
+        this.projectCache[actname] = new Project({
+            
+        });
     }
 }
 
 class Project {
+    private actname:string;
+    private config:object;
+    private rootdir:string;
+    private datadir:string;
+    private db:any;
     constructor(config) {
         if (!config) {
             return;
         }
-
         if (typeof config == "string") {
             //项目已经存在
             this.actname = config;
@@ -74,26 +134,23 @@ class Project {
             this.config = config;
             this.actname = config.actname;
         }
-        this.path = path.resolve(Configs.getItem('workshop'), this.actname);
-        this.datadir = path.resolve(this.path, 'data');
+        this.rootdir = path.resolve(Configs.getItem('workshop'), this.actname);
+        this.datadir = path.resolve(this.rootdir, 'data');
         this.initDB();
-        return true;
     }
     initDB() {
         if (!!this.db) {
             return true;
         }
-        var self = this;
-
-        if (!fs.existsSync(this.path)) {
+        if (!fs.existsSync(this.rootdir)) {
             return false;
         }
         if (!fs.existsSync(this.datadir)) {
             return false;
         }
-        let adapter = new FileSync(path.resolve(self.path, 'data/db.json')); // 申明一个适配器
-        self.db = low(adapter);
-        self.db.defaults({
+        let adapter = new FileSync(path.resolve(this.rootdir, 'data/db.json')); // 申明一个适配器
+        this.db = low(adapter);
+        this.db.defaults({
                 pages: [],
                 info: {}
             })
@@ -362,6 +419,7 @@ class Project {
 }
 
 class Page {
+
     constructor(name, template) {
         this.name = name;
         this.template = template;
@@ -371,9 +429,10 @@ class Page {
 
     }
 }
+const projects = Projects.getInstance();
 export {
     Project,
     Files,
-    Projects,
+    projects,
     Page
 };

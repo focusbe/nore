@@ -26,7 +26,6 @@ export default {
 	methods: {
 		initFromTree(tree) {
 			// console.log(tree);
-			debugger;
 			this.curvnode = this.rootvnode;
 			this.rootvnode.childrens = [];
 			this.addTreenodes(tree);

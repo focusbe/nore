@@ -98,15 +98,15 @@ export default {
 			try {
 				var res = Projects.openWithIed(actname);
 				if (res == -1) {
-          this.$Message.warning("请先配置VSCODE路径");
-          this.showEditConfig();
+					this.$Message.warning("请先配置VSCODE路径");
+					this.showEditConfig();
 				} else if (res == -2) {
 					this.$Message.warning("项目不存在");
 				} else {
 					// self.$Message.success('删除成功！');
 				}
 			} catch (error) {
-        console.log(error);
+				console.log(error);
 				alert("打开失败");
 			}
 		},

@@ -78,7 +78,7 @@ html,
 
 .body,
 .footer {
-    padding: 20px;
+    // padding: 20px;
 }
 
 .app_head {
@@ -130,25 +130,36 @@ html,
     top: 50px;
     box-shadow: 0 0 3px #464646;
 }
+.page_wrap{
+    &>.center{
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
+}
 .left_options {
     width: 220px;
     height: 100%;
     background: #464646;
-    position: absolute;
+    position: relative;
+    height: 100%;
     left: 0;
     border-right: 1px solid #2c2c2c;
     box-shadow: 1px 1px 2px #464646;
     top: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 .right_area {
     width: 280px;
     height: 100%;
     background: #464646;
-    position: absolute;
+    position: relative;
     right: 0;
     top: 0;
     border-left: 1px solid #2c2c2c;
     box-shadow: -1px 1px 2px #464646;
+    flex-grow: 0;
+    flex-shrink: 0;
 }
 .options_section {
     h2 {
