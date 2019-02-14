@@ -13,13 +13,6 @@
 </template>
 <script>
 import mySocket from '../utli/mysocket';
-console.log(mySocket);
-// import $ from "jquery";
-// const Project = require('../../main/libs/project.js');
-// var jsonfile = require("jsonfile");
-// const fse = require("fs-extra");
-// var co = require("co");
-// var browserify = require("browserify");
 export default {
     data: function() {
         return {

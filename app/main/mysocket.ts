@@ -31,15 +31,12 @@ class MySocket {
         }
     }
     public on(event: string, callback: Function) {
-        console.log('绑定事件',event);
-        console.log(this.callbacks);
         this.callbacks[event] = callback;
     }
     private constructor() {
         var self = this;
         ipcMain.on("senddata", function(socket: any, result: any) {
-            console.log("senddata");
-            console.log(result);
+
             if (!!result && !!result.tag && !!result.event) {
                 let tag = result.tag;
                 let event: string = result.event;
@@ -50,8 +47,7 @@ class MySocket {
                 if (tag == "ALLWINDOWS") {
                     self.sendAll(event, data);
                 } else if (tag == "MAIN") {
-                    console.log("MAIN");
-                    console.log(data);
+
                     if (typeof self.callbacks[event] == "function") {
                         self.callbacks[event](data);
                     }

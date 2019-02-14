@@ -27,9 +27,7 @@ class WinManager {
     private constructor() {
         var self = this;
         mySocket.on('open', function (data: any) {
-            console.log('打开页面事件');
-            console.log('参数为');
-            console.log(data);
+
             self.newwindow(data.tag, '', data);
         });
     }
@@ -67,7 +65,7 @@ class WinManager {
                     'window.WINDOWTAG="' + tag + '"'
                 );
             });
-            console.log(this.getUrl(src, config));
+
             self.winCache[tag].loadURL(this.getUrl(src, config));
             if (DEBUG) {
                 this.winCache[tag].webContents.openDevTools();

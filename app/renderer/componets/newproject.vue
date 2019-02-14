@@ -69,7 +69,7 @@
 	</Modal>
 </template>
 <script>
-const { Projects, Project, Files } = require("../../libs/project");
+const { Projects, Project, Files } = require("../../libs/project.ts");
 import mySocket from "../utli/mysocket";
 import Configs from "../../libs/configs";
 export default {
@@ -141,7 +141,6 @@ export default {
 	},
 	computed: {
 		gameList: function() {
-			console.log(Configs);
 			return Configs.gameList();
 		}
 	},
@@ -160,32 +159,45 @@ export default {
 			}
 		},
 		submitData: function() {
-			console.log(this.$refs["form"]);
 			var self = this;
 			this.$refs["form"].validate(valid => {
 				if (valid) {
 					//this.$Message.success("Success!");
-					console.log(self.projectInfo);
-					try {
-						var newproject = new Project(self.projectInfo);
-						console.log(newproject);
-						newproject.create(function() {
+					// console.log(self.projectInfo);
+
+					// 	Projects.add();
+					// 	// var newproject = new Project(self.projectInfo);
+					// 	// console.log(newproject);
+					// 	// newproject.create(function() {
+					// 	// 	self.hide();
+					// 	// 	self.$Message.info("创建成功");
+					// 	// 	//let routeData = self.$router.resolve({ path: '/project/edit', query: {  actname: self.projectInfo.actname } });
+					// 	// 	mySocket.sendTo("MAIN", "open", {
+					// 	// 		tag: "project_edit",
+					// 	// 		hash: "#/project/edit"+"?actname=" + self.projectInfo.actname
+					// 	// 	});
+					// 	// 	// alert(routeData.href);
+					// 	// 	// window.open(routeData.href);
+					// 	// 	self.ok();
+					// 	// });
+					Projects.add(self.projectInfo)
+						.then(function(res) {
 							self.hide();
 							self.$Message.info("创建成功");
-							//let routeData = self.$router.resolve({ path: '/project/edit', query: {  actname: self.projectInfo.actname } });
 							mySocket.sendTo("MAIN", "open", {
 								tag: "project_edit",
-								hash: "#/project/edit"+"?actname=" + self.projectInfo.actname
+								hash:
+									"#/project/edit" +
+									"?actname=" +
+									self.projectInfo.actname
 							});
-							// alert(routeData.href);
-							// window.open(routeData.href);
 							self.ok();
+						})
+						.catch(function(error) {
+							self.$Message.error(error);
 						});
-					} catch (error) {
-						console.log(error);
-					}
 				} else {
-					this.$Message.error("Fail!");
+					this.$Message.error("验证失败");
 				}
 			});
 		},

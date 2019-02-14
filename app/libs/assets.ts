@@ -7,7 +7,6 @@ class Assets {
     private assetsdir: string
     private actdir: string
     constructor(actname) {
-        console.log(actname);
         this.actname = actname;
         this.actdir = path.resolve(Configs.getItem('workshop'), this.actname);
         this.assetsdir = path.resolve(this.actdir, 'uploads');

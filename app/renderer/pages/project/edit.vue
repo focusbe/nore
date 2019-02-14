@@ -186,10 +186,8 @@ export default {
 	},
 	created: function() {
 		var self = this;
-		console.log(this.$route);
 		let actname = this.$route.query.actname;
 		this.actname = this.$route.query.actname;
-
 		var project = new Project(actname);
 		this.project = project;
 		setTimeout(function(){
@@ -212,14 +210,14 @@ export default {
 		// 	}
 		// });
 		project.getinfo(function(res) {
-			console.log();
+
 			self.prejectInfo = res;
 		});
 		var body = document.getElementsByTagName("body")[0];
 		body.ondrop = function(event) {
 			event.preventDefault();
 			self.dragover = false;
-			console.log(event);
+
 			var efile = event.dataTransfer.files;
 			for (var i = 0; i < efile.length; i++) {
 				Files.isdir(efile[i].path, function(bool) {
@@ -237,7 +235,6 @@ export default {
 		};
 		body.addEventListener("dragleave", function(event) {
 			event.preventDefault();
-			console.log(event.target.className);
 			if (event.target.className == "dragover") {
 				self.dragover = false;
 			}

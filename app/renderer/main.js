@@ -49,7 +49,6 @@ function getPages() {
 }
 
 const Pages = getPages();
-console.log(Pages);
 App.props = {
     pageUrls: {
         type: Array,

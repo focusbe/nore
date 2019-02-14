@@ -74,7 +74,6 @@ export default {
 		},
 		renderToString: function() {
 			var res = this.vnodeToJsx(this.rootvnode);
-			console.log(res.css);
 			var test1 = jsx.fromString(res.jsx, {
 				factory: "createVnode"
 			});
@@ -86,7 +85,6 @@ export default {
 			if (!tabstr) {
 				tabstr = "";
 			}
-			console.log(vnode);
 			var tag = vnode.view;
 			if (typeof tag == "object") {
 				tag = !!tag.name ? tag.name : "div";
@@ -364,10 +362,10 @@ export default {
 	},
 
 	updated: function() {
-		console.log("canvas update");
+		
 	},
 	mounted: function() {
-		console.log("canvas mounted");
+		
 	},
 	watch: {
 		// curStyles: {

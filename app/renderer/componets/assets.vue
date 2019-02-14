@@ -45,7 +45,7 @@ export default {
 			this.list = list;
 		},
 		async upload(file){
-			console.log(file);
+
 			try {
 				var res = await this.assets.upload(file.path);
 				if(res){

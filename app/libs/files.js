@@ -33,7 +33,6 @@ class Files {
         }
         var res = await new Promise(function (result, reject) {
             fse.mkdir(src, function (err) {
-                console.log(src);
                 if (!err)
                     result(true);
 
@@ -140,7 +139,7 @@ class Files {
             }
             var filestlist = new Object();
             paths.forEach(function (curpath) {
-                var _src = src + "/" + curpath;
+                var _src = path.resolve(src , curpath);
                 var readable;
                 var writable;
                 var filestat = fse.statSync(_src);

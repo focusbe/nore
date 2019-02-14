@@ -49,7 +49,7 @@
 import Vue from "vue";
 import newproject from "../componets/newproject.vue";
 import editconfig from "../componets/editconfig.vue";
-const { Projects, Project, Files } = require("../../libs/project");
+const { Projects, Project, Files } = require("../../libs/project.ts");
 import Configs from "../../libs/configs";
 import mySocket from "../utli/mysocket";
 Vue.component("newproject", newproject);
@@ -83,12 +83,11 @@ export default {
 				title: "确认",
 				content: "<p>确定删除" + actname + "</p>",
 				onOk: () => {
-					Projects.delete(actname, function(res) {
-						if (res) {
-							self.$Message.success("删除成功！");
-							self.getProjects();
-						}
-					});
+					var res = Projects.delete(actname)
+						.then(function() {})
+						.catch(function(error) {
+							self.$Message.error(error);
+						});
 				},
 				onCancel: () => {}
 			});
@@ -113,15 +112,14 @@ export default {
 		openinFolder() {
 			var actname = this.curcontextVnode.key;
 		},
-		getProjects: function() {
+		getProjects: async function() {
 			var self = this;
-			Projects.getlist(function(res) {
-				if (res) {
-					self.projectList = res;
-				} else {
-					alert("获取项目列表失败");
-				}
-			});
+			var res = await Projects.getlist();
+			if (res) {
+				self.projectList = res;
+			} else {
+				alert("获取项目列表失败");
+			}
 		},
 		newprojectok: function() {
 			//return false;

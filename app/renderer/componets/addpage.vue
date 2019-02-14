@@ -107,11 +107,11 @@ export default {
 		};
     },
     updated(){
-        console.log(this.curProject);
+        
     },
 	created: function() {
         var self = this;
-        console.log(this.curProject);
+
 		if (!!this.curProject) {
 			this.curProject.getPageList(function(res) {
 				self.pageList = res;
@@ -120,7 +120,7 @@ export default {
 	},
 	computed: {
 		gameList: function() {
-			console.log(Configs);
+
 			return Configs.gameList();
 		}
 	},
@@ -141,12 +141,12 @@ export default {
 			}
 		},
 		submitData: function() {
-			console.log(this.$refs["form"]);
 			var self = this;
 			this.$refs["form"].validate(valid => {
 				if (valid) {
 					//this.$Message.success("Success!");
 					try {
+						
 						// var newpage = new page(self.pageInfo);
 						// console.log(newpage);
 						// newpage.create(function() {
@@ -164,6 +164,7 @@ export default {
 						// 	// window.open(routeData.href);
 						// 	self.ok();
 						// });
+
 					} catch (error) {
 						console.log(error);
 					}
