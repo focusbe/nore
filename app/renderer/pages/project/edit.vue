@@ -47,7 +47,8 @@
 			<Tag
 			 v-for="item in pagelist"
 			 closable
-			>{{name.title}}</Tag>
+			 @on-close="deletePage(item.name)"
+			>{{item.name}}</Tag>
 			<i-button
 			 icon="ios-plus-empty"
 			 type="dashed"
@@ -122,15 +123,18 @@
 		 v-show="dragover"
 		 class="dragover"
 		></div>
-		<add-page ref="pageForm" :curProject="project"
-		 @ok="addPageOk"></add-page>
+		<add-page
+		 ref="pageForm"
+		 :curProject="project"
+		 @ok="addPageOk"
+		></add-page>
 	</div>
 </template>
 <style lang="scss" scoped>
-	.page_wrap {
-		display: flex;
-		flex-direction: row;
-	}
+.page_wrap {
+	display: flex;
+	flex-direction: row;
+}
 </style>
 
 <script>
@@ -158,10 +162,10 @@ export default {
 			prejectInfo: {},
 			serverpath: null,
 			actname: "",
-			project:null,
+			project: null,
 			viewList: viewList,
 			styleOptions: {},
-			pagelist:[],
+			pagelist: [],
 			curStyles: {},
 			curdevice: "phone",
 			propOptions: {},
@@ -184,16 +188,15 @@ export default {
 			}
 		};
 	},
+
 	created: function() {
 		var self = this;
 		let actname = this.$route.query.actname;
 		this.actname = this.$route.query.actname;
 		var project = new Project(actname);
 		this.project = project;
-		setTimeout(function(){
-			self.pagelist = project.getPageList();
-		},1000);
-		
+		this.getPagelist();
+
 		// Server.start(function(res) {
 		// 	if (
 		// 		!!res &&
@@ -209,10 +212,10 @@ export default {
 		// 	} else {
 		// 	}
 		// });
-		project.getinfo(function(res) {
+		// project.getinfo(function(res) {
 
-			self.prejectInfo = res;
-		});
+		// 	self.prejectInfo = res;
+		// });
 		var body = document.getElementsByTagName("body")[0];
 		body.ondrop = function(event) {
 			event.preventDefault();
@@ -253,12 +256,33 @@ export default {
 	},
 
 	methods: {
-		addPage(){
+		addPage() {
 			this.$refs.pageForm.show();
 		},
-		addPageOk(){
-
+		getPagelist() {
+			setTimeout(function() {
+				this.pagelist = project.getPageList();
+			}.bind(this), 500);
 		},
+		deletePage(key) {
+			this.$Modal.confirm({
+				title: "确认",
+				content: "<p>确定删除" + key + "</p>",
+				onOk: function() {
+					var res = this.project.delPage(key);
+					if (res == -1) {
+						this.$Message.error("没有该页面存在");
+					} else if (!!res) {
+						this.$Message.success("删除成功");
+					} else {
+						this.$Message.error("删除失败");
+					}
+					this.getPagelist();
+				}.bind(this),
+				onCancel: () => {}
+			});
+		},
+		addPageOk() {},
 		psdfinish(vnodetree) {
 			this.$refs.canvas.initFromTree(vnodetree);
 		},

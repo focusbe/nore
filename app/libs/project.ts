@@ -208,7 +208,7 @@ class Project {
         if (!config || !config.name) {
             return -1;
         }
-        if (this.hasPage(name)) {
+        if (this.hasPage(config.name)) {
             return -2;
         }
         var id = this.db
@@ -240,12 +240,14 @@ class Project {
         return res;
     }
     hasPage(name) {
+        console.log(name);
         var hasname = this.db
-            .get({
-                name: name
-            })
-            .size();
-        return !!hasname;
+            .get("pages")
+            .find({name:name})
+            .size()
+            .value();
+        console.log(hasname);
+        return hasname > 0;
     }
     savePage(name, tree) {
         if (!name || !tree || !this.hasPage(name)) {
@@ -340,6 +342,7 @@ class Project {
         let projectDir = path.resolve(Configs.getItem("workshop"), actname);
         return projectDir;
     }
+    getInfo() {}
     save(data) {}
     runCmd() {}
     commitSvn() {}

@@ -46,9 +46,9 @@
 				<Select v-model="pageInfo.template">
 					<Option
 					 v-for="(item, key) in templateList"
-					 :value="item.path"
+					 :value="key"
 					 :key="key"
-					>{{ item.name }}</Option>
+					>{{ key }}</Option>
 				</Select>
 			</FormItem>
 		</Form>
@@ -66,7 +66,7 @@ export default {
 			modalshow: false,
 			loading: false,
 			pageList: {},
-			templateList: [],
+			templateList: {},
 			pageInfo: {
 				title: "",
 				name: "",
@@ -105,22 +105,20 @@ export default {
 				]
 			}
 		};
-    },
-    updated(){
-        
-    },
+	},
+	updated() {},
 	created: function() {
-        var self = this;
+		var self = this;
 
 		if (!!this.curProject) {
 			this.curProject.getPageList(function(res) {
 				self.pageList = res;
 			});
 		}
+		this.getTemList();
 	},
 	computed: {
 		gameList: function() {
-
 			return Configs.gameList();
 		}
 	},
@@ -141,43 +139,43 @@ export default {
 			}
 		},
 		submitData: function() {
-			var self = this;
-			this.$refs["form"].validate(valid => {
+			this.$refs["form"].validate(function(valid) {
 				if (valid) {
 					//this.$Message.success("Success!");
-					try {
-						
-						// var newpage = new page(self.pageInfo);
-						// console.log(newpage);
-						// newpage.create(function() {
-						// 	self.hide();
-						// 	self.$Message.info("创建成功");
-						// 	//let routeData = self.$router.resolve({ path: '/page/edit', query: {  actname: self.pageInfo.actname } });
-						// 	mySocket.sendTo("MAIN", "open", {
-						// 		tag: "page_edit",
-						// 		hash:
-						// 			"#/page/edit" +
-						// 			"?actname=" +
-						// 			self.pageInfo.actname
-						// 	});
-						// 	// alert(routeData.href);
-						// 	// window.open(routeData.href);
-						// 	self.ok();
-						// });
-
-					} catch (error) {
-						console.log(error);
-					}
+					
+						var id = this.curProject.addPage(this.pageInfo);
+						console.log(id);
+						if(id==-1){
+							this.$Message.error("请传入正确的参数");
+						}
+						else if(id==-2){
+							this.$Message.error("已经有相同的页面名称了");
+						}
+						else if(!!id){
+							this.hide();
+							this.$Message.info("创建成功");
+						}
+						else{
+							this.$Message.error("保存页面失败");
+						}
 				} else {
 					this.$Message.error("Fail!");
 				}
-			});
+			}.bind(this));
 		},
 		show: function() {
 			this.modalshow = true;
 		},
 		hide: function() {
 			this.modalshow = false;
+		},
+		async getTemList() {
+			try {
+				let list = await Projects.getTempList();
+				this.templateList = list;
+			} catch (error) {
+				console.error(error);
+			}
 		},
 		ok() {
 			//this.$Message.info("Clicked ok");
