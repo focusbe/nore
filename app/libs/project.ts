@@ -1,12 +1,12 @@
-var jsonfile = require("jsonfile");
-var browserify = require("browserify");
+// var jsonfile = require("jsonfile");
+// var browserify = require("browserify");
 var fs = require("fs");
 var fse = require("fs-extra");
 var path = require("path");
-var shortid = require("shortid");
+const lodashId = require('lodash-id')
 import Configs from "./configs";
-var juicer = require("juicer");
-var babelify = require("babelify");
+// var juicer = require("juicer");
+// var babelify = require("babelify");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选择
 import Files from "./files";
@@ -190,6 +190,7 @@ class Project {
         let dbjsonpath = path.resolve(this.rootdir, "data/db.json");
         let adapter = new FileSync(dbjsonpath); // 申明一个适配器
         this.db = low(adapter);
+        this.db._.mixin(lodashId)
         this.db
             .defaults({
                 pages: [],
@@ -211,21 +212,18 @@ class Project {
         if (this.hasPage(config.name)) {
             return -2;
         }
-        var id = this.db
+        var newPost = this.db
             .get("pages")
-            .push(
+            .insert(
                 Object.assign(
                     {
-                        id: shortid.generate()
-                    },
-                    config,
-                    {
                         tree: null
-                    }
+                    },
+                    config
                 )
             )
-            .write();
-        return id;
+            .write()
+        return newPost;
     }
     delPage(name) {
         if (!name || !this.hasPage(name)) {
@@ -237,6 +235,15 @@ class Project {
                 name: name
             })
             .write();
+        return res;
+    }
+    getPage(id){
+        var res = this.db
+            .get("pages")
+            .find({
+                id: id
+            })
+            .value();
         return res;
     }
     hasPage(name) {

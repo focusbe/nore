@@ -2,8 +2,6 @@
 	<Modal
 	 v-model="modalshow"
 	 title="新建页面"
-	 @on-ok="ok"
-	 @on-cancel="cancel"
 	 :loading="loading"
 	 :footer="''"
 	>
@@ -142,7 +140,6 @@ export default {
 			this.$refs["form"].validate(function(valid) {
 				if (valid) {
 					//this.$Message.success("Success!");
-					
 						var id = this.curProject.addPage(this.pageInfo);
 						console.log(id);
 						if(id==-1){
@@ -154,6 +151,8 @@ export default {
 						else if(!!id){
 							this.hide();
 							this.$Message.info("创建成功");
+							console.log(id);
+							this.$emit("ok", id);
 						}
 						else{
 							this.$Message.error("保存页面失败");
@@ -179,7 +178,7 @@ export default {
 		},
 		ok() {
 			//this.$Message.info("Clicked ok");
-			this.$emit("ok", true);
+			//this.$emit("ok", true);
 		},
 		cancel() {
 			//this.$Message.info("Clicked cancel");

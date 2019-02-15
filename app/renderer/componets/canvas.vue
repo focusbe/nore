@@ -28,7 +28,10 @@ export default {
 			// console.log(tree);
 			this.curvnode = this.rootvnode;
 			this.rootvnode.childrens = [];
-			this.addTreenodes(tree);
+			if(!!tree){
+				this.addTreenodes(tree);
+			}
+			
 			this.refresh();
 		},
 		clearCanvas() {
