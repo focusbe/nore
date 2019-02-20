@@ -178,6 +178,7 @@ import Canvas from "../../componets/canvas.vue";
 import Options from "../../componets/options.vue";
 import stylesPanels from "../../componets/panels/styles.vue";
 import { Project } from "../../../libs/project";
+import Files from "../../../libs/files";
 import Assets from "../../componets/assets";
 import PSD from "../../componets/psd";
 import Server from "../../../libs/server";
@@ -234,7 +235,7 @@ export default {
 		var project = new Project(actname);
 		this.project = project;
 		this.getPagelist();
-		
+
 		// Server.start(function(res) {
 		// 	if (
 		// 		!!res &&
@@ -305,23 +306,29 @@ export default {
 		changePage(index) {
 			//保存原来的信息
 			//切换到页面；
-			if(this.curPage>-1){
+			if (this.curPage > -1) {
 				this.saveCurPage();
 			}
-			if(!!this.pagelist&&index>=0&&index<this.pagelist.length){
+			if (!!this.pagelist && index >= 0 && index < this.pagelist.length) {
 				this.curPage = index;
 				this.getPageInfo(index);
 			}
 		},
-		saveCurPage(){
-			console.log('save');
+		async saveCurPage(callback) {
+			console.log("save");
 			console.log(this.curPageInfo.name);
-			
-			if(!!this.canvasData){
-				console.log(this.canvasData.toJson());
-				this.project.savePage(this.curPageInfo.name,this.canvasData.toJson());
+			if (!!this.canvasData) {
+				var rootJson = this.canvasData.toJson();
+				try {
+					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
+					if(!!res){
+						console.log('保存成功');
+					}
+				} catch (error) {
+					console.log(error);
+				}
+				
 			}
-			
 		},
 		resetCanvas() {
 			this.styleOptions = {};

@@ -75,7 +75,7 @@ export default {
 					this.uploadpath
 				);
 				var res = await mypsd.parse(true,false);
-				// console.log(res);
+				console.log(res);
 				// res = null;
 				// mypsd = null;
 				self.$emit("finish", res.vNode);

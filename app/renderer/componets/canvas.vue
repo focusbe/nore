@@ -29,9 +29,8 @@ export default {
 			this.curvnode = this.rootvnode;
 			this.rootvnode.childrens = [];
 			if(!!tree){
-				this.addTreenodes(tree);
+				this.addTreenodes(tree.childrens,this.rootvnode);
 			}
-			
 			this.refresh();
 		},
 		clearCanvas() {
@@ -39,6 +38,7 @@ export default {
 			this.refresh();
 		},
 		addTreenodes(treenodes, curvnode) {
+			console.log(treenodes);
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
@@ -54,6 +54,7 @@ export default {
 						curnode.styles,
 						curnode.props
 					);
+					console.log(newnode);
 					if (!!curvnode.childrens) {
 						curvnode.childrens.push(newnode);
 					}
@@ -61,7 +62,7 @@ export default {
 						this.addTreenodes(curnode.childrens, newnode);
 					}
 				}
-			} else {
+			} else if(!!treenodes){
 				this.addTreenodes([treenodes], curvnode);
 			}
 			// this.changeCurVnode(newnode);

@@ -20,8 +20,7 @@ class Files {
             basename = basename + '' + number;
             filepath = path.join(dirname, basename + extname);
             return await this.getAlivpath(filepath, number);
-        }
-        else {
+        } else {
             return filepath;
         }
 
@@ -43,36 +42,44 @@ class Files {
         return res;
     }
     static createdir(src, callback) {
-        fse.exists(src, function (exists) {
-            if (exists) {
-                //存在
-                callback(src);
-            } else {
-                //bu存在
-                try {
-                    fse.mkdir(src, function () {
-                        //创建目录
-                        callback(src);
-                    });
-                } catch (error) {
-                    callback(false, error);
-                }
+        let parentdir = path.dirname(src);
+        fse.exists(parentdir,
+            function (exists) {
+                if (!exists) {
+                    Files.createdir(parentdir, callback)
+                } else {
+                    fse.exists(src, function (exists) {
+                        if (exists) {
+                            //存在
+                            callback(src);
+                        } else {
+                            //bu存在
+                            try {
+                                fse.mkdir(src, function () {
+                                    //创建目录
+                                    callback(src);
+                                });
+                            } catch (error) {
+                                callback(false, error);
+                            }
 
-            }
-        });
+                        }
+                    });
+                }
+            })
     }
     static getTree(src, folder) {
         if (!folder) {
             folder = [];
         }
-        
+
         return new Promise(function (result, reject) {
-            fse.pathExists(src,function(err,exists){
-                if(!!err){
+            fse.pathExists(src, function (err, exists) {
+                if (!!err) {
                     reject(err);
                     return;
                 }
-                if(!exists){
+                if (!exists) {
                     result(folder);
                 }
                 fse.readdir(src, function (err, paths) {
@@ -85,7 +92,10 @@ class Files {
                             var filestat = fse.statSync(_src);
                             if (filestat) {
                                 if (filestat.isDirectory()) {
-                                    var _folder = { name: curpath, children: [] };
+                                    var _folder = {
+                                        name: curpath,
+                                        children: []
+                                    };
                                     folder.push(_folder);
                                     Files.getTree(_src, _folder['children']).then(function (res) {
                                         done++;
@@ -98,29 +108,29 @@ class Files {
                                             result(folder);
                                         }
                                     });
-                                }
-                                else {
+                                } else {
                                     done++;
-                                    folder.push({ 'path': _src, 'name': path.basename(_src) });
+                                    folder.push({
+                                        'path': _src,
+                                        'name': path.basename(_src)
+                                    });
                                     if (done >= length) {
                                         result(folder);
                                     }
                                 }
-                            }
-                            else {
+                            } else {
                                 done++;
                                 reject('获取文件状态失败');
                             }
-    
+
                         });
-                    }
-                    else {
-    
+                    } else {
+
                         reject(err);
                     }
                 });
             });
-            
+
 
         });
     }
@@ -139,7 +149,7 @@ class Files {
             }
             var filestlist = new Object();
             paths.forEach(function (curpath) {
-                var _src = path.resolve(src , curpath);
+                var _src = path.resolve(src, curpath);
                 var readable;
                 var writable;
                 var filestat = fse.statSync(_src);

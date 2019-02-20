@@ -6,9 +6,9 @@ Vue.component("vnoderender", {
     methods: {},
     components: {
         // <my-component> 将只在父组件模板中可用
-        'workspace':workspace
+        'workspace': workspace
     },
-    mounted: function() {
+    mounted: function () {
         if (this.ismouseDown) {
             return;
         }
@@ -18,7 +18,7 @@ Vue.component("vnoderender", {
             props: this.viewprops
         });
     },
-    updated: function() {
+    updated: function () {
         if (this.ismouseDown) {
             return;
         }
@@ -28,23 +28,28 @@ Vue.component("vnoderender", {
             props: this.viewprops
         });
     },
-    
-    render: function(createElement) {
+    render: function (createElement) {
+        // console.log(!this.view||!this.props);
+        // if(!this.view||!this.props){
+        //     return null;
+        // }
         var viewdata = this.viewdata;
         var slots = [this.$slots.default];
 
-        if(!!this.isoptioning){
+        if (!!this.isoptioning) {
             slots.push(createElement('workspace'));
         }
         this.vuenode = createElement(
             this.viewdata.tagName,
-            this.viewdata.render({props: this.viewprops }),
+            this.viewdata.render({
+                props: this.viewprops
+            }),
             slots
         );
         return this.vuenode;
     },
-    methods:{
-        getDom(){
+    methods: {
+        getDom() {
             return this.$el;
         }
     },
@@ -56,7 +61,7 @@ Vue.component("vnoderender", {
         ismouseDown: {
             type: Boolean
         },
-        isoptioning:{
+        isoptioning: {
             type: Boolean
         },
         viewprops: {
@@ -68,18 +73,18 @@ Vue.component("vnoderender", {
 
 class vnode {
     constructor(view, styles, props) {
-        if(!view){
+        if (!view) {
             return;
         }
         this.name = view.name;
-        if(view=='root'){
+        if (view == 'root') {
             this.name = 'root';
         }
         this.view = view;
-        if(!window.vnodeIdEND){
+        if (!window.vnodeIdEND) {
             window.vnodeIdEND = 0;
         }
-        this.domid = 'vnode_'+(new Date().getTime());
+        this.domid = 'vnode_' + (new Date().getTime());
         this.styles = styles;
         this.props = props;
         this.childrens = [];
@@ -99,138 +104,145 @@ class vnode {
         }
         return -1;
     }
-    init(){
-        if(!this.styles){
+    init() {
+        if (!this.styles) {
             this.styles = {};
         }
-        if(!this.props){
+        if (!this.props) {
             this.props = {};
         }
         var styles = {};
         var props = {};
         var curView = viewList[this.name];
-        for(var i in curView.styles){
-            if(typeof(curView.styles[i]['default'])=='undefined'){
+        for (var i in curView.styles) {
+            if (typeof (curView.styles[i]['default']) == 'undefined') {
                 curView.styles[i]['default'] = null;
             }
             styles[i] = curView.styles[i]['default'];
         }
 
-        for(var i in curView.props){
-            if(typeof(curView.props[i]['default'])=='undefined'){
+        for (var i in curView.props) {
+            if (typeof (curView.props[i]['default']) == 'undefined') {
                 curView.props[i]['default'] = null;
             }
             props[i] = curView.props[i]['default'];
-        }  
-        this.styles = Object.assign(styles,this.styles);
-        this.props = Object.assign(props,this.props);
+        }
+        this.styles = Object.assign(styles, this.styles);
+        this.props = Object.assign(props, this.props);
     }
-    changeStyles(styles){
+    changeStyles(styles) {
         this.styles = styles;
     }
-    changeProps(props){
+    changeProps(props) {
         this.props = props;
     }
-    toJson(){
+    toJson() {
         var curJson = {};
-        curJson.view = this.view;
+        if (typeof (this.view) == 'string') {
+            curJson.view = this.view;
+        } else {
+            curJson.view = this.view.name;
+        }
+
         curJson.styles = this.styles;
         curJson.props = this.props;
         curJson.domid = this.domid;
         curJson.childrens = [];
-        for(var i in this.childrens){
+        for (var i in this.childrens) {
             curJson.childrens.push(this.childrens[i].toJson());
         }
         return curJson;
     }
-    
-    getModulslist(modulelist){
-        if(!modulelist){
+
+    getModulslist(modulelist) {
+        if (!modulelist) {
             modulelist = [];
         }
         //console.log(modulelist.indexOf(this.view.filepath));
-        if(!!this.view&&this.view.filename&& modulelist.indexOf(this.name)<0){
+        if (!!this.view && this.view.filename && modulelist.indexOf(this.name) < 0) {
             modulelist.push(this.view.filename);
         }
-        for(var i in this.childrens){
+        for (var i in this.childrens) {
             this.childrens[i].getModulslist(modulelist);
         }
         return modulelist;
     }
 
-    getStyles(){
-        var styles =Object.assign({},this.styles);
-        if(!!styles['position']){
+    getStyles() {
+        var styles = Object.assign({}, this.styles);
+        if (!!styles['position']) {
             var position = styles['position'];
-            switch(position){
+            switch (position) {
                 case 'relative':
-                styles['margin-left'] = styles.x;
-                styles['marginTop'] = styles.y;
+                    styles['margin-left'] = styles.x;
+                    styles['marginTop'] = styles.y;
                     break;
                 case 'absolute':
                 case 'fixed':
                     styles['absolute'] = 'absolute';
-                    if(styles.xalign=='left'){
+                    if (styles.xalign == 'left') {
                         styles['left'] = styles.x;
-                    }
-                    else if(styles.xalign=='right'){
-                        styles['right'] = -parseInt(styles.x)+'px';
+                    } else if (styles.xalign == 'right') {
+                        styles['right'] = -parseInt(styles.x) + 'px';
                         styles['left'] = 'auto';
-                    }
-                    else if(styles.xalign=='center'){
+                    } else if (styles.xalign == 'center') {
                         styles['margin-left'] = styles.x;
                         styles['left'] = '50%';
                     }
 
-                    if(styles.yalign=='top'){
+                    if (styles.yalign == 'top') {
                         styles['top'] = this.styles.y;
-                    }
-                    else if(styles.yalign=='center'){
+                    } else if (styles.yalign == 'center') {
                         styles['margin-top'] = this.styles.y;
                         styles['top'] = '50%';
-                    }
-                    else if(styles.yalign=='bottom'){
-                        styles['bottom'] = -parseInt(this.styles.y)+'px';
+                    } else if (styles.yalign == 'bottom') {
+                        styles['bottom'] = -parseInt(this.styles.y) + 'px';
                     }
 
             }
-            for(var i in styles){
-                if(!isNaN(styles[i])){
-                    if(i=='left'||i=='top'||i=='width'||i=='height')
-                    styles[i] = styles[i]+'px';
+            for (var i in styles) {
+                if (!isNaN(styles[i])) {
+                    if (i == 'left' || i == 'top' || i == 'width' || i == 'height')
+                        styles[i] = styles[i] + 'px';
                 }
             }
             return styles;
         }
     }
-    getVueNode(){
+    getVueNode() {
         return this.vuenode;
     }
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
+        console.log(this);
+        if (!this.view) {
+            return null;
+        }
+        if (!this.props) {
+            this.props = {};
+        }
         this.vuenode = createElement(
-            "vnoderender",
-            {
+            "vnoderender", {
                 style: styles,
                 props: {
                     viewdata: this.view,
-                    viewprops:this.props,
-                    ismouseDown:canvas.isdmousedown,
-                    isoptioning:!!this.isoptioning
+                    viewprops: this.props,
+                    ismouseDown: canvas.isdmousedown,
+                    isoptioning: !!this.isoptioning
                 },
                 attrs: {
-                    class:(this.props.className||"")+' vnodeDom',
+                    class: (this.props.className || "") + ' vnodeDom',
                     id: this.domid
                 },
                 nativeOn: {
-                    click: function(event) {
+                    click: function (event) {
                         canvas.changeCurVnode(self);
                         //canvas.changeCurParent(this);
                         event.cancelBubble = true;
                     },
-                    mousedown: function(event) {
-                        if(self.view=='root'){
+                    mousedown: function (event) {
+                        if (self.view == 'root') {
                             return;
                         }
                         canvas.changeCurVnode(self);
@@ -240,13 +252,15 @@ class vnode {
                     }
                 }
             },
-            this.childrens.map(function(currentValue) {
+            this.childrens.map(function (currentValue) {
                 return currentValue.render(createElement, canvas);
             })
         );
-        
+
         this.vuenode.viewname = this.name;
         return this.vuenode;
     }
 }
-export { vnode };
+export {
+    vnode
+};

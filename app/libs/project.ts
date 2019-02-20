@@ -3,7 +3,7 @@
 var fs = require("fs");
 var fse = require("fs-extra");
 var path = require("path");
-const lodashId = require('lodash-id')
+const lodashId = require("lodash-id");
 import Configs from "./configs";
 // var juicer = require("juicer");
 // var babelify = require("babelify");
@@ -190,7 +190,7 @@ class Project {
         let dbjsonpath = path.resolve(this.rootdir, "data/db.json");
         let adapter = new FileSync(dbjsonpath); // 申明一个适配器
         this.db = low(adapter);
-        this.db._.mixin(lodashId)
+        this.db._.mixin(lodashId);
         this.db
             .defaults({
                 pages: [],
@@ -222,7 +222,7 @@ class Project {
                     config
                 )
             )
-            .write()
+            .write();
         return newPost;
     }
     delPage(name) {
@@ -237,7 +237,7 @@ class Project {
             .write();
         return res;
     }
-    getPage(id){
+    getPage(id) {
         var res = this.db
             .get("pages")
             .find({
@@ -250,7 +250,7 @@ class Project {
         console.log(name);
         var hasname = this.db
             .get("pages")
-            .find({name:name})
+            .find({ name: name })
             .size()
             .value();
         console.log(hasname);
@@ -260,16 +260,85 @@ class Project {
         if (!name || !tree || !this.hasPage(name)) {
             return -1;
         }
-        var res = this.db
-            .get("pages")
-            .find({
-                name: name
-            })
-            .assign({
-                tree: tree
-            })
-            .write();
-        return res;
+        let jsxobj = this.treeToJsx(tree);
+        let cssPath: string = path.resolve(this.rootdir, "src/css");
+        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
+        var self = this;
+        return new Promise(function(resolve, reject) {
+            Files.createdir(cssPath, function(res) {
+                if (!!res) {
+                    fs.writeFile(cssFilePath, jsxobj.css, function(err) {
+                        if (err) reject("保存样式文件失败");
+                        else {
+                            fs.writeFile(jsxFilePath, jsxobj.jsx, function(
+                                err
+                            ) {
+                                if (err) reject("保存JSX文件失败");
+                                else {
+                                    var res = self.db
+                                        .get("pages")
+                                        .find({
+                                            name: name
+                                        })
+                                        .assign({
+                                            tree: tree
+                                        })
+                                        .write();
+                                    if (!!res) {
+                                        resolve(true);
+                                    } else {
+                                        reject("保存JSON失败");
+                                    }
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+    treeToJsx(tree: { [key: string]: any }, tabstr: string = "") {
+        if (!tree) {
+            return;
+        }
+        if (!tabstr) {
+            tabstr = "";
+        }
+        var tag = tree.view;
+        if (typeof tag == "object") {
+            tag = !!tag.name ? tag.name : "div";
+        }
+        var css = "";
+        var jsx = "";
+        jsx = tabstr + `<${tag} id="${tree.domid}"`;
+        let proptype;
+        for (var i in tree.props) {
+            proptype = typeof tree.props[i];
+            if (proptype != "function" && proptype != "object") {
+                jsx += ` ${i}="${tree.props[i]}"`;
+            }
+        }
+        if (!!tree.styles) {
+            css = `#${tree.domid}{\n`;
+            for (var i in tree.styles) {
+                css += `\t${i}:${tree.styles[i]};\n`;
+            }
+            css += `\n}\n`;
+        }
+        jsx += ">";
+
+        if (!!tree.childrens && tree.childrens.length > 0) {
+            for (var j in tree.childrens) {
+                let childjsx = this.treeToJsx(tree.childrens[j], tabstr + "\t");
+                jsx += "\n" + childjsx.jsx;
+                css += childjsx.css;
+            }
+        }
+
+        jsx += `\n${tabstr}</${tag}>`;
+        return { css: css, jsx: jsx };
     }
     saveToFile() {}
     parseFile() {}
