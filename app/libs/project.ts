@@ -340,6 +340,9 @@ class Project {
         jsx += `\n${tabstr}</${tag}>`;
         return { css: css, jsx: jsx };
     }
+    renderToHtml(name,jsx){
+        
+    }
     saveToFile() {}
     parseFile() {}
 

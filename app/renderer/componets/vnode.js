@@ -138,20 +138,55 @@ class vnode {
     }
     toJson() {
         var curJson = {};
+        var curView;
         if (typeof (this.view) == 'string') {
             curJson.view = this.view;
+            curView = viewList[this.view];
         } else {
             curJson.view = this.view.name;
+            curView = this.view;
         }
-
-        curJson.styles = this.styles;
-        curJson.props = this.props;
+        var curStyle = this.quchong('styles');
+        if(!!curStyle){
+            curJson.styles = curStyle;
+        }
+        var curProps = this.quchong('props');
+        if(!!curProps){
+            curJson.props = curProps;
+        }
+        
         curJson.domid = this.domid;
         curJson.childrens = [];
         for (var i in this.childrens) {
             curJson.childrens.push(this.childrens[i].toJson());
         }
         return curJson;
+    }
+    quchong(prop){
+        var curView;
+        if (typeof (this.view) == 'string') {
+            curView = viewList[this.view];
+        } else {
+            curView = this.view;
+        }
+        var res = null;
+        for(var i in this[prop]){
+            if(typeof(curView[prop][i])!='undefined'&&typeof(curView[prop][i].default)!='undefined'){
+                if(this.styles[i]!==curView[prop][i].default){
+                    if(!res){
+                        res = {};
+                    }
+                    res[i] = this.styles[i];
+                }
+            }
+            else{
+                if(!res){
+                    res = {};
+                }
+                res[i] = this.styles[i];
+            }
+        }
+        return res;
     }
 
     getModulslist(modulelist) {

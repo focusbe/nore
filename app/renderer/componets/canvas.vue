@@ -76,6 +76,9 @@ export default {
 			this.$emit("onChange", "root", this.rootvnode);
 			this.$emit("onChange", "curvnode", this.curvnode);
 		},
+		syncRoot(){
+			this.$emit("onChange", "root", this.rootvnode);
+		},
 		renderToString: function() {
 			var res = this.vnodeToJsx(this.rootvnode);
 			var test1 = jsx.fromString(res.jsx, {

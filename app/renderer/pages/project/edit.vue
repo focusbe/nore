@@ -306,6 +306,9 @@ export default {
 		changePage(index) {
 			//保存原来的信息
 			//切换到页面；
+			if(index<0||index>=this.pagelist||index==this.curPage){
+				return;
+			}
 			if (this.curPage > -1) {
 				this.saveCurPage();
 			}
@@ -314,11 +317,13 @@ export default {
 				this.getPageInfo(index);
 			}
 		},
-		async saveCurPage(callback) {
-			console.log("save");
-			console.log(this.curPageInfo.name);
+		saveCurPage(callback) {
+			this.$refs.canvas.syncRoot();
 			if (!!this.canvasData) {
+				console.log('canvasdata');
+				console.log(this.canvasData);
 				var rootJson = this.canvasData.toJson();
+				console.log(rootJson);
 				try {
 					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
 					if(!!res){
