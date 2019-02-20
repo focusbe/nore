@@ -77,15 +77,8 @@
 				>添加页面</i-button> -->
 			</ul>
 			<div class="page_detail">
-				<div
-				 class="canvas"
-				 @keydown.delete="deletecur"
-				 v-bind:style="designeSize[curdevice]"
-				>
-					<my-canvas
-					 ref="canvas"
-					 @onChange="onCanvasChange"
-					></my-canvas>
+				<div class="canvas" v-if="curCanvas" v-bind:style="designeSize[curdevice]">
+					<my-canvas :ref="'canvas'+key" :canvasData="curCanvas" @onChange="onCanvasChange"/>
 				</div>
 			</div>
 		</div>
@@ -199,7 +192,8 @@ export default {
 			curdevice: "phone",
 			propOptions: {},
 			curProps: {},
-			canvasData: null,
+			canvasData:null,
+			curCanvas:null,
 			//以上是cavas相关
 			curPage: -1,
 			curPageInfo: null,
@@ -312,12 +306,13 @@ export default {
 			if (this.curPage > -1) {
 				this.saveCurPage();
 			}
+
 			if (!!this.pagelist && index >= 0 && index < this.pagelist.length) {
 				this.curPage = index;
 				this.getPageInfo(index);
 			}
 		},
-		saveCurPage(callback) {
+		async saveCurPage(callback) {
 			this.$refs.canvas.syncRoot();
 			if (!!this.canvasData) {
 				console.log('canvasdata');
@@ -335,20 +330,24 @@ export default {
 				
 			}
 		},
-		resetCanvas() {
+		resetEditor() {
 			this.styleOptions = {};
 			this.curStyles = {};
 			this.propOptions = {};
 			this.curProps = {};
-			this.canvasData = null;
 		},
 		getPageInfo(key) {
 			let id = this.pagelist[key].id;
-			this.curPageInfo = this.project.getPage(id);
-			this.resetCanvas();
+			if(!this.canvasData){
+				this.canvasData={};
+
+			}
+			this.canvasData[key] = null;
+			this.curCanvas = this.canvasData[key];
+			this.resetEditor();
 			//console.log(this.$refs.canvas);
 			// this.canvasData = this.curPageInfo.tree;
-			this.$refs.canvas.initFromTree(this.curPageInfo.tree);
+			//this.$refs.canvas.initFromTree(this.curPageInfo.tree);
 		},
 		deletePage(key) {
 			this.$Modal.confirm({
@@ -379,6 +378,7 @@ export default {
 			this.$refs.canvas.clearCanvas();
 		},
 		onCanvasChange: function(event, params) {
+			return;
 			switch (event) {
 				case "root":
 					this.canvasData = params;
