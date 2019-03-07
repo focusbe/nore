@@ -213,12 +213,12 @@ export default {
 				y: this.curvnode.styles.y
 			};
 			var $el = $(this.curvnode.getVueNode().elm);
-			if (this.startStyles.width.indexOf("%") > -1) {
+			if (this.startStyles.width.toString().indexOf("%") > -1) {
 				this.startStyles.width = $el.width();
 			} else {
 				this.startStyles.width = parseInt(this.startStyles.width);
 			}
-			if (this.startStyles.height.indexOf("%") > -1) {
+			if (this.startStyles.height.toString().indexOf("%") > -1) {
 				this.startStyles.height = $el.height();
 			} else {
 				this.startStyles.height = parseInt(this.startStyles.height);

@@ -4,13 +4,22 @@ var fs = require("fs");
 var fse = require("fs-extra");
 var path = require("path");
 const lodashId = require("lodash-id");
+const postcss = require("postcss");
+const postcssJs = require('postcss-js');
+// const css  = '#body { z-index: 1 }#body { z-index: 2;widht:100px; }body #body{z-index:10}'
+// const root = postcss.parse(css);
+// var obj = postcssJs.objectify(root);
+// console.log(obj);
+// console.log(root);
 import Configs from "./configs";
+import viewList from "../renderer/elements/list.js";
 // var juicer = require("juicer");
 // var babelify = require("babelify");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选择
 import Files from "./files";
 const shelljs = require("shelljs");
+var jsxTransform = require("jsx-transform");
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
@@ -247,33 +256,50 @@ class Project {
         return res;
     }
     hasPage(name) {
-        console.log(name);
         var hasname = this.db
             .get("pages")
             .find({ name: name })
             .size()
             .value();
-        console.log(hasname);
         return hasname > 0;
     }
+
     savePage(name, tree) {
-        if (!name || !tree || !this.hasPage(name)) {
+        let curPageInfo = this.getPageByName(name);
+        if (!name || !tree || !curPageInfo) {
             return -1;
         }
+
         let jsxobj = this.treeToJsx(tree);
         let cssPath: string = path.resolve(this.rootdir, "src/css");
         let cssFilePath = path.resolve(cssPath, name + ".css");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         var self = this;
+        let jsxString = "<page";
+        for (var i in curPageInfo) {
+            if (this.isValiProp(i)) {
+                continue;
+            }
+            jsxString += ` ${i}="${curPageInfo[i]}"`;
+        }
+        jsxString += ">\n\t<head>";
+        if (!!curPageInfo.head) {
+            jsxString += "\n\t\t" + curPageInfo.head;
+        }
+        jsxString += "\n\t</head>\n";
+        jsxString += jsxobj.jsx;
+        jsxString += "\n\t<foot>";
+        if (!!curPageInfo.head) {
+            jsxString += "\n\t\t" + curPageInfo.foot;
+        }
+        jsxString += "\n\t</foot>\n</page>";
         return new Promise(function(resolve, reject) {
             Files.createdir(cssPath, function(res) {
                 if (!!res) {
                     fs.writeFile(cssFilePath, jsxobj.css, function(err) {
                         if (err) reject("保存样式文件失败");
                         else {
-                            fs.writeFile(jsxFilePath, jsxobj.jsx, function(
-                                err
-                            ) {
+                            fs.writeFile(jsxFilePath, jsxString, function(err) {
                                 if (err) reject("保存JSX文件失败");
                                 else {
                                     var res = self.db
@@ -298,8 +324,106 @@ class Project {
             });
         });
     }
+    getPageByName(name) {
+        var res = this.db
+            .get("pages")
+            .find({
+                name: name
+            })
+            .value();
+        return res;
+    }
 
-    treeToJsx(tree: { [key: string]: any }, tabstr: string = "") {
+    isValiProp(prop) {
+        let cantUse = ["name", "id", "tree", "head", "foot"];
+        return cantUse.indexOf(prop) > -1;
+    }
+
+    async fileToDb(name) {
+        let cssPath: string = path.resolve(this.rootdir, "src/css");
+        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
+        let exists = await fse.pathExists(jsxFilePath);
+        var jsxStr, cssStr;
+        if (exists) {
+            jsxStr = await fse.readFile(jsxFilePath, "utf8");
+
+            if (!!jsxStr) {
+                let cssExists = fse.pathExists(cssFilePath);
+                if (cssExists) {
+                    cssStr = await fse.readFile(jsxFilePath, "utf8");
+                    
+                }
+                this.jsxToJson(jsxStr, cssStr);
+            } else {
+                //文件是空的或者没有读取到内容
+            }
+        } else {
+            return -1;
+            //文件不存在
+        }
+    }
+    async dbToFile() {}
+    jsxToJson(jsx, css) {
+        let root = postcss.parse(css);
+        let cssObj = postcssJs.objectify(root);
+        var funStr = jsxTransform.fromString(jsx, {
+            factory: "this.createVnode"
+        });
+        var pageJson = eval(funStr);
+        if (!!css && !!pageJson.tree) {
+            
+        }
+    }
+    pageJsonToData(pageJson, resultJson = {}) {}
+    isComp(name) {
+        if (!name) {
+            return false;
+        }
+        for (var i in viewList) {
+            if (!!viewList[i]["name"] && viewList[i]["name"] == name) {
+                return true;
+            }
+        }
+        return false;
+    }
+    createVnode(tag, props, children) {
+        var result = {};
+        if (tag == "page") {
+            for (var i in props) {
+                if (!this.isValiProp(i)) {
+                    result[i] = props[i];
+                }
+            }
+            for (var i in children) {
+                if (
+                    children[i].tag == "head" ||
+                    children[i].tag == "foot" ||
+                    children[i].tag == "tree"
+                ) {
+                    result[children[i].tag] = children[i].value;
+                }
+            }
+        } else if (tag == "head" || tag == "foot") {
+            result["tag"] = tag;
+            result["value"] = "";
+        } else if (tag == "root") {
+            result["tag"] = "tree";
+            result["value"] = {
+                view: "tag",
+                porps: props,
+                childrens: children
+            };
+        } else {
+            result = {
+                view: tag,
+                porps: props,
+                childrens: children
+            };
+        }
+        return result;
+    }
+    treeToJsx(tree: { [key: string]: any }, tabstr: string = "\t") {
         if (!tree) {
             return;
         }
@@ -340,9 +464,7 @@ class Project {
         jsx += `\n${tabstr}</${tag}>`;
         return { css: css, jsx: jsx };
     }
-    renderToHtml(name,jsx){
-        
-    }
+    renderToHtml(name, jsx) {}
     saveToFile() {}
     parseFile() {}
 

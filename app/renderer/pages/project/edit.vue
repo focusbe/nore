@@ -340,6 +340,7 @@ export default {
 				console.log(rootJson);
 				try {
 					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
+					await this.project.fileToDb(this.curPageInfo.name);
 					if(!!res){
 						console.log('保存成功');
 					}
