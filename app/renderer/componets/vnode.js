@@ -151,6 +151,8 @@ class vnode {
             curJson.styles = curStyle;
         }
         var curProps = this.quchong('props');
+        console.log('curProps');
+        console.log(curProps);
         if(!!curProps){
             curJson.props = curProps;
         }
@@ -172,18 +174,18 @@ class vnode {
         var res = null;
         for(var i in this[prop]){
             if(typeof(curView[prop][i])!='undefined'&&typeof(curView[prop][i].default)!='undefined'){
-                if(this.styles[i]!==curView[prop][i].default){
+                if(this[prop][i]!==curView[prop][i].default){
                     if(!res){
                         res = {};
                     }
-                    res[i] = this.styles[i];
+                    res[i] = this[prop][i];
                 }
             }
             else{
                 if(!res){
                     res = {};
                 }
-                res[i] = this.styles[i];
+                res[i] = this[prop][i];
             }
         }
         return res;

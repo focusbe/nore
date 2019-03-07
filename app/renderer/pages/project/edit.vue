@@ -365,7 +365,8 @@ export default {
 			this.resetEditor();
 			//console.log(this.$refs.canvas);
 			// this.canvasData = this.curPageInfo.tree;
-			//this.$refs.canvas.initFromTree(this.curPageInfo.tree);
+			console.log(this.curPageInfo.tree);
+			this.curCanvas.initFromTree(this.curPageInfo.tree);
 		},
 		deletePage(key) {
 			this.$Modal.confirm({
