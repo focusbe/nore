@@ -6,7 +6,7 @@ var path = require("path");
 const lodashId = require("lodash-id");
 const postcss = require("postcss");
 const postcssJs = require('postcss-js');
-// const css  = '#body { z-index: 1 }#body { z-index: 2;widht:100px; }body #body{z-index:10}'
+// const css  = '#body { z-index: 1;x:111;}#body { z-index: 2;widht:100px; }body #body{z-index:10}'
 // const root = postcss.parse(css);
 // var obj = postcssJs.objectify(root);
 // console.log(obj);
@@ -365,14 +365,14 @@ class Project {
     }
     async dbToFile() {}
     jsxToJson(jsx, css) {
-        let root = postcss.parse(css);
-        let cssObj = postcssJs.objectify(root);
+        
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
         });
         var pageJson = eval(funStr);
         if (!!css && !!pageJson.tree) {
-            
+            let cssroot = postcss.parse(css);
+            let cssObj = postcssJs.objectify(cssroot);
         }
     }
     pageJsonToData(pageJson, resultJson = {}) {}
