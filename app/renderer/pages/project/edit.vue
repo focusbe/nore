@@ -77,8 +77,8 @@
 				>添加页面</i-button> -->
 			</ul>
 			<div class="page_detail">
-				<div class="canvas" v-if="curCanvas" v-bind:style="designeSize[curdevice]">
-					<my-canvas :ref="'canvas'+key" :canvasData="curCanvas" @onChange="onCanvasChange"/>
+				<div v-for="(item,key) in canvasDataList" v-show="curPage==key"  :class="'canvas canvas'+key " v-bind:style="designeSize[curdevice]">
+					<my-canvas :ref="'canvas'+key" :canvasData="item" @onChange="onCanvasChange"/>
 				</div>
 			</div>
 		</div>
@@ -193,10 +193,9 @@ export default {
 			propOptions: {},
 			curProps: {},
 			canvasData:null,
-			curCanvas:null,
+			canvasDataList:{},
 			//以上是cavas相关
 			curPage: -1,
-			curPageInfo: null,
 			prejectInfo: {},
 			serverpath: null,
 			actname: "",
@@ -288,14 +287,30 @@ export default {
 		};
 		this.changePage(0);
 	},
-
+	computed:{
+		curCanvas(){
+			console.log(this.curPage);
+			console.log(this.$refs);
+			return this.$refs['canvas'+this.curPage][0];
+		},
+		curPageInfo(){
+			return this.pagelist[this.curPage];
+		}
+	},
 	methods: {
 		addPage() {
 			this.$refs.pageForm.show();
 		},
 		getPagelist() {
 			this.pagelist = [];
-			this.pagelist = this.project.getPageList();
+			var pagelist = this.project.getPageList();
+			this.pagelist = pagelist;
+			var canvasDataList = {};
+			console.log(pagelist);
+			for(var i in pagelist){
+				canvasDataList[i] = pagelist[i].tree;
+			}
+			this.canvasDataList = canvasDataList;
 		},
 		changePage(index) {
 			//保存原来的信息
@@ -313,11 +328,15 @@ export default {
 			}
 		},
 		async saveCurPage(callback) {
-			this.$refs.canvas.syncRoot();
-			if (!!this.canvasData) {
-				console.log('canvasdata');
-				console.log(this.canvasData);
-				var rootJson = this.canvasData.toJson();
+			// console.log(this.$refs['canvas'+this.curPage]);
+			console.log(this.curCanvas)
+			this.curCanvas.syncRoot();
+			var curCanvasData = this.canvasDataList[this.curPage];
+			console.log(curCanvasData);
+			if (!!curCanvasData) {
+				console.log('curCanvasData');
+				console.log(curCanvasData);
+				var rootJson = curCanvasData.toJson();
 				console.log(rootJson);
 				try {
 					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
@@ -338,12 +357,11 @@ export default {
 		},
 		getPageInfo(key) {
 			let id = this.pagelist[key].id;
-			if(!this.canvasData){
-				this.canvasData={};
-
-			}
-			this.canvasData[key] = null;
-			this.curCanvas = this.canvasData[key];
+			// if(!this.canvasDataList){
+			// 	this.canvasDataList={};
+			// }
+			// this.canvasData[key] = null;
+			// this.curCanvas = this.canvasData[key];
 			this.resetEditor();
 			//console.log(this.$refs.canvas);
 			// this.canvasData = this.curPageInfo.tree;
@@ -371,17 +389,16 @@ export default {
 			this.getPagelist();
 		},
 		psdfinish(vnodetree) {
-			this.$refs.canvas.initFromTree(vnodetree);
+			this.curCanvas.initFromTree(vnodetree);
 		},
 		savedesign() {},
 		clearCanvas() {
-			this.$refs.canvas.clearCanvas();
+			this.curCanvas.clearCanvas();
 		},
 		onCanvasChange: function(event, params) {
-			return;
 			switch (event) {
 				case "root":
-					this.canvasData = params;
+					this.canvasDataList[this.curPage] = params;
 					break;
 				case "curvnode":
 					//console.log(params);
@@ -400,7 +417,7 @@ export default {
 		preview: function() {
 			var self = this;
 			//if (this.serverpath) {
-			this.$refs.canvas.renderToString();
+			this.curCanvas.renderToString();
 			//window.open(this.serverpath);
 			// } else {
 			// 	alert("本地服务器启动失败");
@@ -408,7 +425,7 @@ export default {
 		},
 		addView: function(viewData) {
 			//console.log(viewData);
-			this.$refs.canvas.addVnode(viewData);
+			this.curCanvas.addVnode(viewData);
 		},
 
 		onCurStylesChange: function(styles) {
