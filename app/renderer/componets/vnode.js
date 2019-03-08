@@ -151,8 +151,6 @@ class vnode {
             curJson.styles = curStyle;
         }
         var curProps = this.quchong('props');
-        console.log('curProps');
-        console.log(curProps);
         if(!!curProps){
             curJson.props = curProps;
         }
@@ -252,7 +250,6 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
-        console.log(this);
         if (!this.view) {
             return null;
         }

@@ -42,6 +42,8 @@
 				<ul class="element_list"></ul>
 			</div>
 			<Button @click="clearCanvas">清空画布</Button>
+			<Button @click="savePage">保存</Button>
+			<Button @click="reloadPage">重载</Button>
 		</div>
 		<div class="center">
 			<ul class="page_list">
@@ -298,6 +300,9 @@ export default {
 		}
 	},
 	methods: {
+		reloadFromJsx(){
+			this.project.fileToDb(this.curPageInfo.name);
+		},
 		addPage() {
 			this.$refs.pageForm.show();
 		},
@@ -327,7 +332,7 @@ export default {
 				this.getPageInfo(index);
 			}
 		},
-		async saveCurPage(callback) {
+		async saveCurPage() {
 			// console.log(this.$refs['canvas'+this.curPage]);
 			console.log(this.curCanvas)
 			this.curCanvas.syncRoot();
@@ -340,15 +345,14 @@ export default {
 				console.log(rootJson);
 				try {
 					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
-					await this.project.fileToDb(this.curPageInfo.name);
 					if(!!res){
-						console.log('保存成功');
+						return true;
 					}
 				} catch (error) {
-					console.log(error);
+					return false;
 				}
-				
 			}
+			return true;
 		},
 		resetEditor() {
 			this.styleOptions = {};
@@ -396,6 +400,18 @@ export default {
 		savedesign() {},
 		clearCanvas() {
 			this.curCanvas.clearCanvas();
+		},
+		async savePage(){
+			var result = this.saveCurPage();
+			if(result){
+				alert('保存成功');
+			}
+			else{
+				alert('保存失败');
+			}
+		},
+		reloadPage(){
+			this.project.fileToDb(this.curPageInfo.name);
 		},
 		onCanvasChange: function(event, params) {
 			switch (event) {
