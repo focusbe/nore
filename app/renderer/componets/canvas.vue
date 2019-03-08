@@ -25,7 +25,7 @@ export default {
 
 	methods: {
 		initFromTree(tree) {
-			// console.log(tree);
+			console.log(tree);
 			this.curvnode = this.rootvnode;
 			this.rootvnode.childrens = [];
 			if(!!tree){
@@ -49,6 +49,7 @@ export default {
 					if (curnode.view == "button") {
 						curnode.view = "my-button";
 					}
+					console.log(curnode);
 					var newnode = new vnode(
 						viewObj[curnode.view],
 						curnode.styles,
@@ -98,7 +99,7 @@ export default {
 			}
 			var css = "";
 			var jsx = "";
-			jsx = tabstr + `<${tag} id="${vnode.domid}"`;
+			jsx = tabstr + `<${tag}`;
 			let proptype;
 			for (var i in vnode.props) {
 				proptype = typeof vnode.props[i];
@@ -107,7 +108,7 @@ export default {
 				}
 			}
 			if (!!vnode.styles) {
-				css = `#${vnode.domid}{\n`;
+				css = `#${vnode.props.id}{\n`;
 				for (var i in vnode.styles) {
 					css += `\t${i}:${vnode.styles[i]};\n`;
 				}

@@ -32,7 +32,7 @@ import Tree from "./tree";
 import Vue from "vue";
 import Configs from "libs/configs";
 import Files from "libs/files";
-const PSD = require("libs/psd/index");
+import PSD from "libs/psd/index";
 import path from "path";
 import aRemote from "libs/aremote";
 
@@ -72,7 +72,7 @@ export default {
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,
-					this.uploadpath
+					'uploads'
 				);
 				var res = await mypsd.parse(true,false);
 				console.log(res);

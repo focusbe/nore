@@ -18,7 +18,6 @@ import viewList from "../renderer/elements/list.js";
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选择
 import Files from "./files";
-import { isObject } from "util";
 const shelljs = require("shelljs");
 var jsxTransform = require("jsx-transform");
 class ProjectsClass {
@@ -264,7 +263,17 @@ class Project {
             .value();
         return hasname > 0;
     }
-    saveToDb(name, tree) {
+    saveToDb(name,pagejson){
+        var res = this.db
+            .get("pages")
+            .find({
+                name: name
+            })
+            .assign(pagejson)
+            .write();
+        return res;
+    }
+    saveTreeToDb(name, tree) {
         var res = this.db
             .get("pages")
             .find({
@@ -339,9 +348,9 @@ class Project {
     }
     async savePage(name, tree) {
         try {
-            let res1 = await this.saveToDb(name,tree);
+            let res1 = await this.saveTreeToDb(name,tree);
             if(!!res1){
-                let res2 = await this.saveToDb(name,tree);
+                let res2 = await this.saveToFile(name,tree);
                 return true;
             }
             return false;
@@ -379,9 +388,10 @@ class Project {
                     cssStr = await fse.readFile(cssFilePath, "utf8");
 
                 }
-                var tree = this.jsxToJson(jsxStr, cssStr);
-                if(!!tree){
-                    let res = this.saveToDb(name,tree);
+                var pageJson = this.jsxToJson(jsxStr, cssStr);
+                console.log(pageJson);
+                if(!!pageJson){
+                    let res = this.saveToDb(name,pageJson);
                     return res;
                 }
                 return false;
@@ -399,7 +409,9 @@ class Project {
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
         });
+        console.log(funStr);
         var pageJson = eval(funStr);
+        console.log(pageJson);
         if (!!css && !!pageJson.tree) {
             try {
                 let cssroot = postcss.parse(css);
@@ -475,7 +487,7 @@ class Project {
             }
         } else if (tag == "head" || tag == "foot") {
             result["tag"] = tag;
-            result["value"] = "";
+            result["value"] = children;
         } else if (tag == "root") {
             result["tag"] = "tree";
             result["value"] = {
@@ -505,7 +517,7 @@ class Project {
         }
         var css = "";
         var jsx = "";
-        jsx = tabstr + `<${tag} id="${tree.domid}"`;
+        jsx = tabstr + `<${tag}"`;
         let proptype;
         for (var i in tree.props) {
             proptype = typeof tree.props[i];
@@ -514,7 +526,7 @@ class Project {
             }
         }
         if (!!tree.styles) {
-            css = `#${tree.domid}{\n`;
+            css = `#${tree.props.id}{\n`;
             for (var i in tree.styles) {
                 css += `\t${i}:${tree.styles[i]};\n`;
             }

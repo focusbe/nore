@@ -1,6 +1,8 @@
 const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
+import Util from "../util";
+console.log(Util);
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
@@ -76,6 +78,28 @@ class PSD {
     }
     checkLayer(layer){
 
+    }
+    getImgName(imgname,num){
+        if(!num){
+            num = 0;
+        }
+        if(!this.namePool){
+            this.namePool = {};
+        }
+        if(this.isChina(imgname)){
+            return Util.createId();
+        }
+        imgname = imgname.replace(/\//g, "_");
+        let res = imgname;
+        if(!!num){
+            res = imgname+''+num;
+        }
+        if(!!this.namePool[res]){
+            num++
+            res =  this.getImgName(imgname,num);
+        }
+        this.namePool[res] = 1;
+        return res;
     }
     getvnodetree(psdNode, vNode, imgPool, istree) {
         //params psdNode:psd中的节点
@@ -164,7 +188,7 @@ class PSD {
 
                 //设置当前节点的类名,需要判断是否包含中文
                 curVNode.props = {
-                    className: this.isChina(curLayer.name) ? "" : curLayer.name
+                    class: this.isChina(curLayer.name) ? "" : curLayer.name
                 };
 
                 //父级的绝对位置；如果是树形结构会用到
@@ -275,7 +299,7 @@ class PSD {
                             curLayer.get("width") * curLayer.get("height") <
                             self.pixelMax
                         ) {
-                            imgname = curLayer.path().replace(/\//g, "_");
+                            imgname = this.getImgName(curLayer.path());
                             
                             imgPool.push({
                                 image: curLayer.layer.image,
@@ -373,4 +397,4 @@ class PSD {
         }
     }
 }
-module.exports = PSD;
+export default PSD;

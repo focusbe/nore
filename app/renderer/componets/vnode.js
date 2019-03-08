@@ -2,6 +2,8 @@ import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
 import $ from "jquery";
+import Util from "../../libs/util";
+var shortid = require('shortid');
 Vue.component("vnoderender", {
     methods: {},
     components: {
@@ -84,7 +86,13 @@ class vnode {
         if (!window.vnodeIdEND) {
             window.vnodeIdEND = 0;
         }
-        this.domid = 'vnode_' + (new Date().getTime());
+        if(!props){
+            props = {};
+        }
+        if(!props.id){
+            props.id = 'vnode_' + (Util.createId());
+        }
+        
         this.styles = styles;
         this.props = props;
         this.childrens = [];
@@ -154,8 +162,6 @@ class vnode {
         if(!!curProps){
             curJson.props = curProps;
         }
-        
-        curJson.domid = this.domid;
         curJson.childrens = [];
         for (var i in this.childrens) {
             curJson.childrens.push(this.childrens[i].toJson());
@@ -253,6 +259,8 @@ class vnode {
         if (!this.view) {
             return null;
         }
+        console.log(11);
+        console.log(this.props)
         if (!this.props) {
             this.props = {};
         }
@@ -266,8 +274,8 @@ class vnode {
                     isoptioning: !!this.isoptioning
                 },
                 attrs: {
-                    class: (this.props.className || "") + ' vnodeDom',
-                    id: this.domid
+                    class: (this.props.class || "") + ' vnodeDom',
+                    id: this.props.id
                 },
                 nativeOn: {
                     click: function (event) {
