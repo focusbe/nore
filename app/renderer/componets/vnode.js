@@ -1,9 +1,12 @@
 import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
+import vueTemCom from "vue-template-compiler";
+console.log(vueTemCom);
 import $ from "jquery";
 Vue.component("vnoderender", {
     methods: {},
+    template:'<div></div>',
     components: {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
@@ -28,26 +31,39 @@ Vue.component("vnoderender", {
             props: this.viewprops
         });
     },
-    render: function (createElement) {
-        // console.log(!this.view||!this.props);
-        // if(!this.view||!this.props){
-        //     return null;
-        // }
-        var viewdata = this.viewdata;
-        var slots = [this.$slots.default];
+    // render: function (createElement) {
+    //     // console.log(!this.view||!this.props);
+    //     // if(!this.view||!this.props){
+    //     //     return null;
+    //     // }
+    //     var viewdata = this.viewdata;
+    //     var slots = [this.$slots.default];
 
-        if (!!this.isoptioning) {
-            slots.push(createElement('workspace'));
-        }
-        this.vuenode = createElement(
-            this.viewdata.tagName,
-            this.viewdata.render({
-                props: this.viewprops
-            }),
-            slots
-        );
-        return this.vuenode;
-    },
+    //     if (!!this.isoptioning) {
+    //         slots.push(createElement('workspace'));
+    //     }
+    //     var elementProps = this.viewdata.render({
+    //         props: this.viewprops
+    //     });
+    //     if(typeof elementProps =='string'){
+    //         this.vuenode = elementProps;
+    //     }
+    //     else if(!!elementProps&&!!elementProps.tagName){
+    //         if(!elementProps.props){
+    //             elementProps.props=null;
+    //         }
+    //         this.vuenode = createElement(elementProps.tagName,elementProps.props,slots);
+    //     }
+    //     else{
+    //         this.vuenode = createElement(
+    //             this.viewdata.tagName,
+    //             elementProps,
+    //             slots
+    //         );
+    //     }
+    //     console.log(this.vuenode)
+    //     return this.vuenode;
+    // },
     methods: {
         getDom() {
             return this.$el;
