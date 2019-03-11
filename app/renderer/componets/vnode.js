@@ -1,12 +1,11 @@
 import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
-import vueTemCom from "vue-template-compiler";
-console.log(vueTemCom);
-import $ from "jquery";
 Vue.component("vnoderender", {
     methods: {},
-    template:'<div></div>',
+    template:`<div>
+        <p v-for="item in list" @click="handleclick">{{item}}</p>
+    </div>`,
     components: {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
@@ -67,6 +66,11 @@ Vue.component("vnoderender", {
     methods: {
         getDom() {
             return this.$el;
+        }
+    },
+    data(){
+        return {
+            list:[111,2222,333]
         }
     },
     props: {
