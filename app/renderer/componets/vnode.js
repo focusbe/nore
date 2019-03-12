@@ -114,6 +114,11 @@ var vnoderender = Vue.component("vnoderender", {
             return temCom;
         }
     },
+    data(){
+        return {
+            list:[111,2222,333]
+        }
+    },
     props: {
         viewdata: {
             type: Object,
