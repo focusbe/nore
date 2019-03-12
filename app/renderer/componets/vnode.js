@@ -1,15 +1,32 @@
 import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
-import vueTemCom from "vue-template-compiler";
-console.log(vueTemCom);
-import $ from "jquery";
-Vue.component("vnoderender", {
+let BaseComponent = Vue.extend({
+    data(){
+        return {test:1}
+        
+    },
+    template:'<div>1111</div>'
+});
+console.log(BaseComponent);
+//基于基础组件BaseComponent,再扩展新逻辑.
+var base = new BaseComponent({
+    created(){
+        //do something
+        console.log('onCreated-2');
+    }
+    //其他自定义逻辑
+});
+console.log(base);
+var vnoderender = Vue.component("vnoderender", {
     methods: {},
-    template:'<div></div>',
+    template: '<component :is="component" test2="1" v-if="component"></component>',
     components: {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
+    },
+    created(){
+        this.component = this.createCom();
     },
     mounted: function () {
         if (this.ismouseDown) {
@@ -30,6 +47,12 @@ Vue.component("vnoderender", {
             dom: this.$el,
             props: this.viewprops
         });
+    },
+    data() {
+        return {
+            component: null,
+            componentCache:{}
+        }
     },
     // render: function (createElement) {
     //     // console.log(!this.view||!this.props);
@@ -67,6 +90,28 @@ Vue.component("vnoderender", {
     methods: {
         getDom() {
             return this.$el;
+        },
+        createCom(){
+            console.log(this.viewdata);
+            if(!!this.componentCache[this.viewdata.name]){
+                return this.componentCache[this.viewdata.name];
+            }
+            let renderres = 
+            let temCom = Vue.extend({
+                created:function(){
+                    console.log(this);
+                },
+                data(){
+                    return {
+
+                    }
+                },
+                props: {
+                    viewdata: null
+                },
+                template:'<div>1111</div>'
+            });
+            return temCom;
         }
     },
     props: {
@@ -85,7 +130,6 @@ Vue.component("vnoderender", {
         }
     }
 });
-
 
 class vnode {
     constructor(view, styles, props) {
@@ -163,14 +207,14 @@ class vnode {
             curView = this.view;
         }
         var curStyle = this.quchong('styles');
-        if(!!curStyle){
+        if (!!curStyle) {
             curJson.styles = curStyle;
         }
         var curProps = this.quchong('props');
-        if(!!curProps){
+        if (!!curProps) {
             curJson.props = curProps;
         }
-        
+
         curJson.domid = this.domid;
         curJson.childrens = [];
         for (var i in this.childrens) {
@@ -178,7 +222,7 @@ class vnode {
         }
         return curJson;
     }
-    quchong(prop){
+    quchong(prop) {
         var curView;
         if (typeof (this.view) == 'string') {
             curView = viewList[this.view];
@@ -186,17 +230,16 @@ class vnode {
             curView = this.view;
         }
         var res = null;
-        for(var i in this[prop]){
-            if(typeof(curView[prop][i])!='undefined'&&typeof(curView[prop][i].default)!='undefined'){
-                if(this[prop][i]!==curView[prop][i].default){
-                    if(!res){
+        for (var i in this[prop]) {
+            if (typeof (curView[prop][i]) != 'undefined' && typeof (curView[prop][i].default) != 'undefined') {
+                if (this[prop][i] !== curView[prop][i].default) {
+                    if (!res) {
                         res = {};
                     }
                     res[i] = this[prop][i];
                 }
-            }
-            else{
-                if(!res){
+            } else {
+                if (!res) {
                     res = {};
                 }
                 res[i] = this[prop][i];
