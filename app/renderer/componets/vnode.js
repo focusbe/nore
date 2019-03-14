@@ -1,37 +1,21 @@
 import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
-let BaseComponent = Vue.extend({
-    data(){
-        return {test:1}
-        
-    },
-    template:'<div>1111</div>'
-});
-console.log(BaseComponent);
-//基于基础组件BaseComponent,再扩展新逻辑.
-var base = new BaseComponent({
-    created(){
-        //do something
-        console.log('onCreated-2');
-    }
-    //其他自定义逻辑
-});
-console.log(base);
-var vnoderender = Vue.component("vnoderender", {
+Vue.component("vnoderender", {
     methods: {},
-    template: '<component :is="component" test2="1" v-if="component"></component>',
+    template: '<component :is="component" :viewprops="viewprops" :viewdata="viewdata" v-if="component"><solt></solt></component>',
     components: {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
     },
-    created(){
+    created() {
         this.component = this.createCom();
     },
     mounted: function () {
         if (this.ismouseDown) {
             return;
         }
+
         var viewdata = this.viewdata;
         this.viewdata.onRendered({
             dom: this.$el,
@@ -39,9 +23,11 @@ var vnoderender = Vue.component("vnoderender", {
         });
     },
     updated: function () {
+
         if (this.ismouseDown) {
             return;
         }
+        this.component = this.createCom();
         var viewdata = this.viewdata;
         this.viewdata.onRendered({
             dom: this.$el,
@@ -51,7 +37,7 @@ var vnoderender = Vue.component("vnoderender", {
     data() {
         return {
             component: null,
-            componentCache:{}
+            componentCache: {}
         }
     },
     // render: function (createElement) {
@@ -91,32 +77,67 @@ var vnoderender = Vue.component("vnoderender", {
         getDom() {
             return this.$el;
         },
-        createCom(){
-            console.log(this.viewdata);
-            if(!!this.componentCache[this.viewdata.name]){
+        createCom() {
+            var self = this;
+            if (!!this.componentCache[this.viewdata.name]) {
                 return this.componentCache[this.viewdata.name];
             }
-            let renderres = 
-            let temCom = Vue.extend({
-                created:function(){
-                    console.log(this);
-                },
-                data(){
-                    return {
-
-                    }
-                },
-                props: {
-                    viewdata: null
-                },
-                template:'<div>1111</div>'
+            let temCom;
+            var rendered = this.viewdata.render({
+                props: this.viewprops
             });
+
+            if (!!this.viewdata.template||typeof(rendered)=='string') {
+                let template;
+                if(!!this.viewdata.template){
+                    template = this.viewdata.template;
+                }
+                else{
+                    template = rendered;
+                }
+                temCom = Vue.extend({
+                    created: function () {
+                        //console.log(this);
+                    },
+                    props: {
+                        viewprops: null
+                    },
+                    template: template
+                });
+            } else {
+                temCom = Vue.extend({
+                    created: function () {
+                        //console.log(this);
+                    },
+                    components: {
+                        // <my-component> 将只在父组件模板中可用
+                        'workspace': workspace
+                    },
+                    props: {
+                        viewdata: null,
+                        viewprops: null
+                    },
+                    render: function (createElement) {
+                        if (!this.viewdata) {
+                            return null;
+                        }
+                        var slots = [self.$slots.default];
+                        if (!!self.isoptioning) {
+                            slots.push(createElement('workspace'));
+                        }
+                        return createElement(
+                            this.viewdata.tagName,
+                            this.viewdata.render({
+                                props: this.viewprops
+                            }),
+                            slots
+                        );
+                    }
+                });
+            }
+            this.componentCache[this.viewdata.name] = temCom;
+            // let renderres = this.viewdata.render();
             return temCom;
-        }
-    },
-    data(){
-        return {
-            list:[111,2222,333]
         }
     },
     props: {

@@ -22,7 +22,6 @@
 <style lang="scss" scoped>
 .filelist {
 	li {
-		
 	}
 }
 </style>
@@ -36,12 +35,12 @@ const PSD = require("libs/psd/index");
 import path from "path";
 import aRemote from "libs/aremote";
 
-
 export default {
 	name: "my-psd",
 	computed: {},
 	props: {
-		actname: String
+		actname: String,
+		pagename: String
 	},
 	data() {
 		return {
@@ -55,11 +54,9 @@ export default {
 			this.actname,
 			"psd"
 		);
-		this.uploadpath = path.join(
-			Configs.getItem("workshop"),
-			this.actname,
-			"uploads"
-		);
+	},
+	updated() {
+
 	},
 	methods: {
 		async getList() {
@@ -67,14 +64,20 @@ export default {
 			this.list = list;
 		},
 		async upload(file) {
+			this.uploadpath = path.join(
+				Configs.getItem("workshop"),
+				this.actname,
+				"uploads/" + this.pagename
+			);
 			var self = this;
 			try {
+				console.log(this.uploadpath);
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,
 					this.uploadpath
 				);
-				var res = await mypsd.parse(true,false);
+				var res = await mypsd.parse(true, false);
 				console.log(res);
 				// res = null;
 				// mypsd = null;

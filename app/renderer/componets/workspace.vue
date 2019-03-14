@@ -71,6 +71,7 @@
 
 <script>
 export default {
+    name:'worksapce',
     props: {
         styles: {
             type: String,

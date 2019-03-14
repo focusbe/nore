@@ -21,11 +21,9 @@ var container = createview({
     render: function (dom) {
         //alert('容器渲染');
         var tagname = dom.props.tagName;
-        //delete dom.props.tagName;
-        return {
-            tagName:tagname,
-            props:null
-        }
+        return `
+            <${dom.props.tagName}><solt></solt></${dom.props.tagName}>
+        `;
     }
 });
 export default container;

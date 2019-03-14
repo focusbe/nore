@@ -33,6 +33,7 @@
 				<h2>PSD</h2>
 				<my-psd
 				 :actname="actname"
+				 :pagename="curpageName"
 				 @savedesign="savedesign"
 				 @finish="psdfinish"
 				></my-psd>
@@ -291,12 +292,16 @@ export default {
 	},
 	computed:{
 		curCanvas(){
-			console.log(this.curPage);
-			console.log(this.$refs);
 			return this.$refs['canvas'+this.curPage][0];
 		},
 		curPageInfo(){
 			return this.pagelist[this.curPage];
+		},
+		curpageName(){
+			if(!this.pagelist[this.curPage]){
+				return '';
+			}
+			return this.pagelist[this.curPage]['name'];
 		}
 	},
 	methods: {
@@ -311,7 +316,6 @@ export default {
 			var pagelist = this.project.getPageList();
 			this.pagelist = pagelist;
 			var canvasDataList = {};
-			console.log(pagelist);
 			for(var i in pagelist){
 				canvasDataList[i] = pagelist[i].tree;
 			}
@@ -333,16 +337,11 @@ export default {
 			}
 		},
 		async saveCurPage() {
-			// console.log(this.$refs['canvas'+this.curPage]);
-			console.log(this.curCanvas)
 			this.curCanvas.syncRoot();
 			var curCanvasData = this.canvasDataList[this.curPage];
-			console.log(curCanvasData);
+
 			if (!!curCanvasData) {
-				console.log('curCanvasData');
-				console.log(curCanvasData);
 				var rootJson = curCanvasData.toJson();
-				console.log(rootJson);
 				try {
 					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
 					if(!!res){
@@ -370,7 +369,6 @@ export default {
 			this.resetEditor();
 			//console.log(this.$refs.canvas);
 			// this.canvasData = this.curPageInfo.tree;
-			console.log(this.curPageInfo.tree);
 			this.curCanvas.initFromTree(this.curPageInfo.tree);
 		},
 		deletePage(key) {
@@ -456,7 +454,6 @@ export default {
 			var curView = viewList[vnode.name];
 			this.styleOptions = curView.styles;
 			this.propOptions = curView.props;
-			console.log(this.propOptions);
 			this.curStyles = vnode.styles;
 			this.curProps = vnode.props;
 		},

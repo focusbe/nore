@@ -38,7 +38,6 @@ export default {
 			this.refresh();
 		},
 		addTreenodes(treenodes, curvnode) {
-			console.log(treenodes);
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
@@ -304,7 +303,6 @@ export default {
 			this.curvnode = vnode;
 			this.curvnode.isoptioning = true;
 			this.$emit("onChange", "curvnode", this.curvnode);
-
 			this.refresh();
 		},
 		runvnodeOnrendered: function(curvnode) {
