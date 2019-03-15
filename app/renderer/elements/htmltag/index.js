@@ -22,7 +22,7 @@ var container = createview({
         //alert('容器渲染');
         var tagname = dom.props.tagName;
         return `
-            <${dom.props.tagName}><solt></solt></${dom.props.tagName}>
+            <${dom.props.tagName}><slot></slot></${dom.props.tagName}>
         `;
     }
 });

@@ -3,7 +3,7 @@ import Vue from "vue";
 import workspace from "./workspace.vue";
 Vue.component("vnoderender", {
     methods: {},
-    template: '<component :is="component" :viewprops="viewprops" :viewdata="viewdata" v-if="component"><solt></solt></component>',
+    template: '<component :is="component" :viewprops="viewprops" :viewdata="viewdata" v-if="component"><slot></slot><workspace v-if="isoptioning"></workspace></component>',
     components: {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
@@ -23,7 +23,6 @@ Vue.component("vnoderender", {
         });
     },
     updated: function () {
-
         if (this.ismouseDown) {
             return;
         }

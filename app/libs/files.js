@@ -194,6 +194,25 @@ class Files {
             callback(stat.isDirectory());
         });
     }
+    static async  delFile(filepath) {
+        let exists = await fse.pathExists(filepath);
+        if (exists) {
+            var res = await new Promise(function(resolve,reject){
+                fse.unlink(filepath, function (err) {
+                    if (err) {
+                        resolve(false);
+                    }
+                    else{
+                        resolve(true);
+                    }
+                });
+            });
+            return res;
+        }
+        else {
+            return false;
+        }
+    }
 }
 export default Files;
 // module.exports = Files;

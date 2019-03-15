@@ -5,7 +5,7 @@ var fse = require("fs-extra");
 var path = require("path");
 const lodashId = require("lodash-id");
 const postcss = require("postcss");
-const postcssJs = require('postcss-js');
+const postcssJs = require("postcss-js");
 // const css  = '#body { z-index: 1;x:111;}#body { z-index: 2;widht:100px; }body #body{z-index:10}'
 // const root = postcss.parse(css);
 // var obj = postcssJs.objectify(root);
@@ -24,7 +24,7 @@ var jsxTransform = require("jsx-transform");
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
-    private constructor() { }
+    private constructor() {}
     static getInstance(): ProjectsClass {
         if (!ProjectsClass.instance) {
             ProjectsClass.instance = new ProjectsClass();
@@ -33,14 +33,14 @@ class ProjectsClass {
     }
     getlist() {
         return new Promise(
-            function (resolve, reject) {
+            function(resolve, reject) {
                 if (!Configs.getItem("workshop")) {
                     reject("没有设置workshop");
                     return;
                 }
                 let workshopdir = path.resolve(Configs.getItem("workshop"));
-                Files.createdir(workshopdir, function () {
-                    Files.getList(workshopdir, function (list) {
+                Files.createdir(workshopdir, function() {
+                    Files.getList(workshopdir, function(list) {
                         if (!list) {
                             reject("获取文件失败");
                             return;
@@ -54,7 +54,7 @@ class ProjectsClass {
     }
     add(config) {
         return new Promise(
-            function (resolve, reject) {
+            function(resolve, reject) {
                 if (!config || !config.actname) {
                     reject("参数错误");
                     return;
@@ -68,7 +68,7 @@ class ProjectsClass {
                 }
                 let project = new Project(config);
                 this.projectCache[config.actname] = project;
-                project.create(function (res) {
+                project.create(function(res) {
                     if (res.ret > 0) {
                         resolve(project);
                     } else {
@@ -83,7 +83,7 @@ class ProjectsClass {
     }
     delete(actname) {
         return new Promise(
-            function (resolve, reject) {
+            function(resolve, reject) {
                 let projectDir = path.resolve(
                     Configs.getItem("workshop"),
                     actname
@@ -99,10 +99,10 @@ class ProjectsClass {
         );
     }
     getTempList() {
-        return new Promise(function (resolve, reject) {
+        return new Promise(function(resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../template");
-            Files.createdir(tempdir, function () {
-                Files.getList(tempdir, function (list) {
+            Files.createdir(tempdir, function() {
+                Files.getList(tempdir, function(list) {
                     if (!list) {
                         reject("获取列表失败");
                         return;
@@ -114,7 +114,7 @@ class ProjectsClass {
     }
     openWithIed(actname) {
         return new Promise(
-            function (resolve, reject) {
+            function(resolve, reject) {
                 let vcodedir = path.resolve(
                     Configs.getItem("vscodePath"),
                     "bin/code"
@@ -132,7 +132,7 @@ class ProjectsClass {
                         async: true,
                         silent: true
                     },
-                    function (code, stdout, stderr) {
+                    function(code, stdout, stderr) {
                         if (!!stderr) {
                             reject(stderr);
                         } else {
@@ -235,7 +235,7 @@ class Project {
             .write();
         return newPost;
     }
-    delPage(name) {
+    async delPage(name) {
         if (!name || !this.hasPage(name)) {
             return -1;
         }
@@ -245,6 +245,17 @@ class Project {
                 name: name
             })
             .write();
+        let cssPath: string = path.resolve(this.rootdir, "src/css");
+        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
+        
+        try {
+            await Files.delFile(cssFilePath);
+            await Files.delFile(jsxFilePath);
+        } catch (error) {
+            console.log(error);
+            alert('文件删除失败');
+        }
         return res;
     }
     getPage(id) {
@@ -305,13 +316,13 @@ class Project {
             jsxString += "\n\t\t" + curPageInfo.foot;
         }
         jsxString += "\n\t</foot>\n</page>";
-        var res = await new Promise(function (resolve, reject) {
-            Files.createdir(cssPath, function (res) {
+        var res = await new Promise(function(resolve, reject) {
+            Files.createdir(cssPath, function(res) {
                 if (!!res) {
-                    fs.writeFile(cssFilePath, jsxobj.css, function (err) {
+                    fs.writeFile(cssFilePath, jsxobj.css, function(err) {
                         if (err) reject("保存样式文件失败");
                         else {
-                            fs.writeFile(jsxFilePath, jsxString, function (err) {
+                            fs.writeFile(jsxFilePath, jsxString, function(err) {
                                 if (err) reject("保存JSX文件失败");
                                 else {
                                     var res = self.db
@@ -339,13 +350,13 @@ class Project {
     }
     async savePage(name, tree) {
         try {
-            let res1 = await this.saveToDb(name,tree);
-            if(!!res1){
-                let res2 = await this.saveToDb(name,tree);
-                return true;
+            let res1 = await this.saveToDb(name, tree);
+            if (!!res1) {
+                let res2 = await this.saveToFile(name, tree);
+
+                return res2;
             }
             return false;
-            
         } catch (error) {
             return false;
         }
@@ -377,11 +388,10 @@ class Project {
                 let cssExists = fse.pathExists(cssFilePath);
                 if (cssExists) {
                     cssStr = await fse.readFile(cssFilePath, "utf8");
-
                 }
                 var tree = this.jsxToJson(jsxStr, cssStr);
-                if(!!tree){
-                    let res = this.saveToDb(name,tree);
+                if (!!tree) {
+                    let res = this.saveToDb(name, tree);
                     return res;
                 }
                 return false;
@@ -394,7 +404,9 @@ class Project {
             //文件不存在
         }
     }
-    async dbToFile() { }
+    async dbToFile() {
+
+    }
     jsxToJson(jsx, css) {
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
@@ -419,17 +431,16 @@ class Project {
             let id = vnode.props.id;
             console.log(id);
             let curcssObj;
-            console.log(cssObj['#' + id]);
-            if (!!cssObj['#' + id]) {
-                curcssObj = cssObj['#' + id];
+            console.log(cssObj["#" + id]);
+            if (!!cssObj["#" + id]) {
+                curcssObj = cssObj["#" + id];
                 console.log(curcssObj);
                 for (var i in curcssObj) {
                     console.log(curcssObj[i]);
                     console.log(curcssObj[i] instanceof Array);
                     if (curcssObj[i] instanceof Array) {
-                        curcssObj[i] = curcssObj[i][curcssObj[i].length - 1]
-                    }
-                    else if (curcssObj[i] instanceof Object) {
+                        curcssObj[i] = curcssObj[i][curcssObj[i].length - 1];
+                    } else if (curcssObj[i] instanceof Object) {
                         delete curcssObj[i];
                     }
                 }
@@ -444,7 +455,7 @@ class Project {
         }
         return true;
     }
-    pageJsonToData(pageJson, resultJson = {}) { }
+    pageJsonToData(pageJson, resultJson = {}) {}
     isComp(name) {
         if (!name) {
             return false;
@@ -533,8 +544,8 @@ class Project {
         jsx += `\n${tabstr}</${tag}>`;
         return { css: css, jsx: jsx };
     }
-    renderToHtml(name, jsx) { }
-    parseFile() { }
+    renderToHtml(name, jsx) {}
+    parseFile() {}
 
     create(callback) {
         var resolve: { [key: string]: any } = {
@@ -571,9 +582,9 @@ class Project {
         );
 
         Files.createdirAsync(projectDir)
-            .then(function () {
+            .then(function() {
                 //保存基本信息
-                Files.createdir(self.datadir, function (res) {
+                Files.createdir(self.datadir, function(res) {
                     if (!!res) {
                         var dbres = self.initDB();
                         if (dbres) {
@@ -599,7 +610,7 @@ class Project {
                     }
                 });
             })
-            .catch(function () {
+            .catch(function() {
                 resolve.msg = "复制文件失败";
                 resolve.ret = -1;
                 callback(resolve);
@@ -611,12 +622,12 @@ class Project {
         let projectDir = path.resolve(Configs.getItem("workshop"), actname);
         return projectDir;
     }
-    getInfo() { }
-    save(data) { }
-    runCmd() { }
-    commitSvn() { }
-    uploadToDev() { }
-    addWorkTime() { }
+    getInfo() {}
+    save(data) {}
+    runCmd() {}
+    commitSvn() {}
+    uploadToDev() {}
+    addWorkTime() {}
 }
 
 class Page {
@@ -626,7 +637,7 @@ class Page {
         this.name = name;
         this.template = template;
     }
-    save() { }
+    save() {}
 }
 const Projects = ProjectsClass.getInstance();
 export { Project, Projects, Page };

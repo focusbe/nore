@@ -26,6 +26,7 @@ var Swiper = createview({
         <div class="swiper-wrapper">
             <div class="swiper-slide" v-for="item in viewprops.imglist"><img :src="item.url" alt=""></div>
         </div>
+        <slot></slot>
     </div>`,
     onRendered: function (dom) {
         //alert('容器渲染');
