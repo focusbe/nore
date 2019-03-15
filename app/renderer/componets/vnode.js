@@ -9,14 +9,14 @@ Vue.component("vnoderender", {
         'workspace': workspace
     },
     created() {
-        this.component = this.createCom();
+        
     },
     mounted: function () {
         if (this.ismouseDown) {
             return;
         }
-
         var viewdata = this.viewdata;
+        this.component = this.createCom();
         this.viewdata.onRendered({
             dom: this.$el,
             props: this.viewprops
@@ -26,7 +26,7 @@ Vue.component("vnoderender", {
         if (this.ismouseDown) {
             return;
         }
-        this.component = this.createCom();
+        //this.component = this.createCom();
         var viewdata = this.viewdata;
         this.viewdata.onRendered({
             dom: this.$el,

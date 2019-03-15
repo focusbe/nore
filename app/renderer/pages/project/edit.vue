@@ -453,9 +453,12 @@ export default {
 		setPanles: function(vnode) {
 			var curView = viewList[vnode.name];
 			this.styleOptions = curView.styles;
-			this.propOptions = curView.props;
+			
+			console.log(this.propOptions);
 			this.curStyles = vnode.styles;
 			this.curProps = vnode.props;
+			this.propOptions = curView.props;
+			console.log(this.curProps);
 		},
 		getOptionsValue: function(options) {
 			//this.optionsValue = {};

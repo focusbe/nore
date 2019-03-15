@@ -317,6 +317,7 @@ export default {
 			}
 		},
 		refresh: function() {
+			console.log('refresh');
 			this.version = this.version + 1;
 		}
 	},
@@ -333,7 +334,8 @@ export default {
 
 	render: function(createElement) {
 		// this.bindMouse();
-		//console.log("canvas render");
+		console.log("canvas render");
+		
 		var _this = this;
 		return createElement(
 			"div",
@@ -367,7 +369,7 @@ export default {
 	},
 
 	updated: function() {
-		
+		console.log('canvasupdated');
 	},
 	mounted: function() {
 		

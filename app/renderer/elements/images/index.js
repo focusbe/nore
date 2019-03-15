@@ -6,9 +6,8 @@ var container = createview({
     label: '图片',
     name: 'image',
     props: {
-        src: {
+        img: {
             label: '图片地址',
-            key: 'src',
             type: 'text',
             default: ''
         }
