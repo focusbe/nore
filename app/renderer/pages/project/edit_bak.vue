@@ -1,78 +1,8 @@
 <template>
 	<div class="page_wrap">
 		<div class="left_options">
-			<pagemanage :project="project" @openPage="openPage"></pagemanage>
 			<div class="options_section">
-				<h2>素材</h2>
-				<assets :actname="actname"></assets>
-			</div>
-		</div>
-		<div class="center">
-			<ul class="page_list">
-				<li
-				 v-for="(item,key) in pagelist"
-				 :class="key==curPage?'cur':''"
-				>
-					<span @click="changePage(key)">{{item.name}}</span>
-					<Icon
-					 @click="closePage(item.name)"
-					 size="22"
-					 type="ios-close"
-					/>
-				</li>
-			</ul>
-			<div class="top_options_bar">
-				<Button
-				 type="primary"
-				 @click="clearCanvas"
-				 title="清空"
-				>
-					<Icon type="md-trash" size="20"/>
-				</Button>
-				<Button
-				 type="primary"
-				 @click="savePage"
-				 title="保存"
-				>
-					<Icon type="md-sync" size="20"/>
-				</Button>
-				<Button
-				 @click="preview"
-				 type="primary"
-				 title="预览"
-				>
-					<Icon
-					 type="logo-chrome"
-					 size="20"
-					 color
-					/>
-				</Button>
-				<my-psd
-				 :actname="actname"
-				 :pagename="curpageName"
-				 @savedesign="savedesign"
-				 @finish="psdfinish"
-				 title="上传PSD"
-				></my-psd>
-			</div>
-			<div class="page_detail">
-				<div
-				 v-for="(item,key) in canvasDataList"
-				 v-show="curPage==key"
-				 :class="'canvas canvas'+key "
-				 v-bind:style="designeSize[curdevice]"
-				>
-					<my-canvas
-					 :ref="'canvas'+key"
-					 :canvasData="item"
-					 @onChange="onCanvasChange"
-					/>
-				</div>
-			</div>
-		</div>
-		<div class="right_area">
-			<div class="options_section">
-				<h2>组件</h2>
+				<h2>元素</h2>
 				<ul class="element_list">
 					<li
 					 v-for="item in viewList"
@@ -93,6 +23,115 @@
 					</li>
 				</ul>
 			</div>
+			<br>
+			<div class="options_section">
+				<h2>素材</h2>
+				<assets :actname="actname"></assets>
+			</div>
+			<br>
+			<div class="options_section">
+				<h2>PSD</h2>
+				<my-psd
+				 :actname="actname"
+				 :pagename="curpageName"
+				 @savedesign="savedesign"
+				 @finish="psdfinish"
+				></my-psd>
+			</div>
+			<div class="options_section">
+				<h2>节点数</h2>
+				<ul class="element_list"></ul>
+			</div>
+			<Button @click="clearCanvas">清空画布</Button>
+			<Button @click="savePage">保存</Button>
+			<Button @click="reloadPage">重载</Button>
+		</div>
+		<div class="center">
+			<ul class="page_list">
+				<li
+				 v-for="(item,key) in pagelist"
+				 :class="key==curPage?'cur':''"
+				>
+					<span @click="changePage(key)">{{item.name}}</span>
+					<Icon
+					 @click="deletePage(item.name)"
+					 size="22"
+					 type="ios-close"
+					/>
+				</li>
+				<a>
+					<Icon
+					 size="22"
+					 @click="addPage"
+					 type="ios-add"
+					/></a>
+				<!-- <Tag
+				 v-for="(item,key) in pagelist"
+				 :color="key==curPage?'blue':'default'"
+				 closable
+				 v-on:click="changePage(key)"
+				 @on-close="deletePage(item.name)"
+				>{{item.name}}</Tag>
+				<i-button
+				 icon="ios-plus-empty"
+				 type="dashed"
+				 size="small"
+				 @click="addPage"
+				>添加页面</i-button> -->
+			</ul>
+			<div class="page_detail">
+				<div v-for="(item,key) in canvasDataList" v-show="curPage==key"  :class="'canvas canvas'+key " v-bind:style="designeSize[curdevice]">
+					<my-canvas :ref="'canvas'+key" :canvasData="item" @onChange="onCanvasChange"/>
+				</div>
+			</div>
+		</div>
+
+		<!-- <div class="top_options_bar">
+			<Button
+			 @click="changeDevice('pc')"
+			 type="primary"
+			>
+				<Icon
+				 type="ios-laptop"
+				 size="30"
+				 color
+				/>
+			</Button>
+			<Button
+			 @click="changeDevice('phone')"
+			 type="primary"
+			>
+				<Icon
+				 type="ios-phone-portrait"
+				 size="30"
+				 color
+				/>
+			</Button>
+
+			<Button
+			 @click="preview"
+			 type="primary"
+			>
+				<Icon
+				 type="logo-chrome"
+				 size="30"
+				 color
+				/>
+			</Button>
+		</div>
+		<div class="canvas_outer">
+			<div
+			 class="canvas"
+			 @keydown.delete="deletecur"
+			 v-bind:style="designeSize[curdevice]"
+			>
+				<my-canvas
+				 ref="canvas"
+				 @onChange="onCanvasChange"
+				></my-canvas>
+			</div>
+		</div> -->
+		<div class="right_area">
 			<styles-panel
 			 @onChange="onCurStylesChange"
 			 v-if="styleOptions"
@@ -114,7 +153,11 @@
 		 v-show="dragover"
 		 class="dragover"
 		></div>
-		
+		<add-page
+		 ref="pageForm"
+		 :curProject="project"
+		 @ok="addPageOk"
+		></add-page>
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -136,7 +179,6 @@ import Assets from "../../componets/assets";
 import PSD from "../../componets/psd";
 import Server from "../../../libs/server";
 import addpage from "../../componets/addpage.vue";
-import pagemanage from "../../componets/pagemanage.vue";
 
 Vue.component("my-options", Options);
 Vue.component("styles-panel", stylesPanels);
@@ -144,8 +186,6 @@ Vue.component("my-canvas", Canvas);
 Vue.component("assets", Assets);
 Vue.component("my-psd", PSD);
 Vue.component("add-page", addpage);
-Vue.component("pagemanage", pagemanage);
-
 export default {
 	name: "project_edit",
 	data() {
@@ -155,8 +195,8 @@ export default {
 			curdevice: "phone",
 			propOptions: {},
 			curProps: {},
-			canvasData: null,
-			canvasDataList: {},
+			canvasData:null,
+			canvasDataList:{},
 			//以上是cavas相关
 			curPage: -1,
 			prejectInfo: {},
@@ -250,35 +290,33 @@ export default {
 		};
 		this.changePage(0);
 	},
-	computed: {
-		curCanvas() {
-			return this.$refs["canvas" + this.curPage][0];
+	computed:{
+		curCanvas(){
+			return this.$refs['canvas'+this.curPage][0];
 		},
-		curPageInfo() {
+		curPageInfo(){
 			return this.pagelist[this.curPage];
 		},
-		curpageName() {
-			if (!this.pagelist[this.curPage]) {
-				return "";
+		curpageName(){
+			if(!this.pagelist[this.curPage]){
+				return '';
 			}
-			return this.pagelist[this.curPage]["name"];
+			return this.pagelist[this.curPage]['name'];
 		}
 	},
 	methods: {
-		reloadFromJsx() {
+		reloadFromJsx(){
 			this.project.fileToDb(this.curPageInfo.name);
 		},
-		openPage(name){
-			alert(name)
+		addPage() {
+			this.$refs.pageForm.show();
 		},
 		getPagelist() {
 			this.pagelist = [];
 			var pagelist = this.project.getPageList();
-			for(var i in pagelist){
-				this.pagelist.push(pagelist[i]);
-			}
+			this.pagelist = pagelist;
 			var canvasDataList = {};
-			for (var i in pagelist) {
+			for(var i in pagelist){
 				canvasDataList[i] = pagelist[i].tree;
 			}
 			this.canvasDataList = canvasDataList;
@@ -286,7 +324,7 @@ export default {
 		changePage(index) {
 			//保存原来的信息
 			//切换到页面；
-			if (index < 0 || index >= this.pagelist || index == this.curPage) {
+			if(index<0||index>=this.pagelist||index==this.curPage){
 				return;
 			}
 			if (this.curPage > -1) {
@@ -305,11 +343,8 @@ export default {
 			if (!!curCanvasData) {
 				var rootJson = curCanvasData.toJson();
 				try {
-					var res = await this.project.savePage(
-						this.curPageInfo.name,
-						rootJson
-					);
-					if (!!res) {
+					var res = await this.project.savePage(this.curPageInfo.name, rootJson);
+					if(!!res){
 						return true;
 					}
 				} catch (error) {
@@ -336,28 +371,27 @@ export default {
 			// this.canvasData = this.curPageInfo.tree;
 			this.curCanvas.initFromTree(this.curPageInfo.tree);
 		},
-		closePage(key) {
-			// this.$Modal.confirm({
-			// 	title: "确认",
-			// 	content: "<p>确定删除" + key + "</p>",
-			// 	onOk: function() {
-			// 		var res = this.project.delPage(key);
-			// 		if (res == -1) {
-			// 			this.$Message.error("没有该页面存在");
-			// 		} else if (!!res) {
-			// 			this.$Message.success("删除成功");
-			// 		} else {
-			// 			this.$Message.error("删除失败");
-			// 		}
-			// 		this.getPagelist();
-			// 	}.bind(this),
-			// 	onCancel: () => {}
-			// });
-			this.pagelist.splice(key,1);
+		deletePage(key) {
+			this.$Modal.confirm({
+				title: "确认",
+				content: "<p>确定删除" + key + "</p>",
+				onOk: function() {
+					var res = this.project.delPage(key);
+					if (res == -1) {
+						this.$Message.error("没有该页面存在");
+					} else if (!!res) {
+						this.$Message.success("删除成功");
+					} else {
+						this.$Message.error("删除失败");
+					}
+					this.getPagelist();
+				}.bind(this),
+				onCancel: () => {}
+			});
 		},
-		// addPageOk() {
-		// 	this.getPagelist();
-		// },
+		addPageOk() {
+			this.getPagelist();
+		},
 		psdfinish(vnodetree) {
 			this.curCanvas.initFromTree(vnodetree);
 		},
@@ -365,15 +399,16 @@ export default {
 		clearCanvas() {
 			this.curCanvas.clearCanvas();
 		},
-		async savePage() {
+		async savePage(){
 			var result = this.saveCurPage();
-			if (result) {
-				alert("保存成功");
-			} else {
-				alert("保存失败");
+			if(result){
+				alert('保存成功');
+			}
+			else{
+				alert('保存失败');
 			}
 		},
-		reloadPage() {
+		reloadPage(){
 			this.project.fileToDb(this.curPageInfo.name);
 		},
 		onCanvasChange: function(event, params) {
@@ -418,7 +453,7 @@ export default {
 		setPanles: function(vnode) {
 			var curView = viewList[vnode.name];
 			this.styleOptions = curView.styles;
-
+			
 			console.log(this.propOptions);
 			this.curStyles = vnode.styles;
 			this.curProps = vnode.props;

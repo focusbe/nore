@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="psduploader">
 		<Upload
 		 multiple
 		 :show-upload-list="false"
@@ -8,20 +8,20 @@
 		 :before-upload="upload"
 		 action="javascript:void(0)"
 		>
-			<div style="padding: 20px 0">
-				<Icon
-				 type="ios-cloud-upload"
-				 size="52"
-				 style="color: #3399ff"
-				></Icon>
-				<p>点击或将PSD拖拽到这里上传</p>
-			</div>
+			<Button>
+				PSD
+			</Button>
 		</Upload>
 	</div>
 </template>
 <style lang="scss" scoped>
+.psduploader{
+	display: inline-block;
+	vertical-align: middle;
+}
 .filelist {
 	li {
+
 	}
 }
 </style>

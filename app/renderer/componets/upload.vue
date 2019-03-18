@@ -2,55 +2,30 @@
 	<div>
 		<Upload
 		 multiple
-		 :show-upload-list="true"
+		 :show-upload-list="false"
 		 type="drag"
 		 :before-upload="upload"
 		 action="javascript:void(0)"
 		>
-			<div style="padding: 20px 0">
-				<Icon
-				 type="ios-cloud-upload"
-				 size="52"
-				 style="color: #3399ff"
-				></Icon>
-				<p>点击或将文件拖拽到这里上传</p>
-			</div>
+			<slot>
+				<Button icon="ios-cloud-upload-outline">Upload files</Button>
+			</slot>
 		</Upload>
-		<my-tree
-		 class="filelist"
-		 :list="list"
-		></my-tree>
 	</div>
 </template>
 <style lang="scss" scoped>
-.filelist {
-	max-height: 200px;
-	overflow: auto;
-	li {
-        
-	}
-}
 </style>
 <script>
-import Assets from "libs/assets";
-import Tree from "./tree";
-import Vue from "vue";
-Vue.component("my-tree", Tree);
 export default {
-	name: "assets",
+	name: "myupload",
 	computed: {},
-	props: {
-		actname: String
-	},
+	props: {},
 	data() {
 		return {
 			list: {}
 		};
 	},
-	created() {
-		this.assets = new Assets(this.actname);
-		this.getList();
-	},
+	created() {},
 	methods: {
 		async getList() {
 			var list = await this.assets.getList();
