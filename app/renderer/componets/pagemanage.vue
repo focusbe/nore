@@ -6,16 +6,18 @@
 				 @click="addPage"
 				 type="ios-add"
                  class="add_btn"
+                 title="新建页面"
 				/>
             </a>
         </h2>
 		<ul class="options_wrap">
 			<li v-for="(item,key) in pagelist">
-				<span @dblclick="openPage(item.name)">{{item.name}}</span>
+				<span @dblclick="openPage(item)">{{item.name}}</span>
 				<Icon
+                title="删除"
 				 @click="deletePage(item.name)"
 				 size="22"
-				 type="ios-close"
+				 type="ios-trash"
                  class="delete"
 				/>
 			</li>
@@ -38,6 +40,9 @@
             line-height: 30px;
             position: relative;
             text-indent: 20px;
+            span{
+                display: block;
+            }
             .delete{
                 cursor: pointer;
                 position: absolute;
@@ -78,9 +83,13 @@ export default {
 		},
 		addPageOk() {
 			this.getPagelist();
-		},
-		openPage(name) {
-            this.$emit('openPage',name);
+        },
+        hasPage(){
+
+        },
+		openPage(pageinfo) {
+            
+            this.$emit('openPage',pageinfo);
         },
 		deletePage(key) {
 			this.$Modal.confirm({

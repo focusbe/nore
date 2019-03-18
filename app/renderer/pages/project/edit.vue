@@ -1,7 +1,10 @@
 <template>
 	<div class="page_wrap">
 		<div class="left_options">
-			<pagemanage :project="project" @openPage="openPage"></pagemanage>
+			<pagemanage
+			 :project="project"
+			 @openPage="openPage"
+			></pagemanage>
 			<div class="options_section">
 				<h2>素材</h2>
 				<assets :actname="actname"></assets>
@@ -15,49 +18,56 @@
 				>
 					<span @click="changePage(key)">{{item.name}}</span>
 					<Icon
-					 @click="closePage(item.name)"
+					 @click="closePage(key)"
 					 size="22"
 					 type="ios-close"
 					/>
 				</li>
 			</ul>
-			<div class="top_options_bar">
-				<Button
-				 type="primary"
-				 @click="clearCanvas"
-				 title="清空"
-				>
-					<Icon type="md-trash" size="20"/>
-				</Button>
-				<Button
-				 type="primary"
-				 @click="savePage"
-				 title="保存"
-				>
-					<Icon type="md-sync" size="20"/>
-				</Button>
-				<Button
-				 @click="preview"
-				 type="primary"
-				 title="预览"
-				>
-					<Icon
-					 type="logo-chrome"
-					 size="20"
-					 color
-					/>
-				</Button>
-				<my-psd
-				 :actname="actname"
-				 :pagename="curpageName"
-				 @savedesign="savedesign"
-				 @finish="psdfinish"
-				 title="上传PSD"
-				></my-psd>
-			</div>
+
 			<div class="page_detail">
+				<div class="top_options_bar">
+					<Button
+					 type="primary"
+					 @click="clearCanvas"
+					 title="清空"
+					>
+						<Icon
+						 type="md-trash"
+						 size="20"
+						/>
+					</Button>
+					<Button
+					 type="primary"
+					 @click="savePage"
+					 title="保存"
+					>
+						<Icon
+						 type="md-sync"
+						 size="20"
+						/>
+					</Button>
+					<Button
+					 @click="preview"
+					 type="primary"
+					 title="预览"
+					>
+						<Icon
+						 type="logo-chrome"
+						 size="20"
+						 color
+						/>
+					</Button>
+					<my-psd
+					 :actname="actname"
+					 :pagename="curpageName"
+					 @savedesign="savedesign"
+					 @finish="psdfinish"
+					 title="上传PSD"
+					></my-psd>
+				</div>
 				<div
-				 v-for="(item,key) in canvasDataList"
+				 v-for="(item,key) in pagelist"
 				 v-show="curPage==key"
 				 :class="'canvas canvas'+key "
 				 v-bind:style="designeSize[curdevice]"
@@ -114,7 +124,7 @@
 		 v-show="dragover"
 		 class="dragover"
 		></div>
-		
+
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -268,18 +278,28 @@ export default {
 		reloadFromJsx() {
 			this.project.fileToDb(this.curPageInfo.name);
 		},
-		openPage(name){
-			alert(name)
+
+		openPage(pageinfo) {
+			var name = pageinfo.name;
+			for (var i in this.pagelist) {
+				if (name == this.pagelist[i].name) {
+					this.changePage(i);
+					return;
+				}
+			}
+			this.pagelist.push(pageinfo);
+			this.changePage(this.pagelist.length - 1);
 		},
 		getPagelist() {
 			this.pagelist = [];
 			var pagelist = this.project.getPageList();
-			for(var i in pagelist){
+			console.log(pagelist);
+			for (var i in pagelist) {
 				this.pagelist.push(pagelist[i]);
 			}
 			var canvasDataList = {};
 			for (var i in pagelist) {
-				canvasDataList[i] = pagelist[i].tree;
+				canvasDataList[pagelist[i]['name']] = pagelist[i].tree;
 			}
 			this.canvasDataList = canvasDataList;
 		},
@@ -353,7 +373,7 @@ export default {
 			// 	}.bind(this),
 			// 	onCancel: () => {}
 			// });
-			this.pagelist.splice(key,1);
+			this.pagelist.splice(key, 1);
 		},
 		// addPageOk() {
 		// 	this.getPagelist();
