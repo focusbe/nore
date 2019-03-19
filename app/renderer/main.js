@@ -18,37 +18,8 @@ Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
-function getPages() {
-    var pages = require.context("./pages", true, /\.vue$/);
-    var pagerouter = [];
-    var pageUrls = [];
-    pages.keys().map(key => {
-        let path = key.replace(".vue", "").replace('./','');
-        let pathname = path.replace("/", "_");
-        if (pathname.indexOf("public") == 0 || pathname.indexOf("app") == 0) {
-            return;
-        }
-        pageUrls.push({
-            name: pathname,
-            path: path
-        });
-        pagerouter.push({
-            name: pathname,
-            path: path,
-            ismenue: true,
-            component: pages(key).default
-        });
-        // pagerouter.push({
-        //     name: pathname + "_withparam",
-        //     path: path + "/(.*)",
-        //     ismenue: false,
-        //     component: pages(key)
-        // });
-    });
-    return { pagerouter, pageUrls };
-}
-
-const Pages = getPages();
+import Pages from './pages';
+import components from './componets'
 App.props = {
     pageUrls: {
         type: Array,
