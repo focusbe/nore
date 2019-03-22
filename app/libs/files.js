@@ -42,12 +42,23 @@ class Files {
         return res;
     }
     static createdir(src, callback) {
+        console.log(src);
         let parentdir = path.dirname(src);
         fse.exists(parentdir,
             function (exists) {
                 if (!exists) {
-                    Files.createdir(parentdir, callback)
+                    Files.createdir(parentdir,function(){
+                        try {
+                            fse.mkdir(src, function () {
+                                //创建目录
+                                callback(src);
+                            });
+                        } catch (error) {
+                            callback(false, error);
+                        }
+                    })
                 } else {
+                    // console.log(src);
                     fse.exists(src, function (exists) {
                         if (exists) {
                             //存在

@@ -28,7 +28,7 @@
                     </Button>
                     <my-psd
                         :actname="actname"
-                        :pagename="curpageName"
+                        :pagename="curPage"
                         @savedesign="savedesign"
                         @finish="psdfinish"
                         title="上传PSD"
@@ -88,16 +88,17 @@
 </style>
 
 <script>
+import PSD from "../../componets/psd";
+import Server from "../../../libs/server";
+import { Project } from "../../../libs/project";
+import Files from "../../../libs/files";
+
 import Vue from "vue";
 import viewList from "../../elements/list.js";
 import Canvas from "../../componets/canvas.vue";
 import Options from "../../componets/options.vue";
 import stylesPanels from "../../componets/panels/styles.vue";
-import { Project } from "../../../libs/project";
-import Files from "../../../libs/files";
 import Assets from "../../componets/assets";
-import PSD from "../../componets/psd";
-import Server from "../../../libs/server";
 import addpage from "../../componets/addpage.vue";
 import pagemanage from "../../componets/pagemanage.vue";
 
@@ -247,17 +248,16 @@ export default {
         reloadFromJsx() {
             this.project.fileToDb(this.curPageInfo.name);
         },
-
         openPage(pageinfo) {
             var name = pageinfo.name;
             for (var i in this.pagelist) {
                 if (name == this.pagelist[i].name) {
-                    this.changePage(i);
+                    this.changePage(name);
                     return;
                 }
             }
             this.pagelist.push(pageinfo);
-            this.changePage(this.pagelist.length - 1);
+            this.changePage(pageinfo.name);
         },
         getPagelist() {
             this.pagelist = [];
