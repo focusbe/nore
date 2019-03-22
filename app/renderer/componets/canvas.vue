@@ -6,7 +6,6 @@ import { vnode } from "./vnode";
 import { hoverStyles } from "../configs";
 import $ from "jquery";
 import path from "path";
-// var babel = require('@babel/core');
 var jsx = require("jsx-transform");
 
 var viewObj = viewList;

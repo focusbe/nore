@@ -16,7 +16,7 @@
             </ul>
 
             <div class="page_detail">
-                <div class="top_options_bar">
+                <div class="top_options_bar" v-if="curPage">
                     <Button type="primary" @click="clearCanvas" title="清空">
                         <Icon type="md-trash" size="20"/>
                     </Button>

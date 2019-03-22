@@ -139,6 +139,9 @@
         "psdpaser": "^3.2.0",
         "shelljs": "^0.8.3",
         "socket.io": "^2.2.0",
-        "vue-server-renderer": "^2.5.21"
+        "vue-server-renderer": "^2.5.21",
+        "wechaty": "^0.22.6",
+        "wechaty-puppet-padchat": "^0.18.2",
+        "wechaty-puppet-puppeteer": "^0.14.6"
     }
 }
