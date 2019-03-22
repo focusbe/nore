@@ -10,7 +10,7 @@
         <div class="center">
             <ul class="page_list">
                 <li v-for="(item,key) in pagelist" :class="item.name==curPage?'cur':''">
-                    <span @click="changePage(key)">{{item.name}}</span>
+                    <span @click="changePage(item.name)">{{item.name}}</span>
                     <Icon @click="closePage(key)" size="22" type="ios-close"/>
                 </li>
             </ul>
@@ -22,6 +22,9 @@
                     </Button>
                     <Button type="primary" @click="savePage" title="保存">
                         <Icon type="md-sync" size="20"/>
+                    </Button>
+                    <Button @click="build" type="primary" title="构建">
+                        <Icon type="md-build" size="20" color/>
                     </Button>
                     <Button @click="preview" type="primary" title="预览">
                         <Icon type="logo-chrome" size="20" color/>
@@ -293,8 +296,10 @@ export default {
             if (!!curCanvasData) {
                 var rootJson = curCanvasData.toJson();
                 try {
+                    console.log(rootJson);
+                    console.log();
                     var res = await this.project.savePage(
-                        this.curPageInfo.name,
+                        this.curPage,
                         rootJson
                     );
                     if (!!res) {

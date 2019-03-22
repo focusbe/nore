@@ -248,13 +248,13 @@ class Project {
         let cssPath: string = path.resolve(this.rootdir, "src/css");
         let cssFilePath = path.resolve(cssPath, name + ".css");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
-        
+
         try {
             await Files.delFile(cssFilePath);
             await Files.delFile(jsxFilePath);
         } catch (error) {
             console.log(error);
-            alert('文件删除失败');
+            alert("文件删除失败");
         }
         return res;
     }
@@ -276,6 +276,7 @@ class Project {
         return hasname > 0;
     }
     saveToDb(name, tree) {
+        
         var res = this.db
             .get("pages")
             .find({
@@ -404,8 +405,53 @@ class Project {
             //文件不存在
         }
     }
-    async dbToFile() {
-
+    async autoSync(name) {
+        if(!name){
+            return;
+        }
+        let cssPath: string = path.resolve(this.rootdir, "src/css");
+        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
+        let exists = await fse.exists(cssFilePath);
+        var csstime;
+        var jstime;
+        if (exists) {
+            csstime = await new Promise(function(resolve, reject) {
+                fs.stat(cssFilePath, function(err, stats) {
+                    if (!err && !!stats && !!stats.mtime) {
+                        resolve(stats.mtime);
+                    } else {
+                        resolve(false);
+                    }
+                });
+            });
+        }
+        exists = null;
+        exists = await fse.exists(jsxFilePath);
+        if (exists) {
+            jstime = await new Promise(function(resolve, reject) {
+                fs.stat(cssFilePath, function(err, stats) {
+                    if (!err && !!stats && !!stats.mtime) {
+                        resolve(stats.mtime);
+                    } else {
+                        resolve(false);
+                    }
+                });
+            });
+        }
+        var dbtime;
+        if((!!csstime&&csstime>dbtime+2000)||(!!jstime&&jstime>dbtime+2000)){
+            this.fileToDb(name);
+        }
+        else{
+            this.dbToFile(name);
+        }
+    }
+    async dbToFile(pagename) {
+        var pageinfo = this.getPageByName(pagename);
+        var tree = pageinfo.tree;
+        var res = await this.saveToFile(pagename, tree);
+        return res;
     }
     jsxToJson(jsx, css) {
         var funStr = jsxTransform.fromString(jsx, {
@@ -621,6 +667,9 @@ class Project {
     getProjectDir(actname) {
         let projectDir = path.resolve(Configs.getItem("workshop"), actname);
         return projectDir;
+    }
+    buildPage(name) {
+        var page = this.getPageByName(name);
     }
     getInfo() {}
     save(data) {}
