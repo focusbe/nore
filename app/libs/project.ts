@@ -6,15 +6,18 @@ var path = require("path");
 const lodashId = require("lodash-id");
 const postcss = require("postcss");
 const postcssJs = require("postcss-js");
-// const css  = '#body { z-index: 1;x:111;}#body { z-index: 2;widht:100px; }body #body{z-index:10}'
-// const root = postcss.parse(css);
-// var obj = postcssJs.objectify(root);
-// console.log(obj);
-// console.log(root);
+const Vue = require("vue");
+import Canvas from "../renderer/componets/canvas.vue";
+import Test from "./test.vue";
+var beautify = require("js-beautify").html;
+const format = require("html-format");
+Vue.component("my-canvas", Canvas);
+Vue.component("my-test", Test);
+const renderer = require("vue-server-renderer").createRenderer();
+
 import Configs from "./configs";
 import viewList from "../renderer/elements/list.js";
-// var juicer = require("juicer");
-// var babelify = require("babelify");
+import juicer from "juicer";
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选择
 import Files from "./files";
@@ -276,7 +279,6 @@ class Project {
         return hasname > 0;
     }
     saveToDb(name, tree) {
-        
         var res = this.db
             .get("pages")
             .find({
@@ -406,7 +408,7 @@ class Project {
         }
     }
     async autoSync(name) {
-        if(!name){
+        if (!name) {
             return;
         }
         let cssPath: string = path.resolve(this.rootdir, "src/css");
@@ -440,10 +442,12 @@ class Project {
             });
         }
         var dbtime;
-        if((!!csstime&&csstime>dbtime+2000)||(!!jstime&&jstime>dbtime+2000)){
+        if (
+            (!!csstime && csstime > dbtime + 2000) ||
+            (!!jstime && jstime > dbtime + 2000)
+        ) {
             this.fileToDb(name);
-        }
-        else{
+        } else {
             this.dbToFile(name);
         }
     }
@@ -668,8 +672,45 @@ class Project {
         let projectDir = path.resolve(Configs.getItem("workshop"), actname);
         return projectDir;
     }
-    buildPage(name) {
+    async buildPage(name) {
         var page = this.getPageByName(name);
+        if (!page) {
+            return false;
+        }
+        var templatePath = path.resolve(
+            __dirname,
+            "../../template/",
+            page.template + "/template.html"
+        );
+        var templatehtml = await new Promise(function(resolve, reject) {
+            fs.readFile(templatePath, "utf8", function(err, data) {
+                if (err) {
+                    resolve(false);
+                    return;
+                }
+                resolve(data);
+            });
+        });
+        if (!templatehtml) {
+            return false;
+        }
+        var app = new Vue({
+            data: {
+                page: page
+            },
+            template: `<my-canvas :canvasData="page"></my-canvas>`
+        });
+        var html = await renderer.renderToString(app);
+        page.html = html;
+        var reshtml = juicer(templatehtml, { page: page });
+        console.log(
+            beautify(reshtml, {
+                preserve_newlines:false,
+                wrap_attributes:'auto',
+                brace_style:'none',
+                inline:""
+            })
+        );
     }
     getInfo() {}
     save(data) {}

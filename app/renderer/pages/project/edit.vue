@@ -23,7 +23,7 @@
                     <Button type="primary" @click="savePage" title="保存">
                         <Icon type="md-sync" size="20"/>
                     </Button>
-                    <Button @click="build" type="primary" title="构建">
+                    <Button @click="buildPage" type="primary" title="构建">
                         <Icon type="md-build" size="20" color/>
                     </Button>
                     <Button @click="preview" type="primary" title="预览">
@@ -289,6 +289,7 @@ export default {
                 //this.getPageInfo(index);
             }
         },
+        
         async saveCurPage() {
             this.curCanvas.syncRoot();
             var curCanvasData = this.canvasDataList[this.curPage];
@@ -296,8 +297,6 @@ export default {
             if (!!curCanvasData) {
                 var rootJson = curCanvasData.toJson();
                 try {
-                    console.log(rootJson);
-                    console.log();
                     var res = await this.project.savePage(
                         this.curPage,
                         rootJson
@@ -365,6 +364,9 @@ export default {
             } else {
                 alert("保存失败");
             }
+        },
+        async buildPage(){
+            this.project.buildPage(this.curPage);
         },
         reloadPage() {
             this.project.fileToDb(this.curPageInfo.name);

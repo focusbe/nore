@@ -12,16 +12,18 @@ var viewObj = viewList;
 var curviewObj = null;
 
 export default {
-	data: {
-		curvnode: null,
-		rootvnode: null
-	},
+
 	created: function() {
 		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
+		console.log(this.canvasData.tree);
+		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
+		
+	}, 
+	mounted(){
+		
 	},
-
 	methods: {
 		initFromTree(tree) {
 			// console.log(tree);
@@ -31,6 +33,7 @@ export default {
 				this.addTreenodes(tree.childrens,this.rootvnode);
 			}
 			this.refresh();
+			console.log(this);
 		},
 		clearCanvas() {
 			this.$set(this.rootvnode, "childrens", []);
@@ -78,10 +81,10 @@ export default {
 			this.$emit("onChange", "root", this.rootvnode);
 		},
 		renderToString: function() {
-			var res = this.vnodeToJsx(this.rootvnode);
-			var test1 = jsx.fromString(res.jsx, {
-				factory: "createVnode"
-			});
+			// var res = this.vnodeToJsx(this.rootvnode);
+			// var test1 = jsx.fromString(res.jsx, {
+			// 	factory: "createVnode"
+			// });
 		},
 		vnodeToJsx: function(vnode, tabstr) {
 			if (!vnode) {
@@ -316,8 +319,10 @@ export default {
 			}
 		},
 		refresh: function() {
-			console.log('refresh');
-			this.version = this.version + 1;
+			// console.log('refresh');
+			// console.log(this.version);
+			// this.version = this.version + 1;
+			// console.log(this.version);
 		}
 	},
 	data: function() {
@@ -327,7 +332,9 @@ export default {
 			startPos: null,
 			curPos: null,
 			delta: null,
-			isDrage: false
+			isDrage: false,
+			curvnode: null,
+			rootvnode: null
 		};
 	},
 
@@ -336,11 +343,12 @@ export default {
 		console.log("canvas render");
 		
 		var _this = this;
-		return createElement(
+		console.log(this.version);
+		var result =  createElement(
 			"div",
 			{
 				style: this.rootvnode.styles,
-				domProps: {
+				attrs: {
 					canvasversion: this.version
 				},
 				on: {
@@ -362,9 +370,11 @@ export default {
 			},
 
 			_this.rootvnode.childrens.map(function(currentValue, index, arr) {
+				console.log('children render');
 				return currentValue.render(createElement, _this);
 			})
 		);
+		return result;
 	},
 
 	updated: function() {
@@ -399,10 +409,7 @@ export default {
 		// }
 	},
 	props: {
-		curStyles: {
-			type: Object
-		},
-		curProps: {
+		canvasData:{
 			type: Object
 		}
 	}

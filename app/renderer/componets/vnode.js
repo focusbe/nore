@@ -8,15 +8,16 @@ Vue.component("vnoderender", {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
     },
+
     created() {
-        
+        this.component = this.createCom();
     },
     mounted: function () {
         if (this.ismouseDown) {
             return;
         }
         var viewdata = this.viewdata;
-        this.component = this.createCom();
+        
         this.viewdata.onRendered({
             dom: this.$el,
             props: this.viewprops
@@ -77,6 +78,7 @@ Vue.component("vnoderender", {
             return this.$el;
         },
         createCom() {
+            console.log('createCom');
             var self = this;
             if (!!this.componentCache[this.viewdata.name]) {
                 return this.componentCache[this.viewdata.name];
@@ -135,6 +137,7 @@ Vue.component("vnoderender", {
                 });
             }
             this.componentCache[this.viewdata.name] = temCom;
+            console.log(temCom);
             // let renderres = this.viewdata.render();
             return temCom;
         }
@@ -334,6 +337,7 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
+        console.log(this.view);
         if (!this.view) {
             return null;
         }
@@ -371,6 +375,7 @@ class vnode {
                 }
             },
             this.childrens.map(function (currentValue) {
+                console.log(currentValue.render(createElement, canvas));
                 return currentValue.render(createElement, canvas);
             })
         );
