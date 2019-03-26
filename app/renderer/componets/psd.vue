@@ -75,7 +75,7 @@ export default {
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,
-					this.uploadpath
+					"uploads/" + this.pagename
 				);
 				var res = await mypsd.parse(true, false);
 				console.log(res);

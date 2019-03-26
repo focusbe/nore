@@ -1,6 +1,8 @@
 import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
+import Util from "../../libs/util"
+import path from "path"
 Vue.component("vnoderender", {
     methods: {},
     template: '<component :is="component" :viewprops="viewprops" :viewdata="viewdata" v-if="component"><slot></slot><workspace v-if="isoptioning"></workspace></component>',
@@ -17,7 +19,7 @@ Vue.component("vnoderender", {
             return;
         }
         var viewdata = this.viewdata;
-        
+
         this.viewdata.onRendered({
             dom: this.$el,
             props: this.viewprops
@@ -88,12 +90,11 @@ Vue.component("vnoderender", {
                 props: this.viewprops
             });
 
-            if (!!this.viewdata.template||typeof(rendered)=='string') {
+            if (!!this.viewdata.template || typeof (rendered) == 'string') {
                 let template;
-                if(!!this.viewdata.template){
+                if (!!this.viewdata.template) {
                     template = this.viewdata.template;
-                }
-                else{
+                } else {
                     template = rendered;
                 }
                 temCom = Vue.extend({
@@ -160,7 +161,8 @@ Vue.component("vnoderender", {
 });
 
 class vnode {
-    constructor(view, styles, props) {
+    constructor(view, styles, props, isssr, assetUrl) {
+
         if (!view) {
             return;
         }
@@ -178,6 +180,11 @@ class vnode {
         this.childrens = [];
         this.parent = undefined;
         this.isoptioning = false;
+        this.isssr = isssr;
+        if(!!assetUrl&&assetUrl[assetUrl.length-1]!='/'){
+            assetUrl+='/';
+        }
+        this.assetUrl = assetUrl;
         this.init();
     }
 
@@ -202,20 +209,25 @@ class vnode {
         var styles = {};
         var props = {};
         var curView = viewList[this.name];
-        for (var i in curView.styles) {
-            if (typeof (curView.styles[i]['default']) == 'undefined') {
-                curView.styles[i]['default'] = null;
+        if (this.isssr) {
+            this.styles = {};
+        } else {
+            for (var i in curView.styles) {
+                if (typeof (curView.styles[i]['default']) == 'undefined') {
+                    curView.styles[i]['default'] = null;
+                }
+                styles[i] = curView.styles[i]['default'];
             }
-            styles[i] = curView.styles[i]['default'];
+
+            for (var i in curView.props) {
+                if (typeof (curView.props[i]['default']) == 'undefined') {
+                    curView.props[i]['default'] = null;
+                }
+                props[i] = curView.props[i]['default'];
+            }
+            this.styles = Object.assign(styles, this.styles);
         }
 
-        for (var i in curView.props) {
-            if (typeof (curView.props[i]['default']) == 'undefined') {
-                curView.props[i]['default'] = null;
-            }
-            props[i] = curView.props[i]['default'];
-        }
-        this.styles = Object.assign(styles, this.styles);
         this.props = Object.assign(props, this.props);
     }
     changeStyles(styles) {
@@ -323,6 +335,15 @@ class vnode {
 
             }
             for (var i in styles) {
+                if (i == 'x' || i == 'y' || i == 'xalign' || i == 'yalign') {
+                    delete styles[i];
+                }
+                if (!!this.assetUrl) {
+                    if (Util.isPath(styles[i])) {
+
+                        styles[i] = this.assetUrl + styles[i];
+                    }
+                }
                 if (!isNaN(styles[i])) {
                     if (i == 'left' || i == 'top' || i == 'width' || i == 'height')
                         styles[i] = styles[i] + 'px';
@@ -331,13 +352,29 @@ class vnode {
             return styles;
         }
     }
+    getProps() {
+        var props = Object.assign({}, this.props);
+        if (!!this.assetUrl) {
+            for (var i in props) {
+                if (!!this.assetUrl) {
+                    if (Util.isPath(props[i])) {
+                        props[i] = this.assetUrl + props[i];
+
+                    }
+                }
+            }
+        }
+
+        return props;
+    }
     getVueNode() {
         return this.vuenode;
     }
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
-        console.log(this.view);
+        var viewprops = this.getProps();
+        console.log(viewprops);
         if (!this.view) {
             return null;
         }
@@ -349,7 +386,7 @@ class vnode {
                 style: styles,
                 props: {
                     viewdata: this.view,
-                    viewprops: this.props,
+                    viewprops: viewprops,
                     ismouseDown: canvas.isdmousedown,
                     isoptioning: !!this.isoptioning
                 },

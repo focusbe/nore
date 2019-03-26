@@ -6,6 +6,7 @@ import { vnode } from "./vnode";
 import { hoverStyles } from "../configs";
 import $ from "jquery";
 import path from "path";
+import Configs from "../../libs/configs";
 var jsx = require("jsx-transform");
 
 var viewObj = viewList;
@@ -16,7 +17,8 @@ export default {
 	created: function() {
 		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
-		console.log(this.canvasData.tree);
+		this.projectPath = this.isssr?'../': path.resolve(Configs.getItem("workshop"),this.projectname);
+		console.log(this.projectPath);
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 		
@@ -53,9 +55,10 @@ export default {
 					var newnode = new vnode(
 						viewObj[curnode.view],
 						curnode.styles,
-						curnode.props
+						curnode.props,
+						this.isssr,
+						this.projectPath
 					);
-					console.log(newnode);
 					if (!!curvnode.childrens) {
 						curvnode.childrens.push(newnode);
 					}
@@ -334,7 +337,8 @@ export default {
 			delta: null,
 			isDrage: false,
 			curvnode: null,
-			rootvnode: null
+			rootvnode: null,
+			projectPath:''
 		};
 	},
 
@@ -343,7 +347,6 @@ export default {
 		console.log("canvas render");
 		
 		var _this = this;
-		console.log(this.version);
 		var result =  createElement(
 			"div",
 			{
@@ -411,7 +414,10 @@ export default {
 	props: {
 		canvasData:{
 			type: Object
-		}
+		},
+		pagename:'',
+		projectname:'',
+		isssr:false
 	}
 };
 </script>

@@ -10,7 +10,6 @@ const Vue = require("vue");
 import Canvas from "../renderer/componets/canvas.vue";
 import Test from "./test.vue";
 var beautify = require("js-beautify").html;
-const format = require("html-format");
 Vue.component("my-canvas", Canvas);
 Vue.component("my-test", Test);
 const renderer = require("vue-server-renderer").createRenderer();
@@ -21,7 +20,6 @@ import juicer from "juicer";
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选择
 import Files from "./files";
-import { isObject } from "util";
 const shelljs = require("shelljs");
 var jsxTransform = require("jsx-transform");
 class ProjectsClass {
@@ -371,9 +369,9 @@ class Project {
                 name: name
             })
             .value();
+
         return res;
     }
-
     isValiProp(prop) {
         let cantUse = ["name", "id", "tree", "head", "foot"];
         return cantUse.indexOf(prop) > -1;
@@ -696,21 +694,31 @@ class Project {
         }
         var app = new Vue({
             data: {
-                page: page
+                page: page,
+                projectname: this.actname,
+                pagename: name
             },
-            template: `<my-canvas :canvasData="page"></my-canvas>`
+            template: `<my-canvas :canvasData="page" isssr="true" :projectname="projectname" :pagename="pagename"></my-canvas>`
         });
         var html = await renderer.renderToString(app);
         page.html = html;
         var reshtml = juicer(templatehtml, { page: page });
-        console.log(
-            beautify(reshtml, {
-                preserve_newlines:false,
-                wrap_attributes:'auto',
-                brace_style:'none',
-                inline:""
-            })
-        );
+        var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
+        reshtml = beautify(reshtml, {
+            preserve_newlines: false,
+            wrap_attributes: "auto",
+            brace_style: "none",
+            inline: ""
+        });
+        var res = await new Promise(function(resolve, reject) {
+            fs.writeFile(htmlpath, reshtml, function(err) {
+                if (err) resolve(false);
+                else {
+                    resolve(true);
+                }
+            });
+        });
+        return res;
     }
     getInfo() {}
     save(data) {}

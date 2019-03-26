@@ -20,6 +20,7 @@ var container = createview({
     },
     render: function (dom) {
         //alert('容器渲染');
+        console.log(dom.props.img);
         return {
             attrs: {
                 src: dom.props.img,

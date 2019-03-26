@@ -46,6 +46,8 @@
                     <my-canvas
                         :ref="'canvas'+item.name"
                         :canvasData="item"
+                        :pagename="item.name"
+                        :projectname="actname"
                         @onChange="onCanvasChange"
                     />
                 </div>
@@ -366,7 +368,14 @@ export default {
             }
         },
         async buildPage(){
-            this.project.buildPage(this.curPage);
+            var res = await this.project.buildPage(this.curPage);
+            if(res){
+                alert('构建成功');
+
+            }
+            else{
+                alert('构建失败');
+            }
         },
         reloadPage() {
             this.project.fileToDb(this.curPageInfo.name);
