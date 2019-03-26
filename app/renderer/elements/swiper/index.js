@@ -1,20 +1,35 @@
 import createview from '../createview';
-
-var container =  createview({
-    icon:'ios-albums',
-    label:'幻灯片',
-    name:'swiper',
-    defaultStyle:{
-        position:'relative',
-        width:'100px',
-        height:'100px',
-        padding:'0',
-        textAlign:'center',
-        color:'',
-        background:'#ccc'
+import './index.scss';
+var Swiper = createview({
+    icon: 'ios-albums',
+    label: '幻灯片',
+    name: 'swiper',
+    styles: {
+        position: 'relative',
+        width: '100px',
+        height: '100px',
+        background: '#ccc'
     },
-    onRendered:function(dom){
+    props: {
+        imglist: {
+            label: '图片列表',
+            type: 'array',
+            default: ''
+        },
+        autoplay: {
+            label: '自动播放时间',
+            type: ['number'],
+            default: 1000
+        }
+    },
+    template: `<div class="swiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide" v-for="item in viewprops.imglist"><img :src="item.url" alt=""></div>
+        </div>
+        <slot></slot>
+    </div>`,
+    onRendered: function (dom) {
         //alert('容器渲染');
     }
 });
-export default container;
+export default Swiper;

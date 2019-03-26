@@ -6,9 +6,8 @@ var container = createview({
     label: '图片',
     name: 'image',
     props: {
-        src: {
+        img: {
             label: '图片地址',
-            key: 'src',
             type: 'text',
             default: ''
         }
@@ -21,6 +20,7 @@ var container = createview({
     },
     render: function (dom) {
         //alert('容器渲染');
+        console.log(dom.props.img);
         return {
             attrs: {
                 src: dom.props.img,

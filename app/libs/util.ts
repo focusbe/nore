@@ -1,16 +1,23 @@
-class Util{
+class Util {
     static idcache = {};
-    static createId(num=0){
-        let id:string = (new Date().getTime()).toString();
-        if(!!this.idcache[id]){
+    static createId(num = 0) {
+        let id: string = (new Date().getTime()).toString();
+        if (!!this.idcache[id]) {
             this.idcache[id]++;
             console.log(this.idcache[id]);
-            id=id+''+this.idcache[id];
+            id = id + '' + this.idcache[id];
         }
-        else{
+        else {
             this.idcache[id] = 1;
         }
         return id;
+    }
+    static isPath(str) {
+
+        if (typeof (str) == 'string' && str.indexOf('/') > -1 && str.indexOf('.') > -1 && str.indexOf('//') == -1) {
+            return true;
+        }
+        return false;
     }
 }
 export default Util;
@@ -45,3 +52,5 @@ export default Util;
 //     	});
 //     }
 // }
+
+

@@ -115,12 +115,15 @@ html,
     z-index: 999999;
 }
 .top_options_bar {
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
     width: 100%;
     text-align: center;
     z-index: 100;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin: 5px 0;
 }
 .canvas {
     margin: 0 auto;
@@ -153,11 +156,13 @@ html,
             background: #535353;
         }
     }
+
     .page_detail{
         flex-grow: 1;
         position: relative;
         height: 100%;
         flex-shrink: 1;
+        padding-bottom: 10px;
     }
 }
 
@@ -173,6 +178,12 @@ html,
     top: 0;
     flex-grow: 0;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    &>*{
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
 }
 .right_area {
     width: 280px;
@@ -185,14 +196,29 @@ html,
     box-shadow: -1px 1px 2px #464646;
     flex-grow: 0;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    &>div{
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
 }
 .options_section {
+    display: flex;
+    flex-direction: column;
     h2 {
         background: #373737;
         line-height: 2;
         border-top: 1px solid #242424;
         border-bottom: 1px solid #242424;
         text-indent: 10px;
+        flex-shrink: 0;
+        flex-grow:0;
+    }
+    &>*{
+        flex-shrink: 1;
+        flex-grow: 1;
+        overflow: auto;
     }
 }
 .element_list {

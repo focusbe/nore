@@ -6,23 +6,26 @@ import { vnode } from "./vnode";
 import { hoverStyles } from "../configs";
 import $ from "jquery";
 import path from "path";
-// var babel = require('@babel/core');
+import Configs from "../../libs/configs";
 var jsx = require("jsx-transform");
 
 var viewObj = viewList;
 var curviewObj = null;
 
 export default {
-	data: {
-		curvnode: null,
-		rootvnode: null
-	},
+
 	created: function() {
 		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
+		this.projectPath = this.isssr?'../': path.resolve(Configs.getItem("workshop"),this.projectname);
+		console.log(this.projectPath);
+		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
+		
+	}, 
+	mounted(){
+		
 	},
-
 	methods: {
 		initFromTree(tree) {
 			console.log(tree);
@@ -32,13 +35,13 @@ export default {
 				this.addTreenodes(tree.childrens,this.rootvnode);
 			}
 			this.refresh();
+			console.log(this);
 		},
 		clearCanvas() {
 			this.$set(this.rootvnode, "childrens", []);
 			this.refresh();
 		},
 		addTreenodes(treenodes, curvnode) {
-			console.log(treenodes);
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
@@ -53,9 +56,10 @@ export default {
 					var newnode = new vnode(
 						viewObj[curnode.view],
 						curnode.styles,
-						curnode.props
+						curnode.props,
+						this.isssr,
+						this.projectPath
 					);
-					console.log(newnode);
 					if (!!curvnode.childrens) {
 						curvnode.childrens.push(newnode);
 					}
@@ -81,10 +85,10 @@ export default {
 			this.$emit("onChange", "root", this.rootvnode);
 		},
 		renderToString: function() {
-			var res = this.vnodeToJsx(this.rootvnode);
-			var test1 = jsx.fromString(res.jsx, {
-				factory: "createVnode"
-			});
+			// var res = this.vnodeToJsx(this.rootvnode);
+			// var test1 = jsx.fromString(res.jsx, {
+			// 	factory: "createVnode"
+			// });
 		},
 		vnodeToJsx: function(vnode, tabstr) {
 			if (!vnode) {
@@ -305,7 +309,6 @@ export default {
 			this.curvnode = vnode;
 			this.curvnode.isoptioning = true;
 			this.$emit("onChange", "curvnode", this.curvnode);
-
 			this.refresh();
 		},
 		runvnodeOnrendered: function(curvnode) {
@@ -320,7 +323,10 @@ export default {
 			}
 		},
 		refresh: function() {
-			this.version = this.version + 1;
+			// console.log('refresh');
+			// console.log(this.version);
+			// this.version = this.version + 1;
+			// console.log(this.version);
 		}
 	},
 	data: function() {
@@ -330,19 +336,23 @@ export default {
 			startPos: null,
 			curPos: null,
 			delta: null,
-			isDrage: false
+			isDrage: false,
+			curvnode: null,
+			rootvnode: null,
+			projectPath:''
 		};
 	},
 
 	render: function(createElement) {
 		// this.bindMouse();
-		//console.log("canvas render");
+		console.log("canvas render");
+		
 		var _this = this;
-		return createElement(
+		var result =  createElement(
 			"div",
 			{
 				style: this.rootvnode.styles,
-				domProps: {
+				attrs: {
 					canvasversion: this.version
 				},
 				on: {
@@ -364,13 +374,15 @@ export default {
 			},
 
 			_this.rootvnode.childrens.map(function(currentValue, index, arr) {
+				console.log('children render');
 				return currentValue.render(createElement, _this);
 			})
 		);
+		return result;
 	},
 
 	updated: function() {
-		
+		console.log('canvasupdated');
 	},
 	mounted: function() {
 		
@@ -401,12 +413,12 @@ export default {
 		// }
 	},
 	props: {
-		curStyles: {
+		canvasData:{
 			type: Object
 		},
-		curProps: {
-			type: Object
-		}
+		pagename:'',
+		projectname:'',
+		isssr:false
 	}
 };
 </script>

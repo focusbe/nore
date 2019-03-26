@@ -3,6 +3,8 @@ const fse = require("fs-extra");
 const path = require("path");
 import Util from "../util";
 console.log(Util);
+import Files from "../files"
+console.log(Files);
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
@@ -36,16 +38,13 @@ class PSD {
         if (!exists) {
             throw new Error("psd文件不存在");
         }
-        exists = await fse.exists(this.imgdir);
-        if (!exists) {
-            let res = await new Promise(function (result, reject) {
-                fse.mkdir(self.imgdir, function (err) {
-                    if (!err) result(true);
-                    else reject(err);
-                });
+        await new Promise(function (result, reject) {
+            Files.createdir(self.imgdir, function (res) {
+                console.log(res);
+                if (!!res) result(true);
+                else reject('创建图片保存路径失败');
             });
-        }
-        exists = null;
+        });
         let psd = await psdjs.open(this.psdpath);
         let psdtree = psd.tree();
         psd = null;

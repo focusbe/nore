@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div class="psduploader">
 		<Upload
 		 multiple
 		 :show-upload-list="false"
@@ -8,21 +8,20 @@
 		 :before-upload="upload"
 		 action="javascript:void(0)"
 		>
-			<div style="padding: 20px 0">
-				<Icon
-				 type="ios-cloud-upload"
-				 size="52"
-				 style="color: #3399ff"
-				></Icon>
-				<p>点击或将PSD拖拽到这里上传</p>
-			</div>
+			<Button>
+				PSD
+			</Button>
 		</Upload>
 	</div>
 </template>
 <style lang="scss" scoped>
+.psduploader{
+	display: inline-block;
+	vertical-align: middle;
+}
 .filelist {
 	li {
-		
+
 	}
 }
 </style>
@@ -32,16 +31,16 @@ import Tree from "./tree";
 import Vue from "vue";
 import Configs from "libs/configs";
 import Files from "libs/files";
-import PSD from "libs/psd/index";
+import PSD  from "libs/psd/index";
 import path from "path";
 import aRemote from "libs/aremote";
-
 
 export default {
 	name: "my-psd",
 	computed: {},
 	props: {
-		actname: String
+		actname: String,
+		pagename: String
 	},
 	data() {
 		return {
@@ -55,11 +54,9 @@ export default {
 			this.actname,
 			"psd"
 		);
-		this.uploadpath = path.join(
-			Configs.getItem("workshop"),
-			this.actname,
-			"uploads"
-		);
+	},
+	updated() {
+
 	},
 	methods: {
 		async getList() {
@@ -67,14 +64,20 @@ export default {
 			this.list = list;
 		},
 		async upload(file) {
+			this.uploadpath = path.join(
+				Configs.getItem("workshop"),
+				this.actname,
+				"uploads/" + this.pagename
+			);
 			var self = this;
 			try {
+				console.log(this.uploadpath);
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,
-					'uploads'
+					"uploads/" + this.pagename
 				);
-				var res = await mypsd.parse(true,false);
+				var res = await mypsd.parse(true, false);
 				console.log(res);
 				// res = null;
 				// mypsd = null;
