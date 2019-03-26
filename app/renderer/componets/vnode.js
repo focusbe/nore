@@ -174,9 +174,13 @@ class vnode {
         if (!window.vnodeIdEND) {
             window.vnodeIdEND = 0;
         }
-        this.domid = 'vnode_' + (new Date().getTime());
+        
         this.styles = styles;
+        if(!props){
+            props = {};
+        }
         this.props = props;
+        this.props.id = 'vnode_' + (new Date().getTime());
         this.childrens = [];
         this.parent = undefined;
         this.isoptioning = false;
@@ -255,7 +259,7 @@ class vnode {
             curJson.props = curProps;
         }
 
-        curJson.domid = this.domid;
+        // curJson.props.id = this.domid;
         curJson.childrens = [];
         for (var i in this.childrens) {
             curJson.childrens.push(this.childrens[i].toJson());
@@ -392,7 +396,7 @@ class vnode {
                 },
                 attrs: {
                     class: (this.props.className || "") + ' vnodeDom',
-                    id: this.domid
+                    id: this.props.id
                 },
                 nativeOn: {
                     click: function (event) {

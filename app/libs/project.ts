@@ -479,10 +479,8 @@ class Project {
             let id = vnode.props.id;
             console.log(id);
             let curcssObj;
-            console.log(cssObj["#" + id]);
             if (!!cssObj["#" + id]) {
                 curcssObj = cssObj["#" + id];
-                console.log(curcssObj);
                 for (var i in curcssObj) {
                     console.log(curcssObj[i]);
                     console.log(curcssObj[i] instanceof Array);
@@ -492,7 +490,6 @@ class Project {
                         delete curcssObj[i];
                     }
                 }
-                console.log(curcssObj);
                 vnode.styles = curcssObj;
             }
         }
@@ -564,7 +561,7 @@ class Project {
         }
         var css = "";
         var jsx = "";
-        jsx = tabstr + `<${tag} id="${tree.domid}"`;
+        jsx = tabstr + `<${tag} `;
         let proptype;
         for (var i in tree.props) {
             proptype = typeof tree.props[i];
@@ -573,7 +570,7 @@ class Project {
             }
         }
         if (!!tree.styles) {
-            css = `#${tree.domid}{\n`;
+            css = `#${tree.props.id}{\n`;
             for (var i in tree.styles) {
                 css += `\t${i}:${tree.styles[i]};\n`;
             }
