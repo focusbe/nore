@@ -247,7 +247,7 @@ class Project {
             })
             .write();
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let cssFilePath = path.resolve(cssPath, name + ".scss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
 
         try {
@@ -276,25 +276,14 @@ class Project {
             .value();
         return hasname > 0;
     }
-    saveToDb(name,pagejson){
+    saveToDb(name, pagejson) {
+        console.log(pagejson);
         var res = this.db
             .get("pages")
             .find({
                 name: name
             })
-            .assign(pagejson)
-            .write();
-        return res;
-    }
-    saveTreeToDb(name, tree) {
-        var res = this.db
-            .get("pages")
-            .find({
-                name: name
-            })
-            .assign({
-                tree: tree
-            })
+            .assign({ tree: pagejson })
             .write();
         return res;
     }
@@ -306,7 +295,7 @@ class Project {
 
         let jsxobj = this.treeToJsx(tree);
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let cssFilePath = path.resolve(cssPath, name + ".scss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         var self = this;
         let jsxString = "<page";
@@ -336,15 +325,7 @@ class Project {
                             fs.writeFile(jsxFilePath, jsxString, function(err) {
                                 if (err) reject("保存JSX文件失败");
                                 else {
-                                    var res = self.db
-                                        .get("pages")
-                                        .find({
-                                            name: name
-                                        })
-                                        .assign({
-                                            tree: tree
-                                        })
-                                        .write();
+                                    var res = self.saveToDb(name, tree);
                                     if (!!res) {
                                         resolve(true);
                                     } else {
@@ -360,6 +341,7 @@ class Project {
         return res;
     }
     async savePage(name, tree) {
+        console.log(tree);
         try {
             let res1 = await this.saveToDb(name, tree);
             if (!!res1) {
@@ -389,7 +371,7 @@ class Project {
 
     async fileToDb(name) {
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let cssFilePath = path.resolve(cssPath, name + ".scss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         let exists = await fse.pathExists(jsxFilePath);
         var jsxStr, cssStr;
@@ -420,7 +402,7 @@ class Project {
             return;
         }
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".css");
+        let cssFilePath = path.resolve(cssPath, name + ".scss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         let exists = await fse.exists(cssFilePath);
         var csstime;
@@ -710,8 +692,12 @@ class Project {
             template: `<my-canvas :canvasData="page" isssr="true" :projectname="projectname" :pagename="pagename"></my-canvas>`
         });
         var html = await renderer.renderToString(app);
+        console.log(html);
+        console.log(this.jsxToJson('<img>',null));
         page.html = html;
         var reshtml = juicer(templatehtml, { page: page });
+       
+
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
         reshtml = beautify(reshtml, {
             preserve_newlines: false,

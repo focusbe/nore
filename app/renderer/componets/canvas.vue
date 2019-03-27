@@ -28,7 +28,6 @@ export default {
 	},
 	methods: {
 		initFromTree(tree) {
-			console.log(tree);
 			this.curvnode = this.rootvnode;
 			this.rootvnode.childrens = [];
 			if(!!tree){
@@ -88,57 +87,6 @@ export default {
 			// var res = this.vnodeToJsx(this.rootvnode);
 			// var test1 = jsx.fromString(res.jsx, {
 			// 	factory: "createVnode"
-			// });
-		},
-		vnodeToJsx: function(vnode, tabstr) {
-			if (!vnode) {
-				return;
-			}
-			if (!tabstr) {
-				tabstr = "";
-			}
-			var tag = vnode.view;
-			if (typeof tag == "object") {
-				tag = !!tag.name ? tag.name : "div";
-			}
-			var css = "";
-			var jsx = "";
-			jsx = tabstr + `<${tag}`;
-			let proptype;
-			for (var i in vnode.props) {
-				proptype = typeof vnode.props[i];
-				if (proptype != "function" && proptype != "object") {
-					jsx += ` ${i}="${vnode.props[i]}"`;
-				}
-			}
-			if (!!vnode.styles) {
-				css = `#${vnode.props.id}{\n`;
-				for (var i in vnode.styles) {
-					css += `\t${i}:${vnode.styles[i]};\n`;
-				}
-				css += `\n}\n`;
-			}
-			jsx += ">";
-
-			if (!!vnode.childrens && vnode.childrens.length > 0) {
-				for (var j in vnode.childrens) {
-					let childjsx = this.vnodeToJsx(
-						vnode.childrens[j],
-						tabstr + "\t"
-					);
-					jsx += "\n" + childjsx.jsx;
-					css += childjsx.css;
-				}
-			}
-
-			jsx += `\n${tabstr}</${tag}>`;
-			return { css: css, jsx: jsx };
-			// this.clearHoverStyles();
-			// renderer.renderToString(this, (err, html) => {
-			// 	if (err) throw err;
-
-			// 	console.log(html);
-			// 	// project.render(self.rootvnode, html, callback);
 			// });
 		},
 		resizeElement: function(delta, keepRatio) {

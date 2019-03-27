@@ -1,6 +1,6 @@
 class Util {
     static idcache = {};
-    static createId(num = 0) {
+    static createId() {
         let id: string = (new Date().getTime()).toString();
         if (!!this.idcache[id]) {
             this.idcache[id]++;

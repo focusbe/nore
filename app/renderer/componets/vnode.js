@@ -188,7 +188,6 @@ class vnode {
             props = {};
         }
         this.props = props;
-        this.props.id = 'vnode_' + (new Date().getTime());
         this.childrens = [];
         this.parent = undefined;
         this.isoptioning = false;
@@ -221,9 +220,9 @@ class vnode {
         var styles = {};
         var props = {};
         var curView = viewList[this.name];
-        if (this.isssr) {
-            this.styles = {};
-        } else {
+        // if (this.isssr) {
+        //     this.styles = {};
+        // } else {
             for (var i in curView.styles) {
                 if (typeof (curView.styles[i]['default']) == 'undefined') {
                     curView.styles[i]['default'] = null;
@@ -238,7 +237,7 @@ class vnode {
                 props[i] = curView.props[i]['default'];
             }
             this.styles = Object.assign(styles, this.styles);
-        }
+        // }
 
         this.props = Object.assign(props, this.props);
     }
