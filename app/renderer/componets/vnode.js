@@ -44,39 +44,7 @@ Vue.component("vnoderender", {
             componentCache: {}
         }
     },
-    // render: function (createElement) {
-    //     // console.log(!this.view||!this.props);
-    //     // if(!this.view||!this.props){
-    //     //     return null;
-    //     // }
-    //     var viewdata = this.viewdata;
-    //     var slots = [this.$slots.default];
-
-    //     if (!!this.isoptioning) {
-    //         slots.push(createElement('workspace'));
-    //     }
-    //     var elementProps = this.viewdata.render({
-    //         props: this.viewprops
-    //     });
-    //     if(typeof elementProps =='string'){
-    //         this.vuenode = elementProps;
-    //     }
-    //     else if(!!elementProps&&!!elementProps.tagName){
-    //         if(!elementProps.props){
-    //             elementProps.props=null;
-    //         }
-    //         this.vuenode = createElement(elementProps.tagName,elementProps.props,slots);
-    //     }
-    //     else{
-    //         this.vuenode = createElement(
-    //             this.viewdata.tagName,
-    //             elementProps,
-    //             slots
-    //         );
-    //     }
-    //     console.log(this.vuenode)
-    //     return this.vuenode;
-    // },
+   
     methods: {
         getDom() {
             return this.$el;
@@ -237,6 +205,7 @@ class vnode {
                 props[i] = curView.props[i]['default'];
             }
             this.styles = Object.assign(styles, this.styles);
+            console.log(this.styles);
         // }
 
         this.props = Object.assign(props, this.props);
@@ -322,7 +291,9 @@ class vnode {
                     break;
                 case 'absolute':
                 case 'fixed':
-                    styles['absolute'] = 'absolute';
+                    if(this.isssr){
+                        styles['position'] = 'absolute';
+                    }
                     if (styles.xalign == 'left') {
                         styles['left'] = styles.x;
                     } else if (styles.xalign == 'right') {
@@ -382,6 +353,7 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
+        console.log(styles);
         var viewprops = this.getProps();
         console.log(viewprops);
         if (!this.view) {
@@ -412,7 +384,7 @@ class vnode {
                         event.cancelBubble = true;
                     },
                     mousedown: function (event) {
-                        if (self.view == 'root') {
+                        if (self.view == 'root'||self.view.name=='root') {
                             return;
                         }
                         canvas.changeCurVnode(self);

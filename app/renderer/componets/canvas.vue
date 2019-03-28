@@ -15,7 +15,7 @@ var curviewObj = null;
 export default {
 
 	created: function() {
-		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
+		this.rootvnode = new vnode(viewList['root'], { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
 		this.projectPath = this.isssr?'../': path.resolve(Configs.getItem("workshop"),this.projectname);
 		console.log(this.projectPath);
@@ -299,10 +299,13 @@ export default {
 		var result =  createElement(
 			"div",
 			{
-				style: this.rootvnode.styles,
-				attrs: {
-					canvasversion: this.version
+				style: {
+					width:'100%',
+					height:'100%'
 				},
+				// attrs: {
+				// 	canvasversion: this.version
+				// },
 				on: {
 					click: function(event) {
 						_this.changeCurVnode(_this.rootvnode);
@@ -320,11 +323,11 @@ export default {
 					}
 				}
 			},
-
-			_this.rootvnode.childrens.map(function(currentValue, index, arr) {
-				console.log('children render');
-				return currentValue.render(createElement, _this);
-			})
+			[this.rootvnode.render(createElement, _this)]
+			// _this.rootvnode.childrens.map(function(currentValue, index, arr) {
+			// 	console.log('children render');
+			// 	return currentValue.render(createElement, _this);
+			// })
 		);
 		return result;
 	},

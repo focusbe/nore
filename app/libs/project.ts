@@ -9,6 +9,7 @@ const postcssJs = require("postcss-js");
 const Vue = require("vue");
 import Canvas from "../renderer/componets/canvas.vue";
 import Test from "./test.vue";
+var htmlparser = require("htmlparser2");
 var beautify = require("js-beautify").html;
 Vue.component("my-canvas", Canvas);
 Vue.component("my-test", Test);
@@ -691,14 +692,24 @@ class Project {
             },
             template: `<my-canvas :canvasData="page" isssr="true" :projectname="projectname" :pagename="pagename"></my-canvas>`
         });
+        
         var html = await renderer.renderToString(app);
-        console.log(html);
-        console.log(this.jsxToJson('<img>',null));
-        page.html = html;
+        var regstr = /id="([^\s\'\"\<\>]*?)"([^\<\>]*?)style="([^\s\'\"\<\>]*?)"/igm;
+        var htmlattr;
+        var cssstr = '';
+        var htmlstr = html;
+        while(htmlattr = regstr.exec(html)){
+            console.log(htmlattr);
+            if(!!htmlattr[1]&&!!htmlattr[3]){
+                cssstr+='#'+htmlattr[1]+'{\n\t'+htmlattr[3].replace(/;/g,';\n\t')+'\n}\n';
+                htmlstr = htmlstr.replace('style="'+htmlattr[3]+'"','')
+            }
+        }
+        cssstr = cssstr.replace(/\t\n\}/g,'}');
+        page.html = htmlstr;
         var reshtml = juicer(templatehtml, { page: page });
-       
-
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
+        var csspath = path.resolve(this.rootdir, "src/css/" + name + ".css");
         reshtml = beautify(reshtml, {
             preserve_newlines: false,
             wrap_attributes: "auto",
@@ -709,6 +720,12 @@ class Project {
             fs.writeFile(htmlpath, reshtml, function(err) {
                 if (err) resolve(false);
                 else {
+                    fs.writeFile(csspath, cssstr, function(err) {
+                        if (err) resolve(false);
+                        else {
+                            resolve(true);
+                        }
+                    });
                     resolve(true);
                 }
             });

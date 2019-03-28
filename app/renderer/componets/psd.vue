@@ -67,7 +67,7 @@ export default {
 			this.uploadpath = path.join(
 				Configs.getItem("workshop"),
 				this.actname,
-				"uploads/" + this.pagename
+				"src/images/" + this.pagename
 			);
 			var self = this;
 			try {
@@ -75,7 +75,7 @@ export default {
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,
-					"uploads/" + this.pagename
+					"src/images/" + this.pagename
 				);
 				var res = await mypsd.parse(true, false);
 				console.log(res);

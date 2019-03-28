@@ -85,10 +85,19 @@ class PSD {
         if(!this.namePool){
             this.namePool = {};
         }
+        imgname = imgname.split(' ');
+        imgname = imgname[0].replace(/ /g,'');
         if(this.isChina(imgname)){
             return Util.createId();
         }
-        imgname = imgname.replace(/\//g, "_");
+        var temp = imgname.split('/');
+        if(imgname.length>1){
+            imgname = temp[temp.length-1];
+        }
+        else{
+            imgname = temp[0]+'_'+temp[temp.length-1];
+        }
+        
         let res = imgname;
         if(!!num){
             res = imgname+''+num;
