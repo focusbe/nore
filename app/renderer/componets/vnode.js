@@ -3,7 +3,6 @@ import Vue from "vue";
 import workspace from "./workspace.vue";
 import $ from "jquery";
 import Util from "../../libs/util";
-var shortid = require('shortid');
 import path from "path"
 Vue.component("vnoderender", {
     methods: {},
