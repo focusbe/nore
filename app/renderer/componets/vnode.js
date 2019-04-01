@@ -204,7 +204,6 @@ class vnode {
                 props[i] = curView.props[i]['default'];
             }
             this.styles = Object.assign(styles, this.styles);
-            console.log(this.styles);
         // }
 
         this.props = Object.assign(props, this.props);
@@ -352,14 +351,12 @@ class vnode {
     render(createElement, canvas) {
         var self = this;
         var styles = this.getStyles();
-        console.log(styles);
         var viewprops = this.getProps();
-        console.log(viewprops);
+
         if (!this.view) {
             return null;
         }
-        console.log(11);
-        console.log(this.props)
+
         if (!this.props) {
             this.props = {};
         }
@@ -394,7 +391,6 @@ class vnode {
                 }
             },
             this.childrens.map(function (currentValue) {
-                console.log(currentValue.render(createElement, canvas));
                 return currentValue.render(createElement, canvas);
             })
         );

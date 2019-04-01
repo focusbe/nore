@@ -2,9 +2,9 @@ const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
 import Util from "../util";
-console.log(Util);
 import Files from "../files"
-console.log(Files);
+import Images from "images";
+console.log(Images);
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
@@ -75,41 +75,40 @@ class PSD {
             errorimg
         };
     }
-    checkLayer(layer){
+    checkLayer(layer) {
 
     }
-    getImgName(imgname,num){
-        if(!num){
+    getImgName(imgname, num) {
+        if (!num) {
             num = 0;
         }
-        if(!this.namePool){
+        if (!this.namePool) {
             this.namePool = {};
         }
         imgname = imgname.split(' ');
-        imgname = imgname[0].replace(/ /g,'');
-        if(this.isChina(imgname)){
+        imgname = imgname[0].replace(/ /g, '');
+        if (this.isChina(imgname)) {
             return Util.createId();
         }
         var temp = imgname.split('/');
-        if(imgname.length>1){
-            imgname = temp[temp.length-1];
+        if (imgname.length > 1) {
+            imgname = temp[temp.length - 1];
+        } else {
+            imgname = temp[0] + '_' + temp[temp.length - 1];
         }
-        else{
-            imgname = temp[0]+'_'+temp[temp.length-1];
-        }
-        
+
         let res = imgname;
-        if(!!num){
-            res = imgname+''+num;
+        if (!!num) {
+            res = imgname + '' + num;
         }
-        if(!!this.namePool[res]){
+        if (!!this.namePool[res]) {
             num++
-            res =  this.getImgName(imgname,num);
+            res = this.getImgName(imgname, num);
         }
         this.namePool[res] = 1;
         return res;
     }
-    getvnodetree(psdNode, vNode, imgPool, istree) {
+    getvnodetree(psdNode, vNode, imgPool, istree, curDesignSize) {
         //params psdNode:psd中的节点
         //vNode:虚拟节点
         //vNode:待保存的图片数组
@@ -126,8 +125,7 @@ class PSD {
             };
             //需要保存的图片
             imgPool = [];
-            this.getvnodetree(psdNode, vNode, imgPool, istree);
-            let pageSize;
+            var pageSize;
             if (!!psdNode.hasArtboard) {
                 //多个画布高度是画布的和，宽度是第一个画布的宽度；
                 let totalHeight = 0;
@@ -146,12 +144,19 @@ class PSD {
                     width: perWidth,
                     height: totalHeight
                 };
+                curDesignSize = {
+                    width: perWidth,
+                    height: psdChildren[0].artboard.height
+                }
             } else {
                 pageSize = {
                     width: psdNode.get("width"),
                     height: psdNode.get("height")
                 };
+                curDesignSize = pageSize;
             }
+            this.getvnodetree(psdNode, vNode, imgPool, istree, curDesignSize);
+
             vNode.styles = Object.assign(pageSize, {
                 x: 0,
                 position: "relative",
@@ -170,6 +175,7 @@ class PSD {
             if (!psdNode.offsetY) {
                 psdNode.offsetY = 0;
             }
+            var imgArea;
             for (let i in childrenLayers) {
                 curLayer = childrenLayers[i];
                 curVNode = {};
@@ -205,8 +211,11 @@ class PSD {
                     top: istree ? (!!psdNode.artboard ? psdNode.artboard.top : psdNode.get("top")) : (!!psdNode.artboard ? (psdNode.artboard.top - psdNode.offsetY) : -psdNode.offsetY)
                 };
                 //设置样式
+                //记录需要纠正的位置
 
-                if ((!(!istree && curLayer.type == "group"))) {
+                imgArea = null;
+                let curposition;
+                if (!(!istree && curLayer.type == "group")) {
                     let curStyles = {};
                     if (!curLayer.layer.visible) {
                         curStyles.display = "none";
@@ -214,6 +223,10 @@ class PSD {
                     curStyles.background = 'none';
                     if (!!artboard) {
                         //当前节点是一个画布 采用相对布局的方式
+                        curDesignSize = {
+                            width: artboard.width,
+                            height: artboard.height
+                        }
                         Object.assign(curStyles, {
                             x: 0,
                             y: 0,
@@ -224,33 +237,71 @@ class PSD {
                         vNode.childrens.push(curVNode);
                     } else {
                         //当前节点不是一个画布采用绝对定位
+                        curposition = {
+                            width: curLayer.get("width"),
+                            height: curLayer.get("height"),
+                            left: curLayer.get("left"),
+                            top: curLayer.get("top"),
+                        }
+                        console.log(curDesignSize);
+                        if (!!curDesignSize) {
+                            let visibleWidth = curposition.width + curposition.left;
+                            let visibleLeft = curposition.left,
+                                visibleTop = curposition.top;
+                            let visibleHeight = curposition.height + curposition.top;
+                            if (visibleWidth > curDesignSize['width']) {
+                                visibleWidth = visibleWidth - (visibleWidth - curDesignSize['width']);
+                            }
+                            if (visibleHeight > curDesignSize['height']) {
+                                visibleHeight = visibleHeight - (visibleHeight - curDesignSize['height']);
+                            }
+                            if (visibleLeft < 0) {
+                                visibleLeft = 0;
+                            } else {
+                                visibleWidth -= visibleLeft;
+                            }
+                            if (visibleTop < 0) {
+                                visibleTop = 0;
+                            } else {
+                                visibleHeight -= visibleTop;
+                            }
+                            let newposition = {
+                                left: visibleLeft,
+                                top: visibleTop,
+                                width: visibleWidth,
+                                height: visibleHeight
+                            };
+                            imgArea = [newposition.left - curposition.left, newposition.top - curposition.left, newposition.width, newposition.height];
+                            curposition = newposition;
+                        }
+                        console.log(curposition);
+                        console.log(imgArea);
                         if (!!istree) {
                             Object.assign(curStyles, {
-                                width: curLayer.get("width"),
-                                height: curLayer.get("height"),
-                                x: curLayer.get("left") - parentAbsPos.left,
-                                y: curLayer.get("top") - parentAbsPos.top,
+                                width: curposition.width,
+                                height: curposition.height,
+                                x: curposition.left - parentAbsPos.left,
+                                y: curposition.top - parentAbsPos.top,
                                 position: "absolute"
                             });
                         } else {
                             Object.assign(curStyles, {
-                                width: curLayer.get("width"),
-                                height: curLayer.get("height"),
-                                x: curLayer.get("left") - parentAbsPos.left,
-                                y: curLayer.get("top") - parentAbsPos.top,
+                                width: curposition.width,
+                                height: curposition.height,
+                                x: curposition.left - parentAbsPos.left,
+                                y: curposition.top - parentAbsPos.top,
                                 position: "absolute"
                             });
                         }
-                        
+
                         vNode.childrens.splice(0, 0, curVNode);
                     }
                     curVNode.styles = curStyles;
-
                 }
-
                 curLayerJson = curLayer.export();
                 //判断当前节点对应前端的哪个组件
                 if (curLayer.type == "group") {
+                    console.log(curLayer);
                     if (curLayer.name.indexOf("button") > -1) {
                         curVNode.view = "button";
                     } else {
@@ -260,7 +311,7 @@ class PSD {
                     if (!!curLayer.children()) {
                         if (!istree) {
                             //生成一维数组；
-                            this.getvnodetree(curLayer, vNode, imgPool, istree);
+                            this.getvnodetree(curLayer, vNode, imgPool, istree, curDesignSize);
                         } else {
                             //生成多维数组；
                             curVNode.childrens = [];
@@ -268,7 +319,8 @@ class PSD {
                                 curLayer,
                                 curVNode,
                                 imgPool,
-                                istree
+                                istree,
+                                curDesignSize
                             );
                         }
                     }
@@ -304,15 +356,16 @@ class PSD {
                     } else {
                         curVNode.view = "image";
                         if (
-                            curLayer.get("width") * curLayer.get("height") <
+                            curposition.width * curposition.height <
                             self.pixelMax
                         ) {
                             imgname = this.getImgName(curLayer.path());
-                            
                             imgPool.push({
                                 image: curLayer.layer.image,
+                                position: imgArea,
                                 path: path.resolve(
                                     this.imgdir,
+
                                     imgname + ".png"
                                 )
                             });
@@ -331,7 +384,21 @@ class PSD {
         img["image"]
             .saveAsPng(img["path"])
             .then(function () {
-                callback(true);
+                let position = img['position']
+                console.log(position);
+                if (!!img['position']) {
+                    Images.setGCThreshold(200 * 1024);
+
+                    Images(position[2], position[3])
+                        .draw(Images(img["path"]), -position[1], -position[2])
+                        .save(img['path'], {
+                            quality: 60
+                        });
+                    callback(true);
+                } else {
+                    callback(true);
+                }
+
                 img["image"] = null;
                 // delete img['image'];
                 showMem();
