@@ -243,39 +243,39 @@ class PSD {
                             left: curLayer.get("left"),
                             top: curLayer.get("top"),
                         }
-                        console.log(curDesignSize);
-                        if (!!curDesignSize) {
-                            let visibleWidth = curposition.width + curposition.left;
-                            let visibleLeft = curposition.left,
-                                visibleTop = curposition.top;
-                            let visibleHeight = curposition.height + curposition.top;
-                            if (visibleWidth > curDesignSize['width']) {
-                                visibleWidth = visibleWidth - (visibleWidth - curDesignSize['width']);
-                            }
-                            if (visibleHeight > curDesignSize['height']) {
-                                visibleHeight = visibleHeight - (visibleHeight - curDesignSize['height']);
-                            }
-                            if (visibleLeft < 0) {
-                                visibleLeft = 0;
-                            } else {
-                                visibleWidth -= visibleLeft;
-                            }
-                            if (visibleTop < 0) {
-                                visibleTop = 0;
-                            } else {
-                                visibleHeight -= visibleTop;
-                            }
-                            let newposition = {
-                                left: visibleLeft,
-                                top: visibleTop,
-                                width: visibleWidth,
-                                height: visibleHeight
-                            };
-                            imgArea = [newposition.left - curposition.left, newposition.top - curposition.left, newposition.width, newposition.height];
-                            curposition = newposition;
-                        }
-                        console.log(curposition);
-                        console.log(imgArea);
+                        // console.log(curDesignSize);
+                        // if (!!curDesignSize) {
+                        //     let visibleWidth = curposition.width + curposition.left;
+                        //     let visibleLeft = curposition.left,
+                        //         visibleTop = curposition.top;
+                        //     let visibleHeight = curposition.height + curposition.top;
+                        //     if (visibleWidth > curDesignSize['width']) {
+                        //         visibleWidth = visibleWidth - (visibleWidth - curDesignSize['width']);
+                        //     }
+                        //     if (visibleHeight > curDesignSize['height']) {
+                        //         visibleHeight = visibleHeight - (visibleHeight - curDesignSize['height']);
+                        //     }
+                        //     if (visibleLeft < 0) {
+                        //         visibleLeft = 0;
+                        //     } else {
+                        //         visibleWidth -= visibleLeft;
+                        //     }
+                        //     if (visibleTop < 0) {
+                        //         visibleTop = 0;
+                        //     } else {
+                        //         visibleHeight -= visibleTop;
+                        //     }
+                        //     let newposition = {
+                        //         left: visibleLeft,
+                        //         top: visibleTop,
+                        //         width: visibleWidth,
+                        //         height: visibleHeight
+                        //     };
+                        //     imgArea = [newposition.left - curposition.left, newposition.top - curposition.left, newposition.width, newposition.height];
+                        //     curposition = newposition;
+                        // }
+                        // console.log(curposition);
+                        // console.log(imgArea);
                         if (!!istree) {
                             Object.assign(curStyles, {
                                 width: curposition.width,
@@ -362,7 +362,7 @@ class PSD {
                             imgname = this.getImgName(curLayer.path());
                             imgPool.push({
                                 image: curLayer.layer.image,
-                                position: imgArea,
+                                position: null,
                                 path: path.resolve(
                                     this.imgdir,
 
