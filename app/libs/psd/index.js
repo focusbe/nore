@@ -3,8 +3,7 @@ const fse = require("fs-extra");
 const path = require("path");
 import Util from "../util";
 import Files from "../files"
-import Images from "images";
-console.log(Images);
+import Sharp from "sharp";
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
@@ -244,36 +243,36 @@ class PSD {
                             top: curLayer.get("top"),
                         }
                         // console.log(curDesignSize);
-                        // if (!!curDesignSize) {
-                        //     let visibleWidth = curposition.width + curposition.left;
-                        //     let visibleLeft = curposition.left,
-                        //         visibleTop = curposition.top;
-                        //     let visibleHeight = curposition.height + curposition.top;
-                        //     if (visibleWidth > curDesignSize['width']) {
-                        //         visibleWidth = visibleWidth - (visibleWidth - curDesignSize['width']);
-                        //     }
-                        //     if (visibleHeight > curDesignSize['height']) {
-                        //         visibleHeight = visibleHeight - (visibleHeight - curDesignSize['height']);
-                        //     }
-                        //     if (visibleLeft < 0) {
-                        //         visibleLeft = 0;
-                        //     } else {
-                        //         visibleWidth -= visibleLeft;
-                        //     }
-                        //     if (visibleTop < 0) {
-                        //         visibleTop = 0;
-                        //     } else {
-                        //         visibleHeight -= visibleTop;
-                        //     }
-                        //     let newposition = {
-                        //         left: visibleLeft,
-                        //         top: visibleTop,
-                        //         width: visibleWidth,
-                        //         height: visibleHeight
-                        //     };
-                        //     imgArea = [newposition.left - curposition.left, newposition.top - curposition.left, newposition.width, newposition.height];
-                        //     curposition = newposition;
-                        // }
+                        if (!!curDesignSize) {
+                            let visibleWidth = curposition.width + curposition.left;
+                            let visibleLeft = curposition.left,
+                                visibleTop = curposition.top;
+                            let visibleHeight = curposition.height + curposition.top;
+                            if (visibleWidth > curDesignSize['width']) {
+                                visibleWidth = visibleWidth - (visibleWidth - curDesignSize['width']);
+                            }
+                            if (visibleHeight > curDesignSize['height']) {
+                                visibleHeight = visibleHeight - (visibleHeight - curDesignSize['height']);
+                            }
+                            if (visibleLeft < 0) {
+                                visibleLeft = 0;
+                            } else {
+                                visibleWidth -= visibleLeft;
+                            }
+                            if (visibleTop < 0) {
+                                visibleTop = 0;
+                            } else {
+                                visibleHeight -= visibleTop;
+                            }
+                            let newposition = {
+                                left: visibleLeft,
+                                top: visibleTop,
+                                width: visibleWidth,
+                                height: visibleHeight
+                            };
+                            imgArea = [newposition.left - curposition.left, newposition.top - curposition.left, newposition.width, newposition.height];
+                            curposition = newposition;
+                        }
                         // console.log(curposition);
                         // console.log(imgArea);
                         if (!!istree) {
@@ -362,10 +361,9 @@ class PSD {
                             imgname = this.getImgName(curLayer.path());
                             imgPool.push({
                                 image: curLayer.layer.image,
-                                position: null,
+                                position: imgArea,
                                 path: path.resolve(
                                     this.imgdir,
-
                                     imgname + ".png"
                                 )
                             });
@@ -387,14 +385,19 @@ class PSD {
                 let position = img['position']
                 console.log(position);
                 if (!!img['position']) {
-                    Images.setGCThreshold(200 * 1024);
+                    Sharp(img["path"]).
+                    extract({left:position[0],top:position[1],width:position[2],height:position[3]})
+                    .toFile(img["path"],function(error){
+                        callback(!error);
+                    });
+                    // Images.setGCThreshold(200 * 1024);
 
-                    Images(position[2], position[3])
-                        .draw(Images(img["path"]), -position[1], -position[2])
-                        .save(img['path'], {
-                            quality: 60
-                        });
-                    callback(true);
+                    // Images(position[2], position[3])
+                    //     .draw(Images(img["path"]), -position[1], -position[2])
+                    //     .save(img['path'], {
+                    //         quality: 60
+                    //     });
+                    
                 } else {
                     callback(true);
                 }
