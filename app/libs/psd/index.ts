@@ -2,25 +2,30 @@ const psdjs = require("psdpaser");
 const fse = require("fs-extra");
 const path = require("path");
 import Util from "../util";
-import Files from "../files"
-import Sharp from "sharp";
+import Files from "../files";
+// import Sharp from "sharp";
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
-function showMem(log) {
+function showMem() {
     //开启--exprose-gc时显示内存占用
-    if (typeof global.gc == "function") {
-        console.log("手动gc一次");
-        global.gc();
-    }
-    let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
-    let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
-    console.log('rss":' + rss + "M");
-    console.log('memused":' + memused + "M");
-    memused = null;
+    // if (typeof global.gc == "function") {
+    //     console.log("手动gc一次");
+    //     global.gc();
+    // }
+    // let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
+    // let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
+    // console.log('rss":' + rss + "M");
+    // console.log('memused":' + memused + "M");
+    // memused = null;
 }
 
 class PSD {
+    private pixelMax;
+    private psdpath;
+    private imgdir;
+	private asseturl;
+	private namePool = {};
     constructor(psdpath, imgdir, asseturl, pixelMax) {
         if (!pixelMax) {
             pixelMax = 10000 * 10000;
@@ -30,37 +35,36 @@ class PSD {
         this.imgdir = imgdir;
         this.asseturl = asseturl;
     }
-    async parse(istree, debug) {
+    async parse(debug) {
         var self = this;
         //判断文件是否存在，保存图片的目录是否存在
         let exists = await fse.exists(this.psdpath);
         if (!exists) {
             throw new Error("psd文件不存在");
         }
-        await new Promise(function (result, reject) {
-            Files.createdir(self.imgdir, function (res) {
-                console.log(res);
+        await new Promise(function(result, reject) {
+            Files.createdir(self.imgdir, function(res) {
                 if (!!res) result(true);
-                else reject('创建图片保存路径失败');
+                else reject("创建图片保存路径失败");
             });
         });
         let psd = await psdjs.open(this.psdpath);
         let psdtree = psd.tree();
         psd = null;
-        let res = this.getvnodetree(psdtree, null, null, istree);
+        let res = this.getvnodetree(psdtree, null, null, null);
         let errorimg = null;
         if (!debug) {
-            await new Promise(function (result, reject) {
+            await new Promise(function(result, reject) {
                 self.saveimg(
                     res.imgPool,
-                    function (saveresult) {
+                    function(saveresult) {
                         psdtree = null;
                         // res = null;
                         res.imgPool = null;
                         result(saveresult);
                     },
                     null,
-                    function (img) {
+                    function(img) {
                         if (!errorimg) {
                             errorimg = [];
                         }
@@ -74,40 +78,32 @@ class PSD {
             errorimg
         };
     }
-    checkLayer(layer) {
-
-    }
-    getImgName(imgname, num) {
-        if (!num) {
-            num = 0;
-        }
-        if (!this.namePool) {
-            this.namePool = {};
-        }
-        imgname = imgname.split(' ');
-        imgname = imgname[0].replace(/ /g, '');
+    checkLayer(layer) {}
+    getImgName(imgname, num=0) {
+        imgname = imgname.split(" ");
+        imgname = imgname[0].replace(/ /g, "");
         if (this.isChina(imgname)) {
             return Util.createId();
         }
-        var temp = imgname.split('/');
+        var temp = imgname.split("/");
         if (imgname.length > 1) {
             imgname = temp[temp.length - 1];
         } else {
-            imgname = temp[0] + '_' + temp[temp.length - 1];
+            imgname = temp[0] + "_" + temp[temp.length - 1];
         }
 
         let res = imgname;
         if (!!num) {
-            res = imgname + '' + num;
+            res = imgname + "" + num;
         }
         if (!!this.namePool[res]) {
-            num++
+            num++;
             res = this.getImgName(imgname, num);
         }
         this.namePool[res] = 1;
         return res;
     }
-    getvnodetree(psdNode, vNode, imgPool, istree, curDesignSize) {
+    getvnodetree(psdNode, vNode, imgPool, curDesignSize) {
         //params psdNode:psd中的节点
         //vNode:虚拟节点
         //vNode:待保存的图片数组
@@ -125,7 +121,9 @@ class PSD {
             //需要保存的图片
             imgPool = [];
             var pageSize;
-            if (!!psdNode.hasArtboard) {
+            
+            this.getvnodetree(psdNode, vNode, imgPool, curDesignSize);
+			if (!!psdNode.hasArtboard) {
                 //多个画布高度是画布的和，宽度是第一个画布的宽度；
                 let totalHeight = 0;
                 let perWidth;
@@ -146,7 +144,7 @@ class PSD {
                 curDesignSize = {
                     width: perWidth,
                     height: psdChildren[0].artboard.height
-                }
+                };
             } else {
                 pageSize = {
                     width: psdNode.get("width"),
@@ -154,8 +152,6 @@ class PSD {
                 };
                 curDesignSize = pageSize;
             }
-            this.getvnodetree(psdNode, vNode, imgPool, istree, curDesignSize);
-
             vNode.styles = Object.assign(pageSize, {
                 x: 0,
                 position: "relative",
@@ -206,101 +202,21 @@ class PSD {
 
                 //父级的绝对位置；如果是树形结构会用到
                 let parentAbsPos = {
-                    left: istree ? (!!psdNode.artboard ? psdNode.artboard.left : psdNode.get("left")) : (!!psdNode.artboard ? psdNode.artboard.left : 0),
-                    top: istree ? (!!psdNode.artboard ? psdNode.artboard.top : psdNode.get("top")) : (!!psdNode.artboard ? (psdNode.artboard.top - psdNode.offsetY) : -psdNode.offsetY)
+                    left: !!psdNode.artboard
+                        ? psdNode.artboard.left
+                        : psdNode.get("left"),
+                    top: !!psdNode.artboard
+                        ? psdNode.artboard.top
+                        : psdNode.get("top")
                 };
                 //设置样式
                 //记录需要纠正的位置
 
                 imgArea = null;
                 let curposition;
-                if (!(!istree && curLayer.type == "group")) {
-                    let curStyles = {};
-                    if (!curLayer.layer.visible) {
-                        curStyles.display = "none";
-                    }
-                    curStyles.background = 'none';
-                    if (!!artboard) {
-                        //当前节点是一个画布 采用相对布局的方式
-                        curDesignSize = {
-                            width: artboard.width,
-                            height: artboard.height
-                        }
-                        Object.assign(curStyles, {
-                            x: 0,
-                            y: 0,
-                            width: artboard.width,
-                            height: artboard.height,
-                            position: "relative"
-                        });
-                        vNode.childrens.push(curVNode);
-                    } else {
-                        //当前节点不是一个画布采用绝对定位
-                        curposition = {
-                            width: curLayer.get("width"),
-                            height: curLayer.get("height"),
-                            left: curLayer.get("left"),
-                            top: curLayer.get("top"),
-                        }
-                        // console.log(curDesignSize);
-                        if (!!curDesignSize) {
-                            let visibleWidth = curposition.width + curposition.left;
-                            let visibleLeft = curposition.left,
-                                visibleTop = curposition.top;
-                            let visibleHeight = curposition.height + curposition.top;
-                            if (visibleWidth > curDesignSize['width']) {
-                                visibleWidth = visibleWidth - (visibleWidth - curDesignSize['width']);
-                            }
-                            if (visibleHeight > curDesignSize['height']) {
-                                visibleHeight = visibleHeight - (visibleHeight - curDesignSize['height']);
-                            }
-                            if (visibleLeft < 0) {
-                                visibleLeft = 0;
-                            } else {
-                                visibleWidth -= visibleLeft;
-                            }
-                            if (visibleTop < 0) {
-                                visibleTop = 0;
-                            } else {
-                                visibleHeight -= visibleTop;
-                            }
-                            let newposition = {
-                                left: visibleLeft,
-                                top: visibleTop,
-                                width: visibleWidth,
-                                height: visibleHeight
-                            };
-                            imgArea = [newposition.left - curposition.left, newposition.top - curposition.left, newposition.width, newposition.height];
-                            curposition = newposition;
-                        }
-                        // console.log(curposition);
-                        // console.log(imgArea);
-                        if (!!istree) {
-                            Object.assign(curStyles, {
-                                width: curposition.width,
-                                height: curposition.height,
-                                x: curposition.left - parentAbsPos.left,
-                                y: curposition.top - parentAbsPos.top,
-                                position: "absolute"
-                            });
-                        } else {
-                            Object.assign(curStyles, {
-                                width: curposition.width,
-                                height: curposition.height,
-                                x: curposition.left - parentAbsPos.left,
-                                y: curposition.top - parentAbsPos.top,
-                                position: "absolute"
-                            });
-                        }
-
-                        vNode.childrens.splice(0, 0, curVNode);
-                    }
-                    curVNode.styles = curStyles;
-                }
                 curLayerJson = curLayer.export();
                 //判断当前节点对应前端的哪个组件
                 if (curLayer.type == "group") {
-                    console.log(curLayer);
                     if (curLayer.name.indexOf("button") > -1) {
                         curVNode.view = "button";
                     } else {
@@ -308,22 +224,15 @@ class PSD {
                     }
 
                     if (!!curLayer.children()) {
-                        if (!istree) {
-                            //生成一维数组；
-                            this.getvnodetree(curLayer, vNode, imgPool, istree, curDesignSize);
-                        } else {
-                            //生成多维数组；
-                            curVNode.childrens = [];
-                            this.getvnodetree(
-                                curLayer,
-                                curVNode,
-                                imgPool,
-                                istree,
-                                curDesignSize
-                            );
-                        }
+                        //生成多维数组；
+                        curVNode.childrens = [];
+                        this.getvnodetree(
+                            curLayer,
+                            curVNode,
+                            imgPool,
+                            curDesignSize
+                        );
                     }
-
                 } else if (curLayer.type == "layer") {
                     if (
                         !!curLayerJson.text &&
@@ -343,7 +252,7 @@ class PSD {
                             }
                             curVNode.view = "text";
                         }
-                        let fontstyle = {};
+                        let fontstyle: { [key: string]: any } = {};
                         if (!!font.sizes && font.sizes.length > 0) {
                             fontstyle.fontSize = font.sizes[0] + "px";
                         }
@@ -381,23 +290,21 @@ class PSD {
     saveOneimg(img, callback) {
         img["image"]
             .saveAsPng(img["path"])
-            .then(function () {
-                let position = img['position']
-                console.log(position);
-                if (!!img['position']) {
-                    Sharp(img["path"]).
-                    extract({left:position[0],top:position[1],width:position[2],height:position[3]})
-                    .toFile(img["path"],function(error){
-                        callback(!error);
-                    });
+            .then(function() {
+                let position = img["position"];
+                // console.log(position);
+                if (!!position) {
+                    // Sharp(img["path"]).
+                    // extract({left:position[0],top:position[1],width:position[2],height:position[3]})
+                    // .toFile(img["path"],function(error){
+                    //     callback(!error);
+                    // });
                     // Images.setGCThreshold(200 * 1024);
-
                     // Images(position[2], position[3])
                     //     .draw(Images(img["path"]), -position[1], -position[2])
                     //     .save(img['path'], {
                     //         quality: 60
                     //     });
-                    
                 } else {
                     callback(true);
                 }
@@ -406,7 +313,7 @@ class PSD {
                 // delete img['image'];
                 showMem();
             })
-            .catch(function (err) {
+            .catch(function(err) {
                 callback(false, err);
                 showMem();
             });
@@ -415,10 +322,15 @@ class PSD {
         let self = this;
 
         function saveNextImg(i) {
+			if(i>=pool.length){
+				callback(true);
+				return;
+			}
             if (!pool[i]) {
-                pool[i] = null;
+				pool[i] = null;
+				
             }
-            self.saveOneimg(pool[i], function (res, error) {
+            self.saveOneimg(pool[i], function(res, error) {
                 if (!!res) {
                     if (typeof onsuccess == "function") {
                         onsuccess(res);
@@ -427,23 +339,11 @@ class PSD {
                     if (typeof onerror == "function") {
                         onerror(error);
                     }
-                }
-                pool[i] = null;
-                pool.splice(i, 1);
+				}
+				saveNextImg(i+1);
+       
             });
         }
-        let oldlentgh = pool.length;
-        let clock = setInterval(function () {
-            if (pool.length == 0) {
-                callback(true);
-                clearInterval(clock);
-                clock = null;
-            }
-            if (oldlentgh != pool.length && pool.length > 0) {
-                saveNextImg(0);
-            }
-            oldlentgh = pool.length;
-        }, 100);
         saveNextImg(0);
         return;
     }

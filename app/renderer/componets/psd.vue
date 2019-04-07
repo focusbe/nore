@@ -77,7 +77,7 @@ export default {
 					this.uploadpath,
 					"src/images/" + this.pagename
 				);
-				var res = await mypsd.parse(true, false);
+				var res = await mypsd.parse(false);
 				console.log(res);
 				// res = null;
 				// mypsd = null;
