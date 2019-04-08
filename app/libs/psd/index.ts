@@ -4,6 +4,7 @@ const path = require("path");
 import Util from "../util";
 import Files from "../files";
 import Sharp from "sharp";
+import { Point, Size, Rectangle } from "./base";
 console.log(Sharp);
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
@@ -25,8 +26,8 @@ class PSD {
     private pixelMax;
     private psdpath;
     private imgdir;
-	private asseturl;
-	private namePool = {};
+    private asseturl;
+    private namePool = {};
     constructor(psdpath, imgdir, asseturl, pixelMax) {
         if (!pixelMax) {
             pixelMax = 10000 * 10000;
@@ -52,7 +53,7 @@ class PSD {
         let psd = await psdjs.open(this.psdpath);
         let psdtree = psd.tree();
         psd = null;
-        let res = this.getvnodetree(psdtree, null, null, null);
+        let res = this.getvnodetree(psdtree);
         let errorimg = null;
         if (!debug) {
             await new Promise(function(result, reject) {
@@ -80,7 +81,7 @@ class PSD {
         };
     }
     checkLayer(layer) {}
-    getImgName(imgname, num=0) {
+    getImgName(imgname, num = 0) {
         imgname = imgname.split(" ");
         imgname = imgname[0].replace(/ /g, "");
         if (this.isChina(imgname)) {
@@ -104,7 +105,40 @@ class PSD {
         this.namePool[res] = 1;
         return res;
     }
-    getvnodetree(psdNode, vNode, imgPool, curDesignSize) {
+    positionToPoint(position) {
+        if (
+            !position ||
+            !position.left ||
+            !position.top ||
+            !position.width ||
+            !position.height
+        )
+            return null;
+        return [
+            position.left,
+            position.top,
+            position.left + position.width,
+            position.top + position.height
+        ];
+    }
+    cutInArea(point, area) {
+        if (!point || !area) {
+            return null;
+        }
+        let newPoint = [];
+        for (var i in point) {
+            newPoint[i] = point[i];
+            let index = parseInt(i);
+            if (point[i] < area[index % 2]) {
+                newPoint[i] = area[index % 2];
+            }
+            if (point[i] > area[index % 2] + 2) {
+                newPoint[i] = area[index % 2] + 2;
+            }
+        }
+        return newPoint;
+    }
+    getvnodetree(psdNode, vNode = null, imgPool = null, curDesignSize = null) {
         //params psdNode:psd中的节点
         //vNode:虚拟节点
         //vNode:待保存的图片数组
@@ -122,9 +156,7 @@ class PSD {
             //需要保存的图片
             imgPool = [];
             var pageSize;
-            
-            this.getvnodetree(psdNode, vNode, imgPool, curDesignSize);
-			if (!!psdNode.hasArtboard) {
+            if (!!psdNode.hasArtboard) {
                 //多个画布高度是画布的和，宽度是第一个画布的宽度；
                 let totalHeight = 0;
                 let perWidth;
@@ -143,16 +175,22 @@ class PSD {
                     height: totalHeight
                 };
                 curDesignSize = {
+                    left: 0,
+                    top: 0,
                     width: perWidth,
                     height: psdChildren[0].artboard.height
                 };
             } else {
                 pageSize = {
+                    left: 0,
+                    top: 0,
                     width: psdNode.get("width"),
                     height: psdNode.get("height")
                 };
                 curDesignSize = pageSize;
             }
+            this.getvnodetree(psdNode, vNode, imgPool, curDesignSize);
+
             vNode.styles = Object.assign(pageSize, {
                 x: 0,
                 position: "relative",
@@ -171,7 +209,8 @@ class PSD {
             if (!psdNode.offsetY) {
                 psdNode.offsetY = 0;
             }
-            var imgArea;
+            let imgArea;
+            let curposition;
             for (let i in childrenLayers) {
                 curLayer = childrenLayers[i];
                 curVNode = {};
@@ -181,6 +220,9 @@ class PSD {
                 if (!!curLayer.layer.artboard) {
                     curVNode.isArtboard = true;
                     vNode.hasArtboard = true;
+                    if (!psdNode.hasArtboard) {
+                        psdNode.hasArtboard = true;
+                    }
                     artboard = curLayer.layer.artboard().export().coords;
                     artboard.width = artboard.right - artboard.left;
                     artboard.height = artboard.bottom - artboard.top;
@@ -189,9 +231,6 @@ class PSD {
                     artboard.realTop = artRealTop;
                     artRealTop += artboard.height;
                     curLayer.artboard = artboard;
-                    if (!psdNode.hasArtboard) {
-                        psdNode.hasArtboard = true;
-                    }
                 } else {
                     curLayer.offsetY = !!psdNode.offsetY ? psdNode.offsetY : 0;
                 }
@@ -202,19 +241,101 @@ class PSD {
                 };
 
                 //父级的绝对位置；如果是树形结构会用到
-                let parentAbsPos = {
-                    left: !!psdNode.artboard
-                        ? psdNode.artboard.left
-                        : psdNode.get("left"),
-                    top: !!psdNode.artboard
-                        ? psdNode.artboard.top
-                        : psdNode.get("top")
-                };
+                let parentAbsPos;
+                if (!!psdNode.newPosition) {
+                    parentAbsPos = psdNode.newPosition;
+                } else {
+                    parentAbsPos = {
+                        left: !!psdNode.artboard
+                            ? psdNode.artboard.left
+                            : psdNode.get("left"),
+                        top: !!psdNode.artboard
+                            ? psdNode.artboard.top
+                            : psdNode.get("top")
+                    };
+                }
+
+                console.log(parentAbsPos);
+
                 //设置样式
                 //记录需要纠正的位置
-
                 imgArea = null;
-                let curposition;
+                curposition = null;
+                let curStyles: { [key: string]: any } = {};
+                if (!curLayer.layer.visible) {
+                    curStyles.display = "none";
+                }
+                curStyles.background = "none";
+                if (!!artboard) {
+                    //当前节点是一个画布 采用相对布局的方式
+                    curDesignSize = {
+                        left: 0,
+                        top: 0,
+                        width: artboard.width,
+                        height: artboard.height
+                    };
+                    Object.assign(curStyles, {
+                        x: 0,
+                        y: 0,
+                        width: artboard.width,
+                        height: artboard.height,
+                        position: "relative"
+                    });
+                    vNode.childrens.push(curVNode);
+                } else {
+                    //当前节点不是一个画布采用绝对定位
+                    curposition = {
+                        width: curLayer.get("width"),
+                        height: curLayer.get("height"),
+                        left: curLayer.get("left"),
+                        top: curLayer.get("top")
+                    };
+
+                    console.log(curDesignSize);
+                    if (!!curDesignSize) {
+                        //只显示在可视区域内的；
+                        let designRec = new Rectangle(curDesignSize);
+                        console.log(designRec);
+                        let curLayerRec = new Rectangle(curposition);
+                        console.log(curLayerRec);
+                        let resRec = Rectangle.intersection(
+                            designRec,
+                            curLayerRec
+                        );
+                        console.log('resRec');
+                        console.log(resRec);
+                        curposition = resRec.toStyles();
+                        curLayer.newPosition = curposition;
+                        let newInOriPoint = Point.relative(
+                            resRec.startPoint,
+                            curLayerRec.startPoint
+                        );
+                        imgArea = new Rectangle(
+                            newInOriPoint,
+                            resRec.size
+                        ).toStyles();
+                        console.log(parentAbsPos);
+                        console.log(imgArea);
+                        console.log("curposition");
+                        console.log(curposition);
+                    }
+                    // console.log(curposition);
+                    // console.log(imgArea);
+                    console.log('--start--');
+                    console.log(curposition);
+                    console.log(parentAbsPos);
+                    console.log('--end--');
+                    Object.assign(curStyles, {
+                        width: curposition.width,
+                        height: curposition.height,
+                        x: parseInt(curposition.left) - parseInt(parentAbsPos.left),
+                        y: parseInt(curposition.top) - parseInt(parentAbsPos.top),
+                        position: "absolute"
+                    });
+                    vNode.childrens.splice(0, 0, curVNode);
+                }
+                curVNode.styles = curStyles;
+
                 curLayerJson = curLayer.export();
                 //判断当前节点对应前端的哪个组件
                 if (curLayer.type == "group") {
@@ -293,19 +414,35 @@ class PSD {
             .saveAsPng(img["path"])
             .then(function() {
                 let position = img["position"];
-                // console.log(position);
+                console.log(position);
                 if (!!position) {
-                    Sharp(img["path"]).
-                    extract({left:position[0],top:position[1],width:position[2],height:position[3]})
-                    .toFile(img["path"],function(error){
-                        callback(!error);
-                    });
-                    // Images.setGCThreshold(200 * 1024);
-                    // Images(position[2], position[3])
-                    //     .draw(Images(img["path"]), -position[1], -position[2])
-                    //     .save(img['path'], {
-                    //         quality: 60
-                    //     });
+                    Sharp(img["path"])
+                        .extract(position)
+                        .toFile(img["path"] + ".tmp", function(error) {
+                            if (!error) {
+                                fse.unlink(img["path"], function(unlinkErr) {
+                                    if (!!unlinkErr) {
+                                        callback(false);
+                                        return;
+                                    }
+                                    fse.rename(
+                                        img["path"] + ".tmp",
+                                        img["path"],
+                                        err => {
+                                            if (err) {
+                                                callback(false);
+                                                return;
+                                            }
+                                            callback(true);
+                                        }
+                                    );
+                                });
+                            } else {
+                                callback(false);
+                            }
+                            // console.log(error);
+                            // callback(!error);
+                        });
                 } else {
                     callback(true);
                 }
@@ -323,13 +460,12 @@ class PSD {
         let self = this;
 
         function saveNextImg(i) {
-			if(i>=pool.length){
-				callback(true);
-				return;
-			}
+            if (i >= pool.length) {
+                callback(true);
+                return;
+            }
             if (!pool[i]) {
-				pool[i] = null;
-				
+                pool[i] = null;
             }
             self.saveOneimg(pool[i], function(res, error) {
                 if (!!res) {
@@ -340,9 +476,8 @@ class PSD {
                     if (typeof onerror == "function") {
                         onerror(error);
                     }
-				}
-				saveNextImg(i+1);
-       
+                }
+                saveNextImg(i + 1);
             });
         }
         saveNextImg(0);
