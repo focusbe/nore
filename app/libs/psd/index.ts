@@ -3,7 +3,8 @@ const fse = require("fs-extra");
 const path = require("path");
 import Util from "../util";
 import Files from "../files";
-// import Sharp from "sharp";
+import Sharp from "sharp";
+console.log(Sharp);
 //识别的系统字；
 const systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan"];
 //显示内存占用
@@ -294,11 +295,11 @@ class PSD {
                 let position = img["position"];
                 // console.log(position);
                 if (!!position) {
-                    // Sharp(img["path"]).
-                    // extract({left:position[0],top:position[1],width:position[2],height:position[3]})
-                    // .toFile(img["path"],function(error){
-                    //     callback(!error);
-                    // });
+                    Sharp(img["path"]).
+                    extract({left:position[0],top:position[1],width:position[2],height:position[3]})
+                    .toFile(img["path"],function(error){
+                        callback(!error);
+                    });
                     // Images.setGCThreshold(200 * 1024);
                     // Images(position[2], position[3])
                     //     .draw(Images(img["path"]), -position[1], -position[2])
