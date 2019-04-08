@@ -422,10 +422,11 @@ class PSD {
                 if (!!position) {
                     Sharp(img["path"])
                         .extract(position)
-                        .jpeg({
-                            quality: 60,
-                            chromaSubsampling: "4:4:4"
-                        })
+                        // .webp()
+                        // .jpeg({
+                        //     quality: 60,
+                        //     chromaSubsampling: "4:4:4"
+                        // })
                         .toFile(img["path"] + ".tmp", function(error) {
                             if (!error) {
                                 fse.unlink(img["path"], function(unlinkErr) {
@@ -441,6 +442,11 @@ class PSD {
                                                 callback(false);
                                                 return;
                                             }
+                                            Sharp(img["path"]).metadata()
+                                            .then(function(metadata) {
+                                                console.log(img["path"]);
+                                                console.log(metadata);
+                                            })
                                             callback(true);
                                         }
                                     );
