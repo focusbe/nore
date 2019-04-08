@@ -302,7 +302,7 @@ class PSD {
                             designRec,
                             curLayerRec
                         );
-                        console.log('resRec');
+                        console.log("resRec");
                         console.log(resRec);
                         curposition = resRec.toStyles();
                         curLayer.newPosition = curposition;
@@ -321,15 +321,19 @@ class PSD {
                     }
                     // console.log(curposition);
                     // console.log(imgArea);
-                    console.log('--start--');
+                    console.log("--start--");
                     console.log(curposition);
                     console.log(parentAbsPos);
-                    console.log('--end--');
+                    console.log("--end--");
                     Object.assign(curStyles, {
                         width: curposition.width,
                         height: curposition.height,
-                        x: parseInt(curposition.left) - parseInt(parentAbsPos.left),
-                        y: parseInt(curposition.top) - parseInt(parentAbsPos.top),
+                        x:
+                            parseInt(curposition.left) -
+                            parseInt(parentAbsPos.left),
+                        y:
+                            parseInt(curposition.top) -
+                            parseInt(parentAbsPos.top),
                         position: "absolute"
                     });
                     vNode.childrens.splice(0, 0, curVNode);
@@ -418,6 +422,10 @@ class PSD {
                 if (!!position) {
                     Sharp(img["path"])
                         .extract(position)
+                        .jpeg({
+                            quality: 60,
+                            chromaSubsampling: "4:4:4"
+                        })
                         .toFile(img["path"] + ".tmp", function(error) {
                             if (!error) {
                                 fse.unlink(img["path"], function(unlinkErr) {
