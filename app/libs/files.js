@@ -41,8 +41,8 @@ class Files {
         });
         return res;
     }
+    
     static createdir(src, callback) {
-        console.log(src);
         let parentdir = path.dirname(src);
         fse.exists(parentdir,
             function (exists) {
@@ -205,13 +205,26 @@ class Files {
             callback(stat.isDirectory());
         });
     }
-    static async  delFile(filepath) {
+    static async delFile(filepath,times) {
+        if(!times){
+            times = 0;
+        }
         let exists = await fse.pathExists(filepath);
         if (exists) {
             var res = await new Promise(function(resolve,reject){
                 fse.unlink(filepath, function (err) {
                     if (err) {
-                        resolve(false);
+                        if(times<5){
+                            setTimeout(async()=>{
+                                times++;
+                                var res = await Files.delFile(filepath,times);
+                                resolve(false);
+                            },300);
+                        }
+                        else{
+                            resolve(false);
+                        }
+                        
                     }
                     else{
                         resolve(true);

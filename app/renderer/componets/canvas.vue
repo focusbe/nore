@@ -18,7 +18,6 @@ export default {
 		this.rootvnode = new vnode(viewList['root'], { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
 		this.projectPath = this.isssr?'../': path.resolve(Configs.getItem("workshop"),this.projectname);
-		console.log(this.projectPath);
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 		
@@ -34,7 +33,6 @@ export default {
 				this.addTreenodes(tree.childrens,this.rootvnode);
 			}
 			this.refresh();
-			console.log(this);
 		},
 		clearCanvas() {
 			this.$set(this.rootvnode, "childrens", []);
@@ -51,7 +49,6 @@ export default {
 					if (curnode.view == "button") {
 						curnode.view = "my-button";
 					}
-					console.log(curnode);
 					var newnode = new vnode(
 						viewObj[curnode.view],
 						curnode.styles,
@@ -293,7 +290,7 @@ export default {
 
 	render: function(createElement) {
 		// this.bindMouse();
-		console.log("canvas render");
+		//console.log("canvas render");
 		
 		var _this = this;
 		var result =  createElement(
@@ -333,7 +330,7 @@ export default {
 	},
 
 	updated: function() {
-		console.log('canvasupdated');
+		//console.log('canvasupdated');
 	},
 	mounted: function() {
 		

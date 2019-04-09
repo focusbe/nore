@@ -110,7 +110,6 @@ export default {
 			});
 		},
 		getPagelist() {
-            console.log('11111');
 			this.pagelist = [];
 			var pagelist = this.project.getPageList();
             this.pagelist = pagelist;

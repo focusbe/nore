@@ -62,7 +62,6 @@ export default {
 		async getList() {
 			var list = await this.assets.getList();
 			// console.log('获取list');
-			console.log(list);
 			this.list = list;
 		},
 		async upload(file) {

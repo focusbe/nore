@@ -49,7 +49,6 @@ Vue.component("vnoderender", {
             return this.$el;
         },
         createCom() {
-            console.log('createCom');
             var self = this;
             if (!!this.componentCache[this.viewdata.name]) {
                 return this.componentCache[this.viewdata.name];
@@ -107,7 +106,6 @@ Vue.component("vnoderender", {
                 });
             }
             this.componentCache[this.viewdata.name] = temCom;
-            console.log(temCom);
             // let renderres = this.viewdata.render();
             return temCom;
         }
