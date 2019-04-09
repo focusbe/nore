@@ -280,9 +280,9 @@ class PSD {
                         this.getvnodetree(curLayer, curVNode, imgPool, curDesignSize);
                     }
                 } else if (curLayer.type == "layer") {
-                    if(!!curLayerJson.text && !!curLayerJson.text.font){
-                        console.log(curLayerJson.text);
-                    }
+                    // if(!!curLayerJson.text && !!curLayerJson.text.font){
+                    //     console.log(curLayerJson.text);
+                    // }
                     if (!!curLayerJson.text &&(curLayerJson.text.value.length>100 || (!!curLayerJson.text.font && PsdUtli.isSystemFont(curLayerJson.text.font)) ) ) {
                         //是文字节点
                         let font = curLayerJson.text.font;
