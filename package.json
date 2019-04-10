@@ -14,7 +14,8 @@
         "dev": "node ./build/index.js",
         "build": "node ./build/index.js --mode production",
         "electron-builder": "electron-builder --x64 --publish never",
-        "babel": "babel"
+        "babel": "babel",
+        "postinstall": "install-app-deps"
     },
     "build": {
         "appId": "com.ztgame.webcreator",

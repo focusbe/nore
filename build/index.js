@@ -97,6 +97,18 @@ class Build {
                     }
                 );
             }
+            else{
+                var localurl = '';
+                this.configs['renderer'].output.publicPath = localurl;
+                this.configs['main'].externals.push(
+                    function (context, request, callback) {
+                        if (request == '_serverurl') {
+                            return callback(null, '"' + localurl + '"');
+                        }
+                        callback();
+                    }
+                );
+            }
             var renwebpack = await this.webpack('renderer');
             var mainwebpack = await this.webpack('main');
             if (self.mode == 'development') {
@@ -118,9 +130,7 @@ class Build {
     }
     runWebpack(packobj) {
         return new Promise(function (result, reject) {
-            packobj.run({
-                ignored: /node_modules|dist|output/
-            }, (err, stats) => {
+            packobj.run((err, stats) => {
                 let res = true;
                 if (err || stats.hasErrors()) {
                     let error =
@@ -129,6 +139,7 @@ class Build {
                             colors: true
                         });
                     // 在这里处理错误
+                    console.log('打包出现错误');
                     process.stdout.write(error + "\n");
                     result(false);
                 } else {
