@@ -1,8 +1,9 @@
 {
-    "name": "webcreator",
+    "name": "NoreCode",
     "version": "0.0.1",
+    "productName": "Nore Code",
     "description": "集成前端开发，切图，逻辑，组件调用，项目发布的客户端",
-    "productFileName": "webcreator",
+    "productFileName": "NoreCode",
     "main": "dist/main/index.js",
     "scripts": {
         "start-main": "webpack --config build/main.config.js -w --progress --hide-modules --mode=development",
@@ -18,7 +19,7 @@
         "postinstall": "install-app-deps"
     },
     "build": {
-        "appId": "com.ztgame.webcreator",
+        "appId": "com.focusbe.tttv",
         "asar": true,
         "publish": [
             {
