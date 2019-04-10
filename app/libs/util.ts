@@ -4,7 +4,7 @@ class Util {
         let id: string = (new Date().getTime()).toString();
         if (!!this.idcache[id]) {
             this.idcache[id]++;
-            console.log(this.idcache[id]);
+            //console.log(this.idcache[id]);
             id = id + '' + this.idcache[id];
         }
         else {

@@ -94,10 +94,10 @@ class Image {
     private usewebp;
     private status = 0;
     private outputname;
-    private outValue;
+    private outCallback;
     private static namePool = {};
     private fullpath;
-    constructor(outputdir, nametip, layerimg, outValue, area = null, usewebp = false) {
+    constructor(outputdir, nametip, layerimg, outCallback, area = null, usewebp = false) {
         this.outputdir = outputdir;
         this.nametip = nametip;
         this.layerimg = layerimg;
@@ -105,7 +105,7 @@ class Image {
         this.usewebp = usewebp;
         this.outputname = Image.getImgName(this.nametip);
         this.fullpath = path.resolve(this.outputdir, this.outputname + ".png");
-        this.outValue = outValue;
+        this.outCallback = outCallback;
     }
     public save(cb) {
         let self = this;
@@ -118,8 +118,11 @@ class Image {
                         var areasharp = Sharp(this.fullpath).extract(position);
                         function saveEnd(bool, imgurl = "") {
                             if (!!bool) {
-                                this.outValue.obj[this.outValue.key] = imgurl;
+                                this.outCallback(imgurl);
                                 cb(true, imgurl);
+                            } else {
+                                this.outCallback("");
+                                cb(false, "");
                             }
                         }
                         let saveEndFun = saveEnd.bind(this);
@@ -321,7 +324,7 @@ class ImagePool {
 }
 //psd解析相关的其他方法
 class PsdUtli {
-    private static systemFont = ["MicrosoftYaHei", "SimSun", "SimHei", "KaiTi", "YouYuan", "AdobeInvisFont", "AdobeHeitiStd"];
+    private static systemFont = ["Microsoft YaHei", "微软雅黑", "SimHei", "KaiTi", "Arial"];
     static isSystemFont(font) {
         var fontname;
         if (!!font.name) {
@@ -337,19 +340,19 @@ class PsdUtli {
         if (typeof fontname == "string") {
             fontname = [fontname];
         }
-        var res = false;
-        for(var j in fontname){
-            res = false;
+        for (var j in fontname) {
             for (var i in this.systemFont) {
-                if (fontname[j].toLowerCase().indexOf(this.systemFont[i].toLowerCase())>-1) {
-                    res = true;
+                if (
+                    fontname[j]
+                        .replace(/ /g, "")
+                        .toLowerCase()
+                        .indexOf(this.systemFont[i].replace(/ /g, "").toLowerCase()) > -1
+                ) {
+                    return this.systemFont[i];
                 }
             }
-            if(!res){
-                return false;
-            }
         }
-        return true;
+        return false;
     }
     static colorRGB2Hex(rgb) {
         let r = parseInt(rgb[0]);
@@ -365,6 +368,9 @@ class PsdUtli {
         } else {
             return true;
         }
+    }
+    static trim(str) {
+        return str.replace(/(^\s*)|(\s*$)/g, "");
     }
     static isGoodName(t) {
         if (!t || PsdUtli.isChina(t)) {
@@ -403,6 +409,17 @@ class PsdUtli {
             }
         }
         return len;
+    }
+    static getClassName(str) {
+        str = this.trim(str);
+        if (str.length > 100) {
+            return "";
+        }
+        str = this.Pinyin(str);
+        return str;
+    }
+    static isButtonName(curclassname){
+        return (curclassname.indexOf("_btn") > -1 || curclassname.indexOf("button") > -1 || curclassname.indexOf("anniu") > -1);
     }
 }
 export { Point, Size, Rectangle, Image, PsdUtli, ImagePool };

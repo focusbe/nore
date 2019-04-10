@@ -194,8 +194,9 @@ class PSD {
                 }
 
                 //设置当前节点的类名,需要判断是否包含中文
+                var curclassname = PsdUtli.getClassName(curLayer.name);
                 curVNode.props = {
-                    class: PsdUtli.isChina(curLayer.name) ? "" : curLayer.name
+                    class: curclassname
                 };
 
                 //父级的绝对位置；如果是树形结构会用到
@@ -268,7 +269,7 @@ class PSD {
                 curLayerJson = curLayer.export();
                 //判断当前节点对应前端的哪个组件
                 if (curLayer.type == "group") {
-                    if (curLayer.name.indexOf("button") > -1) {
+                    if (curclassname.indexOf("_btn") > -1 || curclassname.indexOf("button") > -1 || curclassname.indexOf("anniu") > -1) {
                         curVNode.view = "button";
                     } else {
                         curVNode.view = "container";
@@ -280,14 +281,16 @@ class PSD {
                         this.getvnodetree(curLayer, curVNode, imgPool, curDesignSize);
                     }
                 } else if (curLayer.type == "layer") {
-                    // if(!!curLayerJson.text && !!curLayerJson.text.font){
-                    //     console.log(curLayerJson.text);
-                    // }
-                    if (!!curLayerJson.text &&(curLayerJson.text.value.length>100 || (!!curLayerJson.text.font && PsdUtli.isSystemFont(curLayerJson.text.font)) ) ) {
+                    if (!!curLayerJson.text && !!curLayerJson.text.font) {
+                        console.log(curLayerJson.text);
+                    }
+
+                    if (!!curLayerJson.text && (curLayerJson.text.value.length > 100 || (!!curLayerJson.text.font && PsdUtli.isSystemFont(curLayerJson.text.font)))) {
+                        let fontname = PsdUtli.isSystemFont(curLayerJson.text.font);
                         //是文字节点
                         let font = curLayerJson.text.font;
                         curVNode.props.text = curLayerJson.text.value.replace(/↵/g, "<br/>").replace(/\n|\r/g, "<br/>");
-                        if (curLayer.name.indexOf("button") > -1) {
+                        if (PsdUtli.isButtonName(curclassname)) {
                             curVNode.view = "button";
                         } else {
                             if (curLayer.name.indexOf("title") > -1) {
@@ -298,20 +301,65 @@ class PSD {
                         let fontstyle: { [key: string]: any } = {};
                         if (!!font.sizes && font.sizes.length > 0) {
                             fontstyle.fontSize = font.sizes[0] + "px";
+                            if (curVNode.styles.height <= font.sizes[0] + 1) {
+                                fontstyle.lineHeight = 1;
+                            }
                         }
                         if (!!font.colors && font.colors.length > 0) {
                             fontstyle.color = PsdUtli.colorRGB2Hex(font.colors[0]);
                         }
+                        fontstyle.fontFamily = fontname;
                         Object.assign(curVNode.styles, fontstyle);
                         fontstyle = null;
                     } else {
-                        curVNode.view = "image";
-                        if (curposition.width * curposition.height < self.pixelMax) {
-                            imgPool.push(new Image(this.imgdir, curLayer.path(), curLayer.layer.image, { obj: curVNode.props, key: "img" }, imgArea));
-                            // curVNode.props.img = imgPool.pool.length;
-                        } else {
-                            curVNode.props.img = "";
+                        if (curposition.width * curposition.height > self.pixelMax) {
+                            return;
                         }
+                        let afterImgSaved;
+                        function createCb(somValue,cb){
+                            return function(imgurl){
+                                cb(somValue,imgurl);
+                            }
+                        }
+                        // console.log(vNode);
+                        // if(!!vNode.styles&&(vNode.styles.width==curposition.width&&vNode.styles.height==curposition.height)){
+                        //     afterImgSaved = createCb(vNode,function(vNode,imgurl){
+                        //         if (!!imgurl) {
+                        //             vNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
+                        //         } else {
+                        //             vNode.styles.img = "";
+                        //         }
+                        //     });
+                        // }
+                        // else 
+                        if (PsdUtli.isButtonName(curclassname)) {
+                            curVNode.view = "button";
+                            afterImgSaved = createCb(curVNode,function(curVNode,imgurl){
+                                if (!!imgurl) {
+                                    curVNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
+                                } else {
+                                    curVNode.styles.img = "";
+                                }
+                            });
+                        } else {
+                            curVNode.view = "image";
+                            afterImgSaved = createCb(curVNode,function(curVNode,imgurl){
+                                if (!!imgurl) {
+                                    curVNode.props.img = imgurl;
+                                } else {
+                                    curVNode.props.img = "";
+                                }
+                            });
+                        }
+                        imgPool.push(
+                            new Image(
+                                this.imgdir,
+                                curLayer.path(),
+                                curLayer.layer.image,
+                                afterImgSaved,
+                                imgArea
+                            )
+                        );
                     }
                 }
             }
