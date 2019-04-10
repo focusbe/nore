@@ -13,24 +13,33 @@ var viewObj = viewList;
 var curviewObj = null;
 
 export default {
-
 	created: function() {
-		this.rootvnode = new vnode(viewList['root'], { overflow: "auto" }, null);
+		this.rootvnode = new vnode(
+			viewList["root"],
+			{ overflow: "auto" },
+			null
+		);
 		this.curvnode = this.rootvnode;
-		this.projectPath = this.isssr?'../': path.resolve(Configs.getItem("workshop"),this.projectname);
+		this.projectPath = this.isssr
+			? "../"
+			: path.resolve(Configs.getItem("workshop"), this.projectname);
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
-		
-	}, 
-	mounted(){
-		
 	},
+	mounted() {},
 	methods: {
 		initFromTree(tree) {
 			this.curvnode = this.rootvnode;
+			this.rootvnode = new vnode(
+				viewObj[tree.view],
+				tree.styles,
+				tree.props,
+				this.isssr,
+				this.projectPath
+			);
 			this.rootvnode.childrens = [];
-			if(!!tree){
-				this.addTreenodes(tree.childrens,this.rootvnode);
+			if (!!tree) {
+				this.addTreenodes(tree.childrens, this.rootvnode);
 			}
 			this.refresh();
 		},
@@ -46,6 +55,9 @@ export default {
 				var curnode;
 				for (var i in treenodes) {
 					curnode = treenodes[i];
+					if(!curnode||!curnode.view){
+						continue;
+					}
 					if (curnode.view == "button") {
 						curnode.view = "my-button";
 					}
@@ -63,7 +75,7 @@ export default {
 						this.addTreenodes(curnode.childrens, newnode);
 					}
 				}
-			} else if(!!treenodes){
+			} else if (!!treenodes) {
 				this.addTreenodes([treenodes], curvnode);
 			}
 			// this.changeCurVnode(newnode);
@@ -77,7 +89,7 @@ export default {
 			this.$emit("onChange", "root", this.rootvnode);
 			this.$emit("onChange", "curvnode", this.curvnode);
 		},
-		syncRoot(){
+		syncRoot() {
 			this.$emit("onChange", "root", this.rootvnode);
 		},
 		renderToString: function() {
@@ -284,21 +296,21 @@ export default {
 			isDrage: false,
 			curvnode: null,
 			rootvnode: null,
-			projectPath:''
+			projectPath: ""
 		};
 	},
 
 	render: function(createElement) {
 		// this.bindMouse();
 		//console.log("canvas render");
-		
+
 		var _this = this;
-		var result =  createElement(
+		var result = createElement(
 			"div",
 			{
 				style: {
-					width:'100%',
-					height:'100%'
+					width: "100%",
+					height: "100%"
 				},
 				// attrs: {
 				// 	canvasversion: this.version
@@ -332,9 +344,7 @@ export default {
 	updated: function() {
 		//console.log('canvasupdated');
 	},
-	mounted: function() {
-		
-	},
+	mounted: function() {},
 	watch: {
 		// curStyles: {
 		//     deep: true,
@@ -361,12 +371,12 @@ export default {
 		// }
 	},
 	props: {
-		canvasData:{
+		canvasData: {
 			type: Object
 		},
-		pagename:'',
-		projectname:'',
-		isssr:false
+		pagename: "",
+		projectname: "",
+		isssr: false
 	}
 };
 </script>

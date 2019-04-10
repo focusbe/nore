@@ -215,6 +215,9 @@ class vnode {
     toJson() {
         var curJson = {};
         var curView;
+        if(!this.view){
+            return null;
+        }
         if (typeof (this.view) == 'string') {
             curJson.view = this.view;
             curView = viewList[this.view];
@@ -282,8 +285,15 @@ class vnode {
             var position = styles['position'];
             switch (position) {
                 case 'relative':
-                    styles['margin-left'] = styles.x;
                     styles['marginTop'] = styles.y;
+                    if (styles.xalign == 'left') {
+                        styles['margin-left'] = styles.x;
+                    } else if (styles.xalign == 'right') {
+                        styles['margin-right'] = -parseInt(styles.x) + 'px';
+                    } else if (styles.xalign == 'center') {
+                        styles['margin-left'] = parseInt(styles.x)-styles.width/2+'px';
+                        styles['left'] = '50%';
+                    }
                     break;
                 case 'absolute':
                 case 'fixed':
@@ -296,14 +306,14 @@ class vnode {
                         styles['right'] = -parseInt(styles.x) + 'px';
                         styles['left'] = 'auto';
                     } else if (styles.xalign == 'center') {
-                        styles['margin-left'] = styles.x;
+                        styles['margin-left'] = parseInt(styles.x)-styles.width/2+'px';
                         styles['left'] = '50%';
                     }
 
                     if (styles.yalign == 'top') {
                         styles['top'] = this.styles.y;
                     } else if (styles.yalign == 'center') {
-                        styles['margin-top'] = this.styles.y;
+                        styles['margin-top'] = parseInt(styles.y)-styles.height/2+'px';
                         styles['top'] = '50%';
                     } else if (styles.yalign == 'bottom') {
                         styles['bottom'] = -parseInt(this.styles.y) + 'px';

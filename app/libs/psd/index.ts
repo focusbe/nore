@@ -108,54 +108,54 @@ class PSD {
         if (!vNode) {
             //生成根节点
             vNode = {
-                view: "container",
+                view: "root",
                 childrens: []
             };
             //需要保存的图片
             imgPool = new ImagePool();
             var pageSize;
-            if (!!psdNode.hasArtboard) {
-                //多个画布高度是画布的和，宽度是第一个画布的宽度；
-                let totalHeight = 0;
-                let perWidth;
-                let psdChildren = psdNode.children();
-                for (var i in psdChildren) {
-                    if (!psdChildren[i].artboard) {
-                        continue;
-                    }
-                    totalHeight += psdChildren[i].artboard.height;
-                    if (!perWidth) {
-                        perWidth = psdChildren[i].artboard.width;
-                    }
-                }
-                pageSize = {
-                    width: perWidth,
-                    height: totalHeight
-                };
-                curDesignSize = {
-                    left: 0,
-                    top: 0,
-                    width: perWidth,
-                    height: psdChildren[0].artboard.height
-                };
-            } else {
-                pageSize = {
-                    left: 0,
-                    top: 0,
-                    width: psdNode.get("width"),
-                    height: psdNode.get("height")
-                };
-                curDesignSize = pageSize;
-            }
-            this.getvnodetree(psdNode, vNode, imgPool, curDesignSize);
-
+            // if (!!psdNode.hasArtboard) {
+            //     //多个画布高度是画布的和，宽度是第一个画布的宽度；
+            //     let totalHeight = 0;
+            //     let perWidth;
+            //     let psdChildren = psdNode.children();
+            //     for (var i in psdChildren) {
+            //         if (!psdChildren[i].artboard) {
+            //             continue;
+            //         }
+            //         totalHeight += psdChildren[i].artboard.height;
+            //         if (!perWidth) {
+            //             perWidth = psdChildren[i].artboard.width;
+            //         }
+            //     }
+            //     pageSize = {
+            //         width: perWidth,
+            //         height: totalHeight
+            //     };
+            //     curDesignSize = {
+            //         left: 0,
+            //         top: 0,
+            //         width: perWidth,
+            //         height: psdChildren[0].artboard.height
+            //     };
+            // } else {
+            pageSize = {
+                left: 0,
+                top: 0,
+                width: psdNode.get("width"),
+                height: psdNode.get("height")
+            };
+            curDesignSize = pageSize;
+            // }
             vNode.styles = Object.assign(pageSize, {
                 x: 0,
+                xalign:'center',
                 position: "relative",
                 y: 0,
                 background: "none",
                 overflow: "hidden"
             });
+            this.getvnodetree(psdNode, vNode, imgPool, curDesignSize);
             return {
                 vNode,
                 imgPool
@@ -316,25 +316,24 @@ class PSD {
                             return;
                         }
                         let afterImgSaved;
-                        function createCb(somValue,cb){
-                            return function(imgurl){
-                                cb(somValue,imgurl);
-                            }
+                        function createCb(somValue, cb) {
+                            return function(imgurl) {
+                                cb(somValue, imgurl);
+                            };
                         }
-                        // console.log(vNode);
-                        // if(!!vNode.styles&&(vNode.styles.width==curposition.width&&vNode.styles.height==curposition.height)){
-                        //     afterImgSaved = createCb(vNode,function(vNode,imgurl){
-                        //         if (!!imgurl) {
-                        //             vNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
-                        //         } else {
-                        //             vNode.styles.img = "";
-                        //         }
-                        //     });
-                        // }
-                        // else 
-                        if (PsdUtli.isButtonName(curclassname)) {
+                        console.log(vNode);
+                        if (!!vNode.styles && (!vNode.styles.background || vNode.styles.background == "none") && childrenLayers.length > 1 && (vNode.styles.width == curposition.width && vNode.styles.height == curposition.height)) {
+                            vNode.childrens.splice(0,1);
+                            afterImgSaved = createCb(vNode, function(vNode, imgurl) {
+                                if (!!imgurl) {
+                                    vNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
+                                } else {
+                                    vNode.styles.img = "";
+                                }
+                            });
+                        } else if (PsdUtli.isButtonName(curclassname)) {
                             curVNode.view = "button";
-                            afterImgSaved = createCb(curVNode,function(curVNode,imgurl){
+                            afterImgSaved = createCb(curVNode, function(curVNode, imgurl) {
                                 if (!!imgurl) {
                                     curVNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
                                 } else {
@@ -343,7 +342,7 @@ class PSD {
                             });
                         } else {
                             curVNode.view = "image";
-                            afterImgSaved = createCb(curVNode,function(curVNode,imgurl){
+                            afterImgSaved = createCb(curVNode, function(curVNode, imgurl) {
                                 if (!!imgurl) {
                                     curVNode.props.img = imgurl;
                                 } else {
@@ -351,15 +350,7 @@ class PSD {
                                 }
                             });
                         }
-                        imgPool.push(
-                            new Image(
-                                this.imgdir,
-                                curLayer.path(),
-                                curLayer.layer.image,
-                                afterImgSaved,
-                                imgArea
-                            )
-                        );
+                        imgPool.push(new Image(this.imgdir, curLayer.path(), curLayer.layer.image, afterImgSaved, imgArea));
                     }
                 }
             }
