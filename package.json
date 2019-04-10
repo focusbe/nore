@@ -36,7 +36,7 @@
         ],
         "mac": {
             "category": "your.app.category.type",
-            "icon": "assets/app",
+            "icon": "assets/norecode",
             "target": [
                 "zip",
                 "dmg"
@@ -44,7 +44,7 @@
         },
         "win": {
             "target": "nsis",
-            "icon": "assets/app"
+            "icon": "assets/norecode"
         },
         "squirrelWindows": {
             "iconUrl": "http://www.ztgame.com/logo.png"
