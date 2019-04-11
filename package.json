@@ -66,6 +66,7 @@
                 "!package-lock.json",
                 "!app/*",
                 "!output/*",
+                "!config/*",
                 "!assets/*",
                 "!build/*",
                 "!workshop/*"
