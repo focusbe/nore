@@ -1,0 +1,7 @@
+{
+    "name":"通用模板",
+    "desc":"PC、Mobile通用模板",
+    "author":"刘鹏",
+    "version": "1.0.0",
+    "description": "利用gulp开发时时的自动打包功能等",
+}
