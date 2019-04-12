@@ -53,6 +53,18 @@
 					>{{ item.cname }}</Option>
 				</Select>
 			</FormItem>
+			<FormItem
+			 prop="scaffold"
+			 label="脚手架"
+			>
+				<Select v-model="projectInfo.scaffold">
+					<Option
+					 v-for="(item, key) in scaList"
+					 :value="key"
+					 :key="key"
+					>{{ key }}</Option>
+				</Select>
+			</FormItem>
 			<!-- <FormItem
 			 prop="template"
 			 label="模板"
@@ -76,22 +88,25 @@ export default {
 	name: "newproject",
 	data() {
 		return {
-			// gameList:{},
+			gameList: {},
+			scaList: {},
 			modalshow: false,
 			loading: false,
 			ProjectList: {},
-			templateList: [
-				{
-					name: "空白页",
-					path: "blank"
-				}
-			],
+			// templateList: [
+			// 	{
+			// 		name: "空白页",
+			// 		path: "blank"
+			// 	}
+			// ],
+			scaffoldList: [],
 			projectInfo: {
 				title: "",
 				desc: "",
 				actname: "",
 				game: "",
-				template: ""
+				template: "",
+				scaffold:""
 			},
 			projectRules: {
 				title: [
@@ -109,6 +124,13 @@ export default {
 					}
 				],
 				game: [
+					{
+						required: true,
+						message: "请选择游戏项目",
+						trigger: "blur"
+					}
+				],
+				scaffold: [
 					{
 						required: true,
 						message: "请选择游戏项目",
@@ -138,16 +160,28 @@ export default {
 		Projects.getlist(function(res) {
 			self.ProjectList = res;
 		});
+		this.getGameList();
+		this.getScalList();
 	},
-	computed: {
-		gameList: function() {
-			return Configs.gameList();
-		}
-	},
+	// computed: {
+	// 	gameList: function() {
+	// 		return Configs.gameList();
+	// 	}
+	// },
 	props: {},
 	methods: {
+		getGameList: async function() {
+			this.gameList = await Configs.gameList();
+			this.gameList['outher'] = {
+				'cname':'其他'
+			}
+		},
+		async getScalList() {
+			this.scaList = await Projects.getScaList();
+			console.log(this.scaList);
+		},
 		validateTitle: function(rule, value, callback) {
-			var re = new RegExp("^[a-zA-Z0-9]+$");
+			var re = new RegExp("^[a-zA-Z0-9\-\_]+$");
 			if (!value) {
 				return callback(new Error("请填写项目名称"));
 			} else if (!re.test(value)) {
@@ -194,6 +228,7 @@ export default {
 							self.ok();
 						})
 						.catch(function(error) {
+							
 							self.$Message.error(error);
 						});
 				} else {

@@ -9,12 +9,11 @@ const postcssJs = require("postcss-js");
 const Vue = require("vue");
 import Canvas from "../renderer/componets/canvas.vue";
 import Test from "./test.vue";
-var htmlparser = require("htmlparser2");
 var beautify = require("js-beautify").html;
 Vue.component("my-canvas", Canvas);
 Vue.component("my-test", Test);
 const renderer = require("vue-server-renderer").createRenderer();
-
+import Trackcode from "./trackcode";
 import Configs from "./configs";
 import viewList from "../renderer/elements/list.js";
 import juicer from "juicer";
@@ -23,6 +22,7 @@ const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选
 import Files from "./files";
 const shelljs = require("shelljs");
 var jsxTransform = require("jsx-transform");
+import Games from "./games";
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
@@ -61,19 +61,18 @@ class ProjectsClass {
                     reject("参数错误");
                     return;
                 }
-                if (
-                    !!this.projectCache[config.actname] ||
-                    this.has(config.actname)
-                ) {
+                if (!!this.projectCache[config.actname] || this.has(config.actname)) {
                     reject("项目已存在");
                     return;
                 }
                 let project = new Project(config);
                 this.projectCache[config.actname] = project;
                 project.create(function(res) {
+                    console.log(res);
                     if (res.ret > 0) {
                         resolve(project);
                     } else {
+                        console.log(res.msg);
                         reject(res.msg);
                     }
                 });
@@ -86,10 +85,7 @@ class ProjectsClass {
     delete(actname) {
         return new Promise(
             function(resolve, reject) {
-                let projectDir = path.resolve(
-                    Configs.getItem("workshop"),
-                    actname
-                );
+                let projectDir = path.resolve(Configs.getItem("workshop"), actname);
                 fse.remove(projectDir, err => {
                     if (err) {
                         reject(err);
@@ -102,7 +98,21 @@ class ProjectsClass {
     }
     getTempList() {
         return new Promise(function(resolve, reject) {
-            var tempdir = path.resolve(__dirname, "../../template");
+            var tempdir = path.resolve(__dirname, "../../templates");
+            Files.createdir(tempdir, function() {
+                Files.getList(tempdir, function(list) {
+                    if (!list) {
+                        reject("获取列表失败");
+                        return;
+                    }
+                    resolve(list);
+                });
+            });
+        });
+    }
+    getScaList() {
+        return new Promise(function(resolve, reject) {
+            var tempdir = path.resolve(__dirname, "../../scaffold");
             Files.createdir(tempdir, function() {
                 Files.getList(tempdir, function(list) {
                     if (!list) {
@@ -117,15 +127,13 @@ class ProjectsClass {
     openWithIed(actname) {
         return new Promise(
             function(resolve, reject) {
-                let vcodedir = path.resolve(
-                    Configs.getItem("vscodePath"),
-                    "bin/code"
-                );
-                if (!vcodedir) {
+                if (!Configs.getItem("vscodePath")) {
                     reject("请配置VSCOD路径");
                     return;
                     // callback(false, '请配置VSCOD路径', -1);
                 }
+                let vcodedir = path.resolve(Configs.getItem("vscodePath"), "bin/code");
+
                 let project = this.getProjectDir(actname);
                 let sh = '"' + vcodedir + '" ' + project;
                 shelljs.exec(
@@ -154,10 +162,7 @@ class ProjectsClass {
             return -1;
         }
         if (!this.projectCache[actname]) {
-            let projectroot = path.resolve(
-                Configs.getItem("workshop"),
-                actname
-            );
+            let projectroot = path.resolve(Configs.getItem("workshop"), actname);
             if (!fs.existsSync(projectroot)) {
                 return -2;
             }
@@ -180,11 +185,12 @@ class Project {
         if (typeof config == "string") {
             //项目已经存在
             this.actname = config;
-            this.config = {};
+            this.config = null;
         } else {
             this.config = config;
             this.actname = config.actname;
         }
+        
         this.rootdir = path.resolve(Configs.getItem("workshop"), this.actname);
         this.datadir = path.resolve(this.rootdir, "data");
         this.initDB();
@@ -209,6 +215,9 @@ class Project {
                 info: {}
             })
             .write();
+        if(!this.config){
+            this.config = this.db.get("info").value();
+        }
         return true;
     }
 
@@ -433,10 +442,7 @@ class Project {
             });
         }
         var dbtime;
-        if (
-            (!!csstime && csstime > dbtime + 2000) ||
-            (!!jstime && jstime > dbtime + 2000)
-        ) {
+        if ((!!csstime && csstime > dbtime + 2000) || (!!jstime && jstime > dbtime + 2000)) {
             this.fileToDb(name);
         } else {
             this.dbToFile(name);
@@ -516,11 +522,7 @@ class Project {
                 }
             }
             for (var i in children) {
-                if (
-                    children[i].tag == "head" ||
-                    children[i].tag == "foot" ||
-                    children[i].tag == "tree"
-                ) {
+                if (children[i].tag == "head" || children[i].tag == "foot" || children[i].tag == "tree") {
                     result[children[i].tag] = children[i].value;
                 }
             }
@@ -615,39 +617,53 @@ class Project {
             callback(resolve);
             return resolve;
         }
+        if (!this.config.scaffold) {
+            resolve.msg = "请选择脚手架";
+            resolve.ret = -1;
+            callback(resolve);
+            return resolve;
+        }
         var self = this;
-        let projectDir = path.resolve(
-            Configs.getItem("workshop"),
-            this.config.actname
-        );
+        let projectDir = path.resolve(Configs.getItem("workshop"), this.config.actname);
+        let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
 
         Files.createdirAsync(projectDir)
             .then(function() {
-                //保存基本信息
-                Files.createdir(self.datadir, function(res) {
-                    if (!!res) {
-                        var dbres = self.initDB();
-                        if (dbres) {
-                            try {
-                                self.db.set("info", self.config).write();
-                                resolve.msg = "成功";
-                                resolve.ret = 1;
-                                callback(resolve);
-                            } catch (error) {
-                                resolve.msg = "保存项目信息失败";
+                Files.copy(scaffold, projectDir, function(err) {
+                    if (!!err) {
+                        console.log(err);
+                        callback({ ret: -1, msg: "获取脚手架失败" });
+                        try {
+                            fse.unlink(projectDir);
+                        } catch (error) {}
+                        return;
+                    }
+                    //保存基本信息
+                    Files.createdir(self.datadir, function(res) {
+                        if (!!res) {
+                            var dbres = self.initDB();
+                            if (dbres) {
+                                try {
+                                    self.db.set("info", self.config).write();
+                                    resolve.msg = "成功";
+                                    resolve.ret = 1;
+                                    callback(resolve);
+                                } catch (error) {
+                                    resolve.msg = "保存项目信息失败";
+                                    resolve.ret = -1;
+                                    callback(resolve);
+                                }
+                            } else {
+                                resolve.msg = "初始化";
                                 resolve.ret = -1;
                                 callback(resolve);
                             }
                         } else {
-                            resolve.msg = "初始化";
-                            resolve.ret = -1;
-                            callback(resolve);
+                            if (!!callback) {
+                                callback(false, "创建数据目录失败");
+                            }
                         }
-                    } else {
-                        if (!!callback) {
-                            callback(false, "创建数据目录失败");
-                        }
-                    }
+                    });
                 });
             })
             .catch(function() {
@@ -662,20 +678,56 @@ class Project {
         let projectDir = path.resolve(Configs.getItem("workshop"), actname);
         return projectDir;
     }
+    dirCode(dir) {
+        return path.resolve(__dirname, dir);
+    }
+    dirProject(dir) {
+        return path.resolve(this.rootdir, dir);
+    }
+    dirTemp(dir) {
+        return path.resolve(this.rootdir, ".temp", dir);
+    }
     async buildPage(name) {
-        var page = this.getPageByName(name);
+        var pageObj = this.getPageByName(name);
+        var page = Object.assign(
+            {
+                header: "",
+                footer: "",
+                maincss: "./css/" + name + ".css",
+                mainjs: "./js/" + name + ".js"
+            },
+            pageObj
+        );
+        page.tree = JSON.stringify(page.tree);
         if (!page) {
             return false;
         }
-        var templatePath = path.resolve(
-            __dirname,
-            "../../template/",
-            page.template + "/template.html"
-        );
-        var templatehtml = await new Promise(function(resolve, reject) {
-            fs.readFile(templatePath, "utf8", function(err, data) {
+        console.log(page);
+        var templatesrc = this.dirProject("./src/templates/" + page.template);
+        var templateAssets = this.dirCode("../../templates/" + page.template);
+        var TplPath = this.dirCode("../../templates/" + page.template + "/html.tpl");
+        // console.log(templatesrc);
+        var temres = await Files.createdirAsync(templatesrc);
+        
+        if (!temres) {
+            return false;
+        }
+        var copyres = await new Promise((resolve, reject) => {
+            Files.copy(templateAssets, templatesrc, function(err) {
+                if (!!err) {
+                    reject("获取模板文件失败");
+                    return;
+                }
+                resolve(true);
+            });
+        });
+        if (!copyres) {
+            return false;
+        }
+        var templatehtml: String = await new Promise(function(resolve, reject) {
+            fs.readFile(TplPath, "utf8", function(err, data) {
                 if (err) {
-                    resolve(false);
+                    resolve("");
                     return;
                 }
                 resolve(data);
@@ -684,46 +736,96 @@ class Project {
         if (!templatehtml) {
             return false;
         }
+        console.log(this.config);
+        var trackcode = await Trackcode.getCode(this.config.game);
+        console.log(trackcode);
+        if (!!trackcode) {
+            for (var i in trackcode) {
+                
+                if (!trackcode[i]["code"]) {
+                    continue;
+                }
+                if (trackcode[i]["position"] == "before") {
+                    var tagstr = "</" + trackcode[i]["tag"] + ">";
+                    templatehtml = templatehtml.replace(tagstr, trackcode[i]["code"] + "\n" + tagstr);
+                } else if (trackcode[i]["position"] == "after") {
+                    var tagstr = "<" + trackcode[i]["tag"] + ">";
+                    templatehtml = templatehtml.replace(tagstr, tagstr + "\n" + trackcode[i]["code"]);
+                }
+            }
+        }
+
+        var gameinfo: any = await Games.getGame(this.config.game);
+        var common: any = await Games.getGame("common");
+        
+        var wxid = !!gameinfo.wxid ? gameinfo.wxid : !!common.wxid ? common.wxid : "";
+        page.header += '<script>var WXID="' + wxid + '"</script>';
+
+        var maincssstr = '@import "./build/' + name + '";\n';
+        var mainjsstr = "";
+        var tree = await Files.getTree(templatesrc, false);
+        for (var i in tree) {
+            if (tree[i]["name"].indexOf(".scss") > -1) {
+                maincssstr += '@import "../templates/' + page.template + "/" + tree[i]["name"] + '";\n';
+            } else if (tree[i]["name"].indexOf(".js") > -1) {
+                mainjsstr += 'require("../templates/' + page.template + "/" + tree[i]["name"] + '");\n';
+            }
+        }
+
         var app = new Vue({
             data: {
-                page: page,
+                page: pageObj,
                 projectname: this.actname,
                 pagename: name
             },
             template: `<my-canvas :canvasData="page" isssr="true" :projectname="projectname" :pagename="pagename"></my-canvas>`
         });
-        
+
         var html = await renderer.renderToString(app);
-        var regstr = /id="([^\s\'\"\<\>]*?)"([^\<\>]*?)style="([^\s\'\"\<\>]*?)"/igm;
+        
+        var regstr = /id="([^\s\'\"\<\>]*?)"([^\<\>]*?)style="([^\s\'\"\<\>]*?)"/gim;
         var htmlattr;
-        var cssstr = '';
+        var cssstr = "";
         var htmlstr = html;
-        while(htmlattr = regstr.exec(html)){
+        while ((htmlattr = regstr.exec(html))) {
             console.log(htmlattr);
-            if(!!htmlattr[1]&&!!htmlattr[3]){
-                cssstr+='#'+htmlattr[1]+'{\n\t'+htmlattr[3].replace(/;/g,';\n\t')+'\n}\n';
-                htmlstr = htmlstr.replace('style="'+htmlattr[3]+'"','')
+            if (!!htmlattr[1] && !!htmlattr[3]) {
+                cssstr += "#" + htmlattr[1] + "{\n\t" + htmlattr[3].replace(/;/g, ";\n\t") + "\n}\n";
+                htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
             }
         }
-        cssstr = cssstr.replace(/\t\n\}/g,'}');
+        cssstr = cssstr.replace(/\t\n\}/g, "}");
         page.html = htmlstr;
         var reshtml = juicer(templatehtml, { page: page });
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
-        var csspath = path.resolve(this.rootdir, "src/css/" + name + ".css");
+        var csspath = path.resolve(this.rootdir, "src/css/build/" + name + ".scss");
+        var maincsspath = path.resolve(this.rootdir, "src/css/" + name + ".scss");
+        var mainjspath = path.resolve(this.rootdir, "src/js/" + name + ".js");
+
         reshtml = beautify(reshtml, {
             preserve_newlines: false,
             wrap_attributes: "auto",
             brace_style: "none",
             inline: ""
         });
-        var res = await new Promise(function(resolve, reject) {
+        var res: any = await new Promise(function(resolve, reject) {
             fs.writeFile(htmlpath, reshtml, function(err) {
                 if (err) resolve(false);
                 else {
                     fs.writeFile(csspath, cssstr, function(err) {
                         if (err) resolve(false);
                         else {
-                            resolve(true);
+                            fs.writeFile(maincsspath, maincssstr, function(err) {
+                                if (err) resolve(false);
+                                else {
+                                    fs.writeFile(mainjspath, mainjsstr, function(err) {
+                                        if (err) resolve(false);
+                                        else {
+                                            resolve(true);
+                                        }
+                                    });
+                                }
+                            });
                         }
                     });
                     resolve(true);
@@ -732,7 +834,10 @@ class Project {
         });
         return res;
     }
-    getInfo() {}
+    getInfo() {
+        let info = this.db.get("info").value();
+        return info;
+    }
     save(data) {}
     runCmd() {}
     commitSvn() {}

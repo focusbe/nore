@@ -12,7 +12,11 @@ import Elelments from "./elements/index.js";
 // console.log(path);
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
-
+import mySocket from "./utli/mysocket";
+console.log(mySocket);
+mySocket.on('reloadPage',function(){
+    window.location.reload();
+});
 Vue.use(contentmenu)
 Vue.use(Elelments);
 Vue.use(Vuex);

@@ -3,6 +3,8 @@
 	 v-model="modalshow"
 	 title="环境配置"
 	 @on-ok="ok"
+	 :closable="false"
+	 :fullscreen="true"
 	 @on-cancel="cancel"
 	 :loading="loading"
 	 :footer="''"
@@ -23,7 +25,7 @@
 			<FormItem
 			 v-for="(item,key) in configObj"
 			 v-bind:key="key"
-			 prop="actname"
+			 :prop="key"
 			 v-bind:label="item.name"
 			>
 				<Input
@@ -75,25 +77,35 @@ export default {
 			loading: false,
 			configsData: {},
 			configObj: null,
-			configRules: null
+			configRules: {
+				workshop: {
+					required: true,
+					message: "请填写项目保存目录",
+					trigger: "blur"
+				}
+			}
 		};
 	},
 	created: function() {
 		var self = this;
 		this.configObj = Configs.getConfigDesc();
 		this.configsData = Configs.getConfigData();
-		for (var i in this.configObj) {
-			let rules = {};
-			rules[i] = {
-				required: true,
-				message: "必填",
-				trigger: "blur"
-			};
-			this.configRules = rules;
-		}
+		this.modalshow = !!this.isShow;
+		let rules = {};
+		// for (var i in this.configObj) {
+
+		// 	rules[i] = {
+		// 		required: true,
+		// 		message: "必填",
+		// 		trigger: "blur"
+		// 	};
+		// 	this.configRules = rules;
+		// }
 	},
 	computed: {},
-	props: {},
+	props: {
+		isShow: false
+	},
 	methods: {
 		fileChange(e) {
 			let folder = null;
@@ -106,12 +118,14 @@ export default {
 		},
 		submitData: function() {
 			var self = this;
-			this.$refs["form"].validate(valid => {
-				if (valid) {
-				} else {
-					this.$Message.error("Fail!");
-				}
-			});
+			// this.$refs["form"].validate(valid => {
+			// 	if (valid) {
+
+			// 	} else {
+			// 		this.$Message.error("Fail!");
+			// 	}
+			// });
+			this.ok();
 		},
 		show: function() {
 			this.modalshow = true;
@@ -120,7 +134,7 @@ export default {
 			this.modalshow = false;
 		},
 		ok() {
-			//this.$Message.info("Clicked ok");
+			this.$Message.info("Clicked ok");
 			this.$emit("ok", true);
 		},
 		cancel() {

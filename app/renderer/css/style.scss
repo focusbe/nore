@@ -21,7 +21,15 @@ html,
 .view {
     height: 100%;
 }
-
+.mac{
+    #app{
+        box-sizing: border-box;
+        padding-top:20px;
+    }
+    .mac_topbar{
+        display: none;
+    }
+}
 .material-icons {
     font-family: "Material Icons";
     font-weight: normal;
@@ -44,9 +52,10 @@ html,
 
 .content {
     position: absolute;
-    top: 25px;
+    top: 0;
     left: 0;
     bottom: 0;
+    
     overflow: auto;
     right: 0px;
     background: #464646;
@@ -106,6 +115,7 @@ html,
 }
 .mac_topbar {
     position: fixed;
+    display: none;
     top: 0px;
     left: 0px;
     width: 100%;

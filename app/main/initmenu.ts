@@ -1,5 +1,6 @@
 const electron = require("electron");
 const Menu = electron.Menu;
+import WinManager from "./winmanager";
 function setAppMenu(app: any) {
     var self = this;
     let template: any;
@@ -103,8 +104,24 @@ function setAppMenu(app: any) {
                     label: "关于",
                     click() {
                         require("electron").shell.openExternal(
-                            "https://www.baidu.com"
+                            "http://norecode.com"
                         );
+                    }
+                }
+            ]
+        },
+        {
+            label: "设置",
+            role: "learn more",
+            submenu: [
+                {
+                    label: "配置环境",
+                    click() {
+                        WinManager.newwindow("config_edit", '', {
+                            width:500,
+                            height:540,
+                            hash: "#/configs/edit"
+                        });
                     }
                 }
             ]
@@ -115,6 +132,17 @@ function setAppMenu(app: any) {
         template.unshift({
             label: app.getName(),
             submenu: [
+                {
+                    label: "配置环境",
+                    click() {
+                        WinManager.newwindow("config_edit", '', {
+                            width:500,
+                            height:540,
+                            frame:false,
+                            hash: "#/configs/edit"
+                        });
+                    }
+                },
                 {
                     label: "关于",
                     role: "about"

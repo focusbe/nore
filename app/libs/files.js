@@ -1,5 +1,5 @@
-const fse = require('fs-extra');
-const path = require('path');
+const fse = require("fs-extra");
+const path = require("path");
 class Files {
     static copy(src, dst, callback) {
         var _self = this;
@@ -17,75 +17,79 @@ class Files {
             let basename = path.basename(filepath, extname);
             let dirname = path.dirname(filepath);
             number++;
-            basename = basename + '' + number;
+            basename = basename + "" + number;
             filepath = path.join(dirname, basename + extname);
             return await this.getAlivpath(filepath, number);
         } else {
             return filepath;
         }
-
     }
     static async createdirAsync(src) {
         let exists = await fse.exists(src);
         if (exists) {
             return true;
         }
-        var res = await new Promise(function (result, reject) {
-            fse.mkdir(src, function (err) {
-                if (!err)
-                    result(true);
-
-                else
-                    reject(err);
-            })
+        var res = await new Promise((result, reject)=>{
+            // fse.mkdir(src, function(err) {
+            //     if (!err) result(true);
+            //     else reject(err);
+            // });
+            this.createdir(src,(success)=>{
+                if(!!success){
+                    result(success);
+                }
+                else{
+                    reject("创建文件失败");
+                }
+            });
         });
         return res;
     }
-    
+
     static createdir(src, callback) {
         let parentdir = path.dirname(src);
-        fse.exists(parentdir,
-            function (exists) {
-                if (!exists) {
-                    Files.createdir(parentdir,function(){
+        fse.exists(parentdir, function(exists) {
+            if (!exists) {
+                Files.createdir(parentdir, function() {
+                    try {
+                        fse.mkdir(src, function() {
+                            //创建目录
+                            callback(src);
+                        });
+                    } catch (error) {
+                        callback(false, error);
+                    }
+                });
+            } else {
+                // console.log(src);
+                fse.exists(src, function(exists) {
+                    if (exists) {
+                        //存在
+                        callback(src);
+                    } else {
+                        //bu存在
                         try {
-                            fse.mkdir(src, function () {
+                            fse.mkdir(src, function() {
                                 //创建目录
                                 callback(src);
                             });
                         } catch (error) {
                             callback(false, error);
                         }
-                    })
-                } else {
-                    // console.log(src);
-                    fse.exists(src, function (exists) {
-                        if (exists) {
-                            //存在
-                            callback(src);
-                        } else {
-                            //bu存在
-                            try {
-                                fse.mkdir(src, function () {
-                                    //创建目录
-                                    callback(src);
-                                });
-                            } catch (error) {
-                                callback(false, error);
-                            }
-
-                        }
-                    });
-                }
-            })
+                    }
+                });
+            }
+        });
     }
-    static getTree(src, folder) {
+    static getTree(src, istree, folder) {
         if (!folder) {
             folder = [];
         }
-
-        return new Promise(function (result, reject) {
-            fse.pathExists(src, function (err, exists) {
+        if (typeof istree == "undefined") {
+            istree = true;
+        }
+        return new Promise(function(result, reject) {
+            fse.pathExists(src, function(err, exists) {
                 if (!!err) {
                     reject(err);
                     return;
@@ -93,37 +97,44 @@ class Files {
                 if (!exists) {
                     result(folder);
                 }
-                fse.readdir(src, function (err, paths) {
+                fse.readdir(src, function(err, paths) {
                     if (!err) {
                         var promisArr = [];
                         var length = paths.length;
                         var done = 0;
-                        paths.forEach(async function (curpath) {
+                        paths.forEach(async function(curpath) {
                             var _src = src + "/" + curpath;
                             var filestat = fse.statSync(_src);
                             if (filestat) {
                                 if (filestat.isDirectory()) {
-                                    var _folder = {
-                                        name: curpath,
-                                        children: []
-                                    };
-                                    folder.push(_folder);
-                                    Files.getTree(_src, _folder['children']).then(function (res) {
-                                        done++;
-                                        if (done >= length) {
-                                            result(folder);
-                                        }
-                                    }).catch(function () {
-                                        done++;
-                                        if (done >= length) {
-                                            result(folder);
-                                        }
-                                    });
+                                    var saveArr = folder;
+                                    if (istree) {
+                                        var _folder = {
+                                            name: curpath,
+                                            children: []
+                                        };
+                                        folder.push(_folder);
+                                        saveArr = _folder["children"];
+                                    }
+
+                                    Files.getTree(_src, istree, saveArr)
+                                        .then(function(res) {
+                                            done++;
+                                            if (done >= length) {
+                                                result(folder);
+                                            }
+                                        })
+                                        .catch(function() {
+                                            done++;
+                                            if (done >= length) {
+                                                result(folder);
+                                            }
+                                        });
                                 } else {
                                     done++;
                                     folder.push({
-                                        'path': _src,
-                                        'name': path.basename(_src)
+                                        path: _src,
+                                        name: path.basename(_src)
                                     });
                                     if (done >= length) {
                                         result(folder);
@@ -131,18 +142,14 @@ class Files {
                                 }
                             } else {
                                 done++;
-                                reject('获取文件状态失败');
+                                reject("获取文件状态失败");
                             }
-
                         });
                     } else {
-
                         reject(err);
                     }
                 });
             });
-
-
         });
     }
     static getList(src, hasFile, callback) {
@@ -153,13 +160,13 @@ class Files {
         // var fileslist = fse.readdirSync(src);
         // return fileslist;
 
-        fse.readdir(src, function (err, paths) {
+        fse.readdir(src, function(err, paths) {
             if (!!err || !paths) {
                 callback(false);
                 return;
             }
             var filestlist = new Object();
-            paths.forEach(function (curpath) {
+            paths.forEach(function(curpath) {
                 var _src = path.resolve(src, curpath);
                 var readable;
                 var writable;
@@ -182,13 +189,13 @@ class Files {
         });
     }
     static exists(src, dst, callback) {
-        fse.exists(dst, function (exists) {
+        fse.exists(dst, function(exists) {
             if (exists) {
                 //不存在
                 callback(src, dst);
             } else {
                 //存在
-                fse.mkdir(dst, function () {
+                fse.mkdir(dst, function() {
                     //创建目录
                     callback(src, dst);
                 });
@@ -197,7 +204,7 @@ class Files {
     }
     static isdir(src, callback) {
         //判断打开的是文件 还是 文件夹
-        fse.stat(src, function (err, stat) {
+        fse.stat(src, function(err, stat) {
             if (err) {
                 console.error(err);
                 throw err;
@@ -205,35 +212,31 @@ class Files {
             callback(stat.isDirectory());
         });
     }
-    static async delFile(filepath,times) {
-        if(!times){
+    static async delFile(filepath, times) {
+        if (!times) {
             times = 0;
         }
         let exists = await fse.pathExists(filepath);
         if (exists) {
-            var res = await new Promise(function(resolve,reject){
-                fse.unlink(filepath, function (err) {
+            var res = await new Promise(function(resolve, reject) {
+                fse.unlink(filepath, function(err) {
                     if (err) {
-                        if(times<5){
-                            setTimeout(async()=>{
+                        if (times < 5) {
+                            setTimeout(async () => {
                                 times++;
-                                var res = await Files.delFile(filepath,times);
+                                var res = await Files.delFile(filepath, times);
                                 resolve(false);
-                            },300);
-                        }
-                        else{
+                            }, 300);
+                        } else {
                             resolve(false);
                         }
-                        
-                    }
-                    else{
+                    } else {
                         resolve(true);
                     }
                 });
             });
             return res;
-        }
-        else {
+        } else {
             return false;
         }
     }

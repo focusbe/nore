@@ -49,6 +49,17 @@
 					>{{ key }}</Option>
 				</Select>
 			</FormItem>
+			<FormItem
+			 prop="device"
+			 label="设备"
+			>
+				<Select
+				 v-model="pageInfo.device"
+				>
+					<Option value="pc">PC端</Option>
+					<Option value="phone">移动端</Option>
+				</Select>
+			</FormItem>
 		</Form>
 	</Modal>
 </template>
@@ -60,7 +71,8 @@ export default {
 	name: "addpage",
 	data() {
 		return {
-			// gameList:{},
+			gameList: {},
+
 			modalshow: false,
 			loading: false,
 			pageList: {},
@@ -69,7 +81,8 @@ export default {
 				title: "",
 				name: "",
 				desc: "",
-				template: ""
+				template: "",
+				device:""
 			},
 			pageRules: {
 				title: [
@@ -100,6 +113,13 @@ export default {
 						message: "请选择模板",
 						trigger: "blur"
 					}
+				],
+				device: [
+					{
+						required: true,
+						message: "请选择设备类型",
+						trigger: "blur"
+					}
 				]
 			}
 		};
@@ -114,16 +134,21 @@ export default {
 			});
 		}
 		this.getTemList();
+		this.getGameList();
 	},
-	computed: {
-		gameList: function() {
-			return Configs.gameList();
-		}
-	},
+	// computed: {
+	// 	gameList: function() {
+	// 		return Configs.gameList();
+	// 	}
+	// },
 	props: {
 		curProject: null
 	},
 	methods: {
+		getGameList: async function() {
+			this.gameList = await Configs.gameList();
+		},
+
 		validateName: function(rule, value, callback) {
 			var re = new RegExp("^[a-zA-Z0-9]+$");
 			if (!value) {
@@ -137,30 +162,29 @@ export default {
 			}
 		},
 		submitData: function() {
-			this.$refs["form"].validate(function(valid) {
-				if (valid) {
-					//this.$Message.success("Success!");
+			this.$refs["form"].validate(
+				function(valid) {
+					if (valid) {
+						//this.$Message.success("Success!");
 						var id = this.curProject.addPage(this.pageInfo);
 						console.log(id);
-						if(id==-1){
+						if (id == -1) {
 							this.$Message.error("请传入正确的参数");
-						}
-						else if(id==-2){
+						} else if (id == -2) {
 							this.$Message.error("已经有相同的页面名称了");
-						}
-						else if(!!id){
+						} else if (!!id) {
 							this.hide();
 							this.$Message.info("创建成功");
 							console.log(id);
 							this.$emit("ok", id);
-						}
-						else{
+						} else {
 							this.$Message.error("保存页面失败");
 						}
-				} else {
-					this.$Message.error("Fail!");
-				}
-			}.bind(this));
+					} else {
+						this.$Message.error("Fail!");
+					}
+				}.bind(this)
+			);
 		},
 		show: function() {
 			this.modalshow = true;

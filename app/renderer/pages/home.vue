@@ -54,7 +54,7 @@ import Configs from "../../libs/configs";
 import mySocket from "../utli/mysocket";
 Vue.component("newproject", newproject);
 Vue.component("editconfig", editconfig);
-
+const path = require('path');
 export default {
 	name: "home",
 	data() {
@@ -84,7 +84,9 @@ export default {
 				content: "<p>确定删除" + actname + "</p>",
 				onOk: () => {
 					var res = Projects.delete(actname)
-						.then(function() {})
+						.then(function() {
+							self.getProjects();
+						})
 						.catch(function(error) {
 							self.$Message.error(error);
 						});
@@ -92,25 +94,28 @@ export default {
 				onCancel: () => {}
 			});
 		},
-		openinVscode() {
+		async openinVscode() {
 			var actname = this.curcontextVnode.key;
 			try {
-				var res = Projects.openWithIed(actname);
-				if (res == -1) {
-					this.$Message.warning("请先配置VSCODE路径");
-					this.showEditConfig();
-				} else if (res == -2) {
-					this.$Message.warning("项目不存在");
-				} else {
-					// self.$Message.success('删除成功！');
-				}
+				var res = await Projects.openWithIed(actname);
+				// if (res == -1) {
+				// 	this.$Message.warning("请先配置VSCODE路径");
+				// 	this.showEditConfig();
+				// } else if (res == -2) {
+				// 	this.$Message.warning("项目不存在");
+				// } else {
+				// 	// self.$Message.success('删除成功！');
+				// }
 			} catch (error) {
-				console.log(error);
-				alert("打开失败");
+				// console.log(error);
+				alert(error);
 			}
 		},
 		openinFolder() {
 			var actname = this.curcontextVnode.key;
+			const shell = require("electron").shell;
+			const os = require("os");
+			shell.showItemInFolder(path.resolve(Configs.getItem("workshop"),'./actname'));
 		},
 		getProjects: async function() {
 			var self = this;
@@ -126,7 +131,12 @@ export default {
 			this.getProjects();
 		},
 		showEditConfig() {
-			this.$refs.configform.show();
+			mySocket.sendTo("MAIN", "open", {
+				width: 500,
+				height: 540,
+				tag: "config_edit",
+				hash: "#/configs/edit"
+			});
 		},
 		editconfigok() {},
 		showprojectadd: function() {

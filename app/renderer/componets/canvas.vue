@@ -23,12 +23,16 @@ export default {
 		this.projectPath = this.isssr
 			? "../"
 			: path.resolve(Configs.getItem("workshop"), this.projectname);
+			console.log(this.canvasData);
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 	},
 	mounted() {},
 	methods: {
 		initFromTree(tree) {
+			if(!tree){
+				return;
+			}
 			this.curvnode = this.rootvnode;
 			this.rootvnode = new vnode(
 				viewObj[tree.view],

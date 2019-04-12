@@ -6,8 +6,9 @@
 			 @openPage="openPage"
 			></pagemanage>
 			<div class="options_section">
-				<h2>素材</h2>
-				<assets :actname="actname"></assets>
+				<h2>页面配置</h2>
+				<!-- <assets :actname="actname"></assets> -->
+				
 			</div>
 		</div>
 		<div class="center">

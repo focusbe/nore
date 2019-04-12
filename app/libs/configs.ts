@@ -8,7 +8,7 @@ import path from "path";
 
 const fs = require("fs");
 var jsonfile = require("jsonfile");
-
+const axios = require('axios');
 class Config {
     private file: string = "";
     private static instance: Config;
@@ -46,9 +46,14 @@ class Config {
         }
         return this.instance;
     }
-    private gameList() {
-        var configfile = path.resolve(__dirname, "../../config/games.json");
-        return jsonfile.readFileSync(configfile);
+    private async gameList() {
+        const response = await axios.get('http://nore.focusbe.com/games.json');
+        if(!!response&&!!response.data){
+            return response.data
+        }
+        return {};
+        // var configfile = path.resolve(__dirname, "../../config/games.json");
+        // return jsonfile.readFileSync(configfile);
     }
     private getConfigJson(configs) {
         var res = {};

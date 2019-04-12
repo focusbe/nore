@@ -16,9 +16,6 @@
         $${page.html}
     </div>
 </body>
-<script>
-    var vNodeTree = $${page.tree};
-</script>
 <script src="https://cdnsapi.ztgame.com/site/js/require.js"></script>
 <script src="${page.mainjs}"></script>
 $${page.footer}
