@@ -31,9 +31,10 @@
             }
         ],
         "asarUnpack": [
-            "./template/**/*",
+            "./templates/**/*",
             "./config/**/*",
-            "./data/**/*"
+            "./data/**/*",
+            "./scaffold/**/*"
         ],
         "mac": {
             "category": "your.app.category.type",
