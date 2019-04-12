@@ -45,7 +45,24 @@ class Files {
         });
         return res;
     }
-
+    static async writeFile(src,content){
+        var res = await new Promise((resolve,reject)=>{
+            this.createdir(path.dirname(src),function(bool){
+                if(!bool){
+                    reject('创建目录失败');
+                    return;
+                }
+                fse.writeFile(src, content, function(err) {
+                    if (err) reject(err);
+                    else {
+                        resolve(true);
+                    }
+                });
+            });
+            
+        });
+        return res;
+    }
     static createdir(src, callback) {
         let parentdir = path.dirname(src);
         fse.exists(parentdir, function(exists) {

@@ -257,7 +257,7 @@ class Project {
             })
             .write();
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".scss");
+        let cssFilePath = path.resolve(cssPath, name + ".ncss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
 
         try {
@@ -305,7 +305,7 @@ class Project {
 
         let jsxobj = this.treeToJsx(tree);
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".scss");
+        let cssFilePath = path.resolve(cssPath, name + ".ncss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         var self = this;
         let jsxString = "<page";
@@ -381,7 +381,7 @@ class Project {
 
     async fileToDb(name) {
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".scss");
+        let cssFilePath = path.resolve(cssPath, name + ".ncss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         let exists = await fse.pathExists(jsxFilePath);
         var jsxStr, cssStr;
@@ -412,7 +412,7 @@ class Project {
             return;
         }
         let cssPath: string = path.resolve(this.rootdir, "src/css");
-        let cssFilePath = path.resolve(cssPath, name + ".scss");
+        let cssFilePath = path.resolve(cssPath, name + ".ncss");
         let jsxFilePath = path.resolve(this.rootdir, "src/" + name + ".jsx");
         let exists = await fse.exists(cssFilePath);
         var csstime;
@@ -808,31 +808,16 @@ class Project {
             brace_style: "none",
             inline: ""
         });
-        var res: any = await new Promise(function(resolve, reject) {
-            fs.writeFile(htmlpath, reshtml, function(err) {
-                if (err) resolve(false);
-                else {
-                    fs.writeFile(csspath, cssstr, function(err) {
-                        if (err) resolve(false);
-                        else {
-                            fs.writeFile(maincsspath, maincssstr, function(err) {
-                                if (err) resolve(false);
-                                else {
-                                    fs.writeFile(mainjspath, mainjsstr, function(err) {
-                                        if (err) resolve(false);
-                                        else {
-                                            resolve(true);
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-                    resolve(true);
-                }
-            });
-        });
-        return res;
+        try {
+            await Files.writeFile(htmlpath,reshtml);
+            await Files.writeFile(csspath,cssstr);
+            await Files.writeFile(maincsspath,maincssstr);
+            await Files.writeFile(mainjspath,mainjsstr);
+
+        } catch (error) {
+            return false;
+        }
+        return true;
     }
     getInfo() {
         let info = this.db.get("info").value();
