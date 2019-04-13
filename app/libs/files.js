@@ -47,6 +47,7 @@ class Files {
         return res;
     }
     static async getMtime(file) {
+        console.log(file);
         let exists = await fse.exists(file);
         if (exists) {
             try {
@@ -55,6 +56,7 @@ class Files {
                 return false;
             }
             if (!!stats && !!stats.mtime) {
+                console.log(stats.mtime)
                 return stats.mtime;
             }
             return false;

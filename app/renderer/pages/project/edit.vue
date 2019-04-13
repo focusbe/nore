@@ -1,106 +1,58 @@
 <template>
 	<div class="page_wrap">
 		<div class="left_options">
-			<pagemanage
-			 :project="project"
-			 @openPage="openPage"
-			></pagemanage>
+			<pagemanage :project="project" @openPage="openPage"></pagemanage>
 			<div class="options_section">
 				<h2>页面配置</h2>
 				<!-- <assets :actname="actname"></assets> -->
-				
 			</div>
 		</div>
 		<div class="center">
 			<ul class="page_list">
-				<li
-				 v-for="(item,key) in pagelist"
-				 :class="item.name==curPage?'cur':''"
-				>
+				<li v-for="(item,key) in pagelist" :class="item.name==curPage?'cur':''">
 					<span @click="changePage(item.name)">{{item.name}}</span>
-					<Icon
-					 @click="closePage(key)"
-					 size="22"
-					 type="ios-close"
-					/>
+					<Icon @click="closePage(key)" size="22" type="ios-close"/>
 				</li>
 			</ul>
 
 			<div class="page_detail">
-				<div
-				 class="top_options_bar"
-				 v-if="curPage"
-				>
-					<Button
-					 type="primary"
-					 @click="clearCanvas"
-					 title="清空"
-					>
-						<Icon
-						 type="md-trash"
-						 size="20"
-						/>
+				<div class="top_options_bar" v-if="curPage">
+					<Button type="primary" @click="clearCanvas" title="清空">
+						<Icon type="md-trash" size="20"/>
 					</Button>
-					<Button
-					 type="primary"
-					 @click="savePage"
-					 title="保存"
-					>
-						<Icon
-						 type="md-sync"
-						 size="20"
-						/>
+					<Button type="primary" @click="savePage" title="保存">
+						<Icon type="md-sync" size="20"/>
 					</Button>
-					<Button
-					 @click="buildPage"
-					 type="primary"
-					 title="构建"
-					>
-						<Icon
-						 type="md-build"
-						 size="20"
-						 color
-						/>
+					<Button @click="buildPage" type="primary" title="构建">
+						<Icon type="md-build" size="20" color/>
 					</Button>
-					<Button
-					 @click="preview"
-					 type="primary"
-					 title="预览"
-					>
-						<Icon
-						 type="logo-chrome"
-						 size="20"
-						 color
-						/>
+					<Button @click="preview" type="primary" title="预览">
+						<Icon type="logo-chrome" size="20" color/>
 					</Button>
-					<Select
-					 v-model="curdevice"
-					 slot="prepend"
-					 style="width: 80px"
-					>
+					<Select v-model="curdevice" slot="prepend" style="width: 80px">
 						<Option value="pc">PC端</Option>
 						<Option value="phone">移动端</Option>
 					</Select>
 					<my-psd
-					 :actname="actname"
-					 :pagename="curPage"
-					 @savedesign="savedesign"
-					 @finish="psdfinish"
-					 title="上传PSD"
+						:actname="actname"
+						:pagename="curPage"
+						@savedesign="savedesign"
+						@finish="psdfinish"
+						title="上传PSD"
 					></my-psd>
 				</div>
 				<div
-				 v-for="(item,key) in pagelist"
-				 v-show="curPage==item.name"
-				 :class="'canvas canvas'+item.name "
-				 v-bind:style="designeSize[curdevice]"
+					v-for="(item,key) in pagelist"
+					v-show="curPage==item.name"
+					:class="'canvas canvas'+item.name "
+					v-bind:style="designeSize[curdevice]"
 				>
 					<my-canvas
-					 :ref="'canvas'+item.name"
-					 :canvasData="item"
-					 :pagename="item.name"
-					 :projectname="actname"
-					 @onChange="onCanvasChange"
+						:ref="'canvas'+item.name"
+						:canvasData="item"
+						:pagename="item.name"
+						:projectname="actname"
+						@onChange="onCanvasChange"
 					/>
 				</div>
 			</div>
@@ -109,46 +61,32 @@
 			<div class="options_section">
 				<h2>组件</h2>
 				<ul class="element_list">
-					<li
-					 v-for="item in viewList"
-					 v-bind:key="item.name"
-					 v-if="!item.hidden"
-					>
-						<a
-						 @click="addView(item)"
-						 href="javascript:void(0)"
-						>
-							<Icon
-							 :type="item.icon"
-							 size="24"
-							 color
-							/>
+					<li v-for="item in viewList" v-bind:key="item.name" v-if="!item.hidden">
+						<a @click="addView(item)" href="javascript:void(0)">
+							<Icon :type="item.icon" size="24" color/>
 							<p>{{item.label}}</p>
 						</a>
 					</li>
 				</ul>
 			</div>
 			<styles-panel
-			 @onChange="onCurStylesChange"
-			 v-if="styleOptions"
-			 :options="styleOptions"
-			 :optionsValue="curStyles"
-			 title="样式布局"
+				@onChange="onCurStylesChange"
+				v-if="styleOptions"
+				:options="styleOptions"
+				:optionsValue="curStyles"
+				title="样式布局"
 			></styles-panel>
 			<br>
 			<my-options
-			 @onChange="onCurPropsChange"
-			 v-if="propOptions"
-			 :options="propOptions"
-			 :optionsValue="curProps"
-			 title="组件参数"
+				@onChange="onCurPropsChange"
+				v-if="propOptions"
+				:options="propOptions"
+				:optionsValue="curProps"
+				title="组件参数"
 			></my-options>
 			<br>
 		</div>
-		<div
-		 v-show="dragover"
-		 class="dragover"
-		></div>
+		<div v-show="dragover" class="dragover"></div>
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -172,6 +110,10 @@ import stylesPanels from "../../componets/panels/styles.vue";
 import Assets from "../../componets/assets";
 import addpage from "../../componets/addpage.vue";
 import pagemanage from "../../componets/pagemanage.vue";
+import { setInterval } from "timers";
+import { debug } from "util";
+import { Promise } from "q";
+import { resolve } from "url";
 
 Vue.component("my-options", Options);
 Vue.component("styles-panel", stylesPanels);
@@ -252,7 +194,13 @@ export default {
 			//     self.deletecurElement();
 			// }
 		};
-		this.changePage(0);
+		//this.changePage();
+		// setInterval(async ()=> {
+		// 	if(!!this.curPage){
+		// 		var res = await this.project.whoIsLatest(this.curPage);
+		// 		console.log(res);
+		// 	}
+		// },3000);
 	},
 	computed: {
 		curCanvas() {
@@ -330,6 +278,9 @@ export default {
 			this.pagelist = [];
 			var pagelist = this.project.getPageList();
 			for (var i in pagelist) {
+				if (!this.curPage) {
+					this.curPage = pagelist[i].name;
+				}
 				this.pagelist.push(pagelist[i]);
 			}
 			var canvasDataList = {};
@@ -421,24 +372,96 @@ export default {
 		clearCanvas() {
 			this.curCanvas.clearCanvas();
 		},
-		async savePage() {
-			var result = this.saveCurPage();
-			if (result) {
-				alert("保存成功");
+		async savePage(tip = true) {
+			debugger;
+			var lastest = await this.project.whoIsLatest(this.curPage);
+			debugger;
+			if (lastest == "origin") {
+				var result = await new Promise((resolve, reject) => {
+					this.$Modal.confirm({
+						title: "Nore",
+						okText: "同步并保存",
+						cancleText: "取消",
+						content:
+							"<p>当前页面不是已通过源代码改动，是否更新后保存页面</p>",
+						loading: false,
+						onOk:  async() => {
+							var result = await this.reloadPage();
+							if (tip) {
+								if (result) {
+									this.$Message.success("保存成功");
+								} else {
+									this.$Message.error("保存失败");
+								}
+							}
+							resolve(result);
+						},
+						onCancel: () => {
+							resolve(false);
+			
+						}
+					});
+				});
+				return result;
 			} else {
-				alert("保存失败");
+				var result = await this.saveCurPage();
+				if (tip) {
+					if (result) {
+						this.$Message.success("保存成功");
+					} else {
+						this.$Message.error("保存失败");
+					}
+				}
+				return result;
 			}
 		},
 		async buildPage() {
-			var res = await this.project.buildPage(this.curPage);
-			if (res) {
-				alert("构建成功");
+			var lastest = await this.project.whoIsLatest(this.curPage, "src");
+			if (lastest == "src") {
+				this.$Modal.confirm({
+					title: "Nore",
+					okText: "确认覆盖",
+					cancleText: "取消",
+					loading: false,
+					content:
+						"<p>当前页面已改动，如果继续保存将会覆盖原来的代码，是否覆盖？</p>",
+					onOk: async () => {
+						setTimeout(async () => {
+							var res = await this.savePage(false);
+							debugger;
+							if (res) {
+								var res2 = await this.project.buildPage(
+									this.curPage
+								);
+							
+								if (res2) {
+									this.$Message.success("构建成功");
+								} else {
+									this.$Message.error("构建失败");
+								}
+								//this.$Modal.remove();
+							} else {
+								this.$Message.error("构建失败");
+								// this.$Modal.remove();
+							}
+						}, 600);
+					},
+					onCancel: () => {}
+				});
 			} else {
-				alert("构建失败");
+				var res2 = await this.project.buildPage(this.curPage);
+				if (res2) {
+					this.$Message.success("构建成功");
+				} else {
+					this.$Message.error("构建失败");
+				}
 			}
 		},
-		reloadPage() {
-			this.project.fileToDb(this.curPageInfo.name);
+		async reloadPage() {
+			var res = await this.project.fileToDb(this.curPage);
+			if (res) {
+			}
+			return res;
 		},
 		onCanvasChange: function(event, params) {
 			switch (event) {
@@ -485,7 +508,6 @@ export default {
 			this.curStyles = vnode.styles;
 			this.curProps = vnode.props;
 			this.propOptions = curView.props;
-
 		},
 		getOptionsValue: function(options) {
 			//this.optionsValue = {};

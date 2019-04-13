@@ -23,7 +23,7 @@ enum Env {
     origin = 'origin',
     src = 'src',
     dist = 'dist',
-    all
+    all = 'all'
 }
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
@@ -438,23 +438,26 @@ class Project {
             //文件不存在
         }
     }
-    async whoIsLatest(name) {
+    async whoIsLatest(name, type = 'origin') {
         var dbtime = this.getPageByName(name).updatetime;
+        // console.log(dbtime);
+        var originTime = await this.getEnvTime(Env.origin, name);
+        var srcTime = await this.getEnvTime(Env.src, name);
+        var bijiao;
         if (!dbtime) {
             return false;
         }
-        var originTime = this.getEnvTime(Env.origin, name);
-        var srcTime = this.getEnvTime(Env.src, name);
-        var latest = originTime > srcTime ? 'origin' : 'src';
-        var max = Math.max(originTime, srcTime);
-        if (max - dbtime > 3000) {
-            return latest
+        if(type=='origin'){
+            bijiao = originTime;
         }
-        return 'data';
+        else{
+            bijiao = srcTime; 
+        }
+        return Math.abs(bijiao-dbtime)<3000?'same':dbtime>bijiao?'data':type;
     }
     async getEnvTime(env: Env, name) {
         var pageFiles = await this.getPageFiles(env, name);
-        var jstime = await Files.getMtime(pageFiles.js);
+        var jstime = await Files.getMtime(pageFiles.html);
         var csstime = await Files.getMtime(pageFiles.css);
         if (!jstime && csstime) {
             return 0;
@@ -709,7 +712,7 @@ class Project {
                 header: "",
                 footer: "",
                 maincss: "./css/" + name + ".css",
-                mainjs: "./js/" + name + ".js"
+                mainjs: "./js/" + 'all' + ".js"
             },
             pageObj
         );
@@ -816,7 +819,7 @@ class Project {
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
         var csspath = path.resolve(this.rootdir, "src/css/build/" + name + ".scss");
         var maincsspath = path.resolve(this.rootdir, "src/css/" + name + ".scss");
-        var mainjspath = path.resolve(this.rootdir, "src/js/" + name + ".js");
+        var mainjspath = path.resolve(this.rootdir, "src/js/" + 'main' + ".js");
 
         reshtml = beautify(reshtml, {
             preserve_newlines: false,
@@ -828,7 +831,9 @@ class Project {
             await Files.writeFile(htmlpath, reshtml);
             await Files.writeFile(csspath, cssstr);
             await Files.writeFile(maincsspath, maincssstr);
-            await Files.writeFile(mainjspath, mainjsstr);
+            if (!await fse.exists(mainjspath)) {
+                await Files.writeFile(mainjspath, mainjsstr);
+            }
 
         } catch (error) {
             return false;
