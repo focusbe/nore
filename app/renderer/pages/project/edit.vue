@@ -314,8 +314,8 @@ export default {
 
 			if (!!curCanvasData) {
 				var rootJson = curCanvasData.toJson();
-				console.log(rootJson);
-				return;
+				// console.log(rootJson);
+				// return;
 				try {
 					var res = await this.project.savePage(this.curPage, {
 						tree: rootJson
