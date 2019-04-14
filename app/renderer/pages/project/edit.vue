@@ -207,7 +207,8 @@ export default {
 			return this.$refs["canvas" + this.curPage][0];
 		},
 		curPageInfo() {
-			return this.pagelist[this.curPage];
+			console.log(this.canvasDataList);
+			return this.canvasDataList[this.curPage];
 		},
 		curpageName() {
 			var curpage = null;
@@ -278,9 +279,6 @@ export default {
 			this.pagelist = [];
 			var pagelist = this.project.getPageList();
 			for (var i in pagelist) {
-				if (!this.curPage) {
-					this.curPage = pagelist[i].name;
-				}
 				this.pagelist.push(pagelist[i]);
 			}
 			var canvasDataList = {};
@@ -288,6 +286,9 @@ export default {
 				canvasDataList[pagelist[i]["name"]] = pagelist[i];
 			}
 			this.canvasDataList = canvasDataList;
+			if (!this.curPage && !!pagelist[0]) {
+				this.changePage(pagelist[0]["name"]);
+			}
 		},
 		changePage(pagename) {
 			//保存原来的信息
@@ -303,6 +304,8 @@ export default {
 				this.curPage = pagename;
 				//this.getPageInfo(index);
 			}
+			console.log(this.curPageInfo);
+			this.curdevice = this.curPageInfo.device;
 		},
 
 		async saveCurPage() {

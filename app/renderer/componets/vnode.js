@@ -248,6 +248,7 @@ class vnode {
             return null;
         }
         curView = viewList[this.name];
+        
         if (!curView) {
             return;
         }
@@ -277,7 +278,14 @@ class vnode {
         var curView;
         //if (typeof (this.view) == 'string') {
         if (!this.name)
+            return prop;
+        if(!viewList[this.name]){
+            curView = viewList['htmltag'];
+        }
+        else{
             curView = viewList[this.name];
+        }
+        
         // } else {
         //     curView = this.view;
         // }
