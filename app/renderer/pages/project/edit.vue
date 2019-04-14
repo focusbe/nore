@@ -62,7 +62,7 @@
 				<h2>组件</h2>
 				<ul class="element_list">
 					<li v-for="item in viewList" v-bind:key="item.name" v-if="!item.hidden">
-						<a @click="addView(item)" href="javascript:void(0)">
+						<a @click="addView(item.name)" href="javascript:void(0)">
 							<Icon :type="item.icon" size="24" color/>
 							<p>{{item.label}}</p>
 						</a>

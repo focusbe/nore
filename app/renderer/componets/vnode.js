@@ -4,26 +4,31 @@ import workspace from "./workspace.vue";
 import $ from "jquery";
 import Util from "../../libs/util";
 import path from "path"
+
 Vue.component("vnoderender", {
-    methods: {},
     template: '<component :is="component" :viewprops="viewprops" :viewdata="viewdata" v-if="component"><slot></slot><workspace v-if="isoptioning"></workspace></component>',
     components: {
         // <my-component> 将只在父组件模板中可用
         'workspace': workspace
     },
-
     created() {
+        //alert('created:'+this.viewname)
+        this.getViewData();
         this.component = this.createCom();
     },
     mounted: function () {
         if (this.ismouseDown) {
             return;
         }
-        var viewdata = this.viewdata;
-
+        
+        var props = this.viewprops;
+        // if (!viewList[this.viewname]) {
+        //     props = Object.assign({ htmlTag: this.viewname }, props);
+        //     alert(11);
+        // }
         this.viewdata.onRendered({
             dom: this.$el,
-            props: this.viewprops
+            props: props
         });
     },
     updated: function () {
@@ -31,7 +36,6 @@ Vue.component("vnoderender", {
             return;
         }
         //this.component = this.createCom();
-        var viewdata = this.viewdata;
         this.viewdata.onRendered({
             dom: this.$el,
             props: this.viewprops
@@ -39,12 +43,28 @@ Vue.component("vnoderender", {
     },
     data() {
         return {
+            viewdata: null,
             component: null,
             componentCache: {}
         }
     },
 
     methods: {
+        getViewData() {
+            var viewdata;
+            console.log(this.viewname);
+            //if (!!viewList[this.viewname]) {
+                viewdata = viewList[this.viewname];
+            // }
+            // else {
+            //     viewdata = viewList['htmltag'];
+            //     var viewprops = Object.assign({ htmlTag: this.viewname }, this.viewprops);
+            //     alert(111);
+            //     console.log(viewprops);
+            // }
+            this.viewdata = viewdata;
+            return viewdata;
+        },
         getDom() {
             return this.$el;
         },
@@ -70,6 +90,7 @@ Vue.component("vnoderender", {
                         //console.log(this);
                     },
                     props: {
+                        viewdata:null,
                         viewprops: null
                     },
                     template: template
@@ -83,14 +104,23 @@ Vue.component("vnoderender", {
                         // <my-component> 将只在父组件模板中可用
                         'workspace': workspace
                     },
+                    // data(){
+                    //     // return {
+                    //     //     viewdata:null
+                    //     // }
+                    // },
                     props: {
                         viewdata: null,
                         viewprops: null
                     },
                     render: function (createElement) {
+                        console.log('tem');
+                        console.log(this.viewdata)
+                        //this.viewdata = viewList[this.viewname];
                         if (!this.viewdata) {
                             return null;
                         }
+
                         var slots = [self.$slots.default];
                         if (!!self.isoptioning) {
                             slots.push(createElement('workspace'));
@@ -111,8 +141,8 @@ Vue.component("vnoderender", {
         }
     },
     props: {
-        viewdata: {
-            type: Object,
+        viewname: {
+            type: String,
             required: true
         },
         ismouseDown: {
@@ -246,8 +276,8 @@ class vnode {
     quchong(prop) {
         var curView;
         //if (typeof (this.view) == 'string') {
-        if(!this.name)
-        curView = viewList[this.name];
+        if (!this.name)
+            curView = viewList[this.name];
         // } else {
         //     curView = this.view;
         // }
@@ -275,7 +305,7 @@ class vnode {
             modulelist = [];
         }
         var curView = this.getView();
-        if(!curView){
+        if (!curView) {
             return modulelist;
         }
         //console.log(modulelist.indexOf(this.view.filepath));
@@ -287,11 +317,11 @@ class vnode {
         }
         return modulelist;
     }
-    getView(){
-        if(!this.name){
+    getView() {
+        if (!this.name) {
             return false;
         }
-        if(!!viewList[this.name]){
+        if (!!viewList[this.name]) {
             return viewList[this.name];
         }
         return false
@@ -378,18 +408,20 @@ class vnode {
         var styles = this.getStyles();
         var viewprops = this.getProps();
 
-        if (!this.view) {
-            return null;
-        }
-
+        // if (this.view) {
+        //     return null;
+        // }
+        
+        console.log(this.name);
         if (!this.props) {
             this.props = {};
         }
+        //alert('render'+this.name)
         this.vuenode = createElement(
             "vnoderender", {
                 style: styles,
                 props: {
-                    viewdata: this.view,
+                    viewname: this.name,
                     viewprops: viewprops,
                     ismouseDown: canvas.isdmousedown,
                     isoptioning: !!this.isoptioning
@@ -416,10 +448,18 @@ class vnode {
                 }
             },
             this.childrens.map(function (currentValue) {
-                return currentValue.render(createElement, canvas);
+                console.log('-----');
+                console.log(currentValue)
+                if(typeof(currentValue)=='string'){
+                    return currentValue;
+                }
+                else if(!!currentValue.render){
+                    return currentValue.render(createElement, canvas);
+                }
+                
             })
         );
-
+        console.log(this.vuenode)
         this.vuenode.viewname = this.name;
         return this.vuenode;
     }

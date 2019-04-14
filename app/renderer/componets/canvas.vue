@@ -15,7 +15,7 @@ var curviewObj = null;
 export default {
 	created: function() {
 		this.rootvnode = new vnode(
-			viewList["root"],
+			'root',
 			{ overflow: "auto" },
 			null
 		);
@@ -36,7 +36,7 @@ export default {
 			this.curvnode = this.rootvnode;
 			console.log(tree)
 			this.rootvnode = new vnode(
-				viewObj[tree.view],
+				tree.view,
 				tree.styles,
 				tree.props,
 				this.isssr,
@@ -53,6 +53,7 @@ export default {
 			this.refresh();
 		},
 		addTreenodes(treenodes, curvnode) {
+			console.log(treenodes);
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
@@ -60,30 +61,36 @@ export default {
 				var curnode;
 				for (var i in treenodes) {
 					curnode = treenodes[i];
+					console.log(curnode);
+					if(!!curnode&&typeof(curnode)=='string'){
+						curvnode.childrens.push(curnode);
+						return;
+					}
 					if(!curnode||!curnode.view){
 						continue;
 					}
 					if (curnode.view == "button") {
 						curnode.view = "my-button";
 					}
-					console.log(viewObj);
+					//console.log(viewObj);
 					
-					if(!!viewObj[curnode.view]){
-						var curviewObj = viewObj[curnode.view];
-					}
-					else{
-						var curviewObj = viewObj['htmltag'];
+					// if(!!viewObj[curnode.view]){
+					// 	var curviewObj = curnode.view;
+					// }
+					// else{
+					// 	var curviewObj = 'htmltag';
 						
-						if(!curnode.props){
-							curnode.props = {}
+					// 	if(!curnode.props){
+					// 		curnode.props = {}
 							
-						}
-						curnode.props.tagName = curnode.view;
+					// 	}
+					// 	curnode.props.tagName = curnode.view;
 						
-					}
-					console.log(curviewObj);
+					// }
+					// console.log(curviewObj);
+					console.log(curnode.view)
 					var newnode = new vnode(
-						curviewObj,
+						curnode.view,
 						curnode.styles,
 						curnode.props,
 						this.isssr,

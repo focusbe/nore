@@ -20,8 +20,8 @@ var container = createview({
     },
     render: function (dom) {
         //alert('容器渲染');
-        console.log(dom);
-        alert(1);
+        // console.log(dom);
+        // alert(1);
         var tagname = dom.props.tagName;
         console.log(`<${dom.props.tagName}><slot></slot></${dom.props.tagName}>`);
         return `
