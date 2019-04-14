@@ -311,11 +311,12 @@ export default {
 
 			if (!!curCanvasData) {
 				var rootJson = curCanvasData.toJson();
+				console.log(rootJson);
+				return;
 				try {
-					var res = await this.project.savePage(
-						this.curPage,
-						rootJson
-					);
+					var res = await this.project.savePage(this.curPage, {
+						tree: rootJson
+					});
 					if (!!res) {
 						return true;
 					}
@@ -373,9 +374,7 @@ export default {
 			this.curCanvas.clearCanvas();
 		},
 		async savePage(tip = true) {
-			debugger;
 			var lastest = await this.project.whoIsLatest(this.curPage);
-			debugger;
 			if (lastest == "origin") {
 				var result = await new Promise((resolve, reject) => {
 					this.$Modal.confirm({
@@ -385,7 +384,7 @@ export default {
 						content:
 							"<p>当前页面不是已通过源代码改动，是否更新后保存页面</p>",
 						loading: false,
-						onOk:  async() => {
+						onOk: async () => {
 							var result = await this.reloadPage();
 							if (tip) {
 								if (result) {
@@ -398,7 +397,6 @@ export default {
 						},
 						onCancel: () => {
 							resolve(false);
-			
 						}
 					});
 				});
@@ -416,24 +414,23 @@ export default {
 			}
 		},
 		async buildPage() {
-			var lastest = await this.project.whoIsLatest(this.curPage, "src");
-			if (lastest == "src") {
+			var hasBuildFile = await this.project.hasBuildFile(this.curPage);
+			console.log(hasBuildFile);
+			if (!!hasBuildFile) {
 				this.$Modal.confirm({
 					title: "Nore",
 					okText: "确认覆盖",
 					cancleText: "取消",
 					loading: false,
-					content:
-						"<p>当前页面已改动，如果继续保存将会覆盖原来的代码，是否覆盖？</p>",
+					content: "<p>继续构建将会覆盖原有代码，是否继续覆盖？</p>",
 					onOk: async () => {
 						setTimeout(async () => {
 							var res = await this.savePage(false);
-							debugger;
 							if (res) {
 								var res2 = await this.project.buildPage(
 									this.curPage
 								);
-							
+
 								if (res2) {
 									this.$Message.success("构建成功");
 								} else {
@@ -459,8 +456,7 @@ export default {
 		},
 		async reloadPage() {
 			var res = await this.project.fileToDb(this.curPage);
-			if (res) {
-			}
+
 			return res;
 		},
 		onCanvasChange: function(event, params) {

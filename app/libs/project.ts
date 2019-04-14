@@ -294,24 +294,26 @@ class Project {
         return hasname > 0;
     }
     saveToDb(name, pagejson) {
+        console.log(pagejson);
         var res = this.db
             .get("pages")
             .find({
                 name: name
             })
-            .assign({
-                tree: pagejson,
+            .assign(pagejson,{
                 updatetime: (new Date()).getTime()
             })
             .write();
         return res;
     }
-    async saveToFile(name, tree) {
+    async saveToFile(name, pageinfo) {
+
         let curPageInfo = this.getPageByName(name);
-        if (!name || !tree || !curPageInfo) {
+        curPageInfo = Object.assign(curPageInfo,pageinfo);
+        if (!name || !pageinfo || !curPageInfo) {
             return -1;
         }
-        let jsxobj = this.treeToJsx(tree);
+        let jsxobj = this.treeToJsx(curPageInfo.tree);
         let pageFiles = await this.getPageFiles(Env.origin, name);
         if (!pageFiles) {
             return;
@@ -344,18 +346,17 @@ class Project {
         try {
             await Files.writeFile(pageFiles.css, jsxobj.css);
             await Files.writeFile(pageFiles.html, jsxString);
-            this.saveToDb(name, tree);
+            //this.saveToDb(name, tree);
             return true;
         } catch (error) {
             return false;
         }
     }
-    async savePage(name, tree) {
-
+    async savePage(name, pageinfo) {
         try {
-            let res1 = await this.saveToDb(name, tree);
+            let res1 = await this.saveToDb(name, pageinfo);
             if (!!res1) {
-                let res2 = await this.saveToFile(name, tree);
+                let res2 = await this.saveToFile(name, pageinfo);
                 return res2;
             }
             return false;
@@ -424,6 +425,7 @@ class Project {
                     cssStr = await fse.readFile(pageFiles.css, "utf8");
                 }
                 var tree = this.jsxToJson(jsxStr, cssStr);
+                console.log(tree);
                 if (!!tree) {
                     let res = this.saveToDb(name, tree);
                     return res;
@@ -437,6 +439,12 @@ class Project {
             return false;
             //文件不存在
         }
+    }
+    async hasBuildFile(name){
+        var pageFIles = await this.getPageFiles(Env.src,name);
+        console.log(pageFIles);
+        var res = await fse.exists(pageFIles.html);
+        return res;
     }
     async whoIsLatest(name, type = 'origin') {
         var dbtime = this.getPageByName(name).updatetime;
@@ -471,17 +479,19 @@ class Project {
     }
     async dbToFile(pagename) {
         var pageinfo = this.getPageByName(pagename);
-        var tree = pageinfo.tree;
-        var res = await this.saveToFile(pagename, tree);
+        // var tree = pageinfo.tree;
+        var res = await this.saveToFile(pagename, pageinfo);
         return res;
     }
     jsxToJson(jsx, css) {
+        console.log(jsx);
+        console.log(css);
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
         });
 
         var pageJson = eval(funStr);
-
+        console.log(pageJson);
         if (!!css && !!pageJson.tree) {
             try {
                 let cssroot = postcss.parse(css);
@@ -550,7 +560,7 @@ class Project {
         } else if (tag == "root") {
             result["tag"] = "tree";
             result["value"] = {
-                view: "tag",
+                view: tag,
                 props: props,
                 childrens: children
             };

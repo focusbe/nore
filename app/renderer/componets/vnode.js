@@ -43,7 +43,7 @@ Vue.component("vnoderender", {
             componentCache: {}
         }
     },
-   
+
     methods: {
         getDom() {
             return this.$el;
@@ -128,37 +128,34 @@ Vue.component("vnoderender", {
 });
 
 class vnode {
-    constructor(view, styles, props, isssr, assetUrl) {
-
-        if (!view) {
+    constructor(viewname, styles, props, isssr, assetUrl) {
+        if (!viewname) {
             return;
         }
-        this.name = view.name;
-        if (view == 'root') {
-            this.name = 'root';
-        }
-        this.view = view;
-        if (!window.vnodeIdEND) {
-            window.vnodeIdEND = 0;
-        }
-        if(!props){
+        if (!props) {
             props = {};
         }
-        if(!props.id){
+        if (!viewList[viewname]) {
+            props.tagName = viewname;
+            viewname = 'htmltag'
+        }
+
+        this.name = viewname;
+        // if (view == 'root') {
+        //     this.name = 'root';
+        // }
+        // this.view = view;
+        if (!props.id) {
             props.id = 'vnode_' + (Util.createId());
         }
-        
         this.styles = styles;
-        if(!props){
-            props = {};
-        }
         this.props = props;
         this.childrens = [];
         this.parent = undefined;
         this.isoptioning = false;
         this.isssr = isssr;
-        if(!!assetUrl&&assetUrl[assetUrl.length-1]!='/'){
-            assetUrl+='/';
+        if (!!assetUrl && assetUrl[assetUrl.length - 1] != '/') {
+            assetUrl += '/';
         }
         this.assetUrl = assetUrl;
         this.init();
@@ -188,20 +185,20 @@ class vnode {
         // if (this.isssr) {
         //     this.styles = {};
         // } else {
-            for (var i in curView.styles) {
-                if (typeof (curView.styles[i]['default']) == 'undefined') {
-                    curView.styles[i]['default'] = null;
-                }
-                styles[i] = curView.styles[i]['default'];
+        for (var i in curView.styles) {
+            if (typeof (curView.styles[i]['default']) == 'undefined') {
+                curView.styles[i]['default'] = null;
             }
+            styles[i] = curView.styles[i]['default'];
+        }
 
-            for (var i in curView.props) {
-                if (typeof (curView.props[i]['default']) == 'undefined') {
-                    curView.props[i]['default'] = null;
-                }
-                props[i] = curView.props[i]['default'];
+        for (var i in curView.props) {
+            if (typeof (curView.props[i]['default']) == 'undefined') {
+                curView.props[i]['default'] = null;
             }
-            this.styles = Object.assign(styles, this.styles);
+            props[i] = curView.props[i]['default'];
+        }
+        this.styles = Object.assign(styles, this.styles);
         // }
 
         this.props = Object.assign(props, this.props);
@@ -215,16 +212,23 @@ class vnode {
     toJson() {
         var curJson = {};
         var curView;
-        if(!this.view){
+        console.log(this);
+
+        if (!this.name) {
             return null;
         }
-        if (typeof (this.view) == 'string') {
-            curJson.view = this.view;
-            curView = viewList[this.view];
-        } else {
-            curJson.view = this.view.name;
-            curView = this.view;
+        curView = viewList[this.name];
+        if (!curView) {
+            return;
         }
+        //if (typeof (this.view) == 'string') {
+        //     curJson.view = this.view;
+        //     curView = viewList[this.view];
+        // } else {
+        //     curJson.view = this.view.name;
+        //     curView = this.view;
+        // }
+        curJson.view = this.name;
         var curStyle = this.quchong('styles');
         if (!!curStyle) {
             curJson.styles = curStyle;
@@ -241,11 +245,12 @@ class vnode {
     }
     quchong(prop) {
         var curView;
-        if (typeof (this.view) == 'string') {
-            curView = viewList[this.view];
-        } else {
-            curView = this.view;
-        }
+        //if (typeof (this.view) == 'string') {
+        if(!this.name)
+        curView = viewList[this.name];
+        // } else {
+        //     curView = this.view;
+        // }
         var res = null;
         for (var i in this[prop]) {
             if (typeof (curView[prop][i]) != 'undefined' && typeof (curView[prop][i].default) != 'undefined') {
@@ -269,8 +274,12 @@ class vnode {
         if (!modulelist) {
             modulelist = [];
         }
+        var curView = this.getView();
+        if(!curView){
+            return modulelist;
+        }
         //console.log(modulelist.indexOf(this.view.filepath));
-        if (!!this.view && this.view.filename && modulelist.indexOf(this.name) < 0) {
+        if (!!curView && curView.filename && modulelist.indexOf(this.name) < 0) {
             modulelist.push(this.view.filename);
         }
         for (var i in this.childrens) {
@@ -278,7 +287,15 @@ class vnode {
         }
         return modulelist;
     }
-
+    getView(){
+        if(!this.name){
+            return false;
+        }
+        if(!!viewList[this.name]){
+            return viewList[this.name];
+        }
+        return false
+    }
     getStyles() {
         var styles = Object.assign({}, this.styles);
         if (!!styles['position']) {
@@ -291,13 +308,13 @@ class vnode {
                     } else if (styles.xalign == 'right') {
                         styles['margin-right'] = -parseInt(styles.x) + 'px';
                     } else if (styles.xalign == 'center') {
-                        styles['margin-left'] = parseInt(styles.x)-styles.width/2+'px';
+                        styles['margin-left'] = parseInt(styles.x) - styles.width / 2 + 'px';
                         styles['left'] = '50%';
                     }
                     break;
                 case 'absolute':
                 case 'fixed':
-                    if(this.isssr){
+                    if (this.isssr) {
                         styles['position'] = 'absolute';
                     }
                     if (styles.xalign == 'left') {
@@ -306,14 +323,14 @@ class vnode {
                         styles['right'] = -parseInt(styles.x) + 'px';
                         styles['left'] = 'auto';
                     } else if (styles.xalign == 'center') {
-                        styles['margin-left'] = parseInt(styles.x)-styles.width/2+'px';
+                        styles['margin-left'] = parseInt(styles.x) - styles.width / 2 + 'px';
                         styles['left'] = '50%';
                     }
 
                     if (styles.yalign == 'top') {
                         styles['top'] = this.styles.y;
                     } else if (styles.yalign == 'center') {
-                        styles['margin-top'] = parseInt(styles.y)-styles.height/2+'px';
+                        styles['margin-top'] = parseInt(styles.y) - styles.height / 2 + 'px';
                         styles['top'] = '50%';
                     } else if (styles.yalign == 'bottom') {
                         styles['bottom'] = -parseInt(this.styles.y) + 'px';
@@ -388,7 +405,7 @@ class vnode {
                         event.cancelBubble = true;
                     },
                     mousedown: function (event) {
-                        if (self.view == 'root'||self.view.name=='root') {
+                        if (self.view == 'root' || self.view.name == 'root') {
                             return;
                         }
                         canvas.changeCurVnode(self);

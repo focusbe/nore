@@ -23,7 +23,7 @@ export default {
 		this.projectPath = this.isssr
 			? "../"
 			: path.resolve(Configs.getItem("workshop"), this.projectname);
-			console.log(this.canvasData);
+			console.log(this.canvasData.tree);
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 	},
@@ -34,6 +34,7 @@ export default {
 				return;
 			}
 			this.curvnode = this.rootvnode;
+			console.log(tree)
 			this.rootvnode = new vnode(
 				viewObj[tree.view],
 				tree.styles,
@@ -65,8 +66,24 @@ export default {
 					if (curnode.view == "button") {
 						curnode.view = "my-button";
 					}
+					console.log(viewObj);
+					
+					if(!!viewObj[curnode.view]){
+						var curviewObj = viewObj[curnode.view];
+					}
+					else{
+						var curviewObj = viewObj['htmltag'];
+						
+						if(!curnode.props){
+							curnode.props = {}
+							
+						}
+						curnode.props.tagName = curnode.view;
+						
+					}
+					console.log(curviewObj);
 					var newnode = new vnode(
-						viewObj[curnode.view],
+						curviewObj,
 						curnode.styles,
 						curnode.props,
 						this.isssr,
