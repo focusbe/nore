@@ -1,5 +1,5 @@
 var vueViews = require.context("./", true, /^\.\/(.*)\/(index|main)\.(js|vue)$/);
-var viewList = {};
+var viewList_obj = {};
 var curElement;
 vueViews.keys().map(key => {
     if(typeof(vueViews(key)['default'])=='object'){
@@ -11,7 +11,16 @@ vueViews.keys().map(key => {
     }
     //console.log(curElement);
     if(!!curElement['name']){
-        viewList[curElement['name']] = curElement;
+        viewList_obj[curElement['name']] = curElement;
     }
 })
-export default viewList
+function viewList(name){
+    if(!name){
+        return null;
+    }
+    if(!!viewList_obj[name]){
+        return viewList_obj[name];
+    }
+    return viewList_obj['htmltag']
+}
+export default viewList;

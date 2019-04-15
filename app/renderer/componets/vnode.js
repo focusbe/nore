@@ -1,9 +1,7 @@
 import viewList from "../elements/list.js";
 import Vue from "vue";
 import workspace from "./workspace.vue";
-import $ from "jquery";
 import Util from "../../libs/util";
-import path from "path"
 
 Vue.component("vnoderender", {
     template: '<component :is="component" :viewprops="viewprops" :viewdata="viewdata" v-if="component"><slot></slot><workspace v-if="isoptioning"></workspace></component>',
@@ -52,9 +50,9 @@ Vue.component("vnoderender", {
     methods: {
         getViewData() {
             var viewdata;
-            console.log(this.viewname);
+            //console.log(this.viewname);
             //if (!!viewList[this.viewname]) {
-                viewdata = viewList[this.viewname];
+            viewdata = viewList(this.viewname);
             // }
             // else {
             //     viewdata = viewList['htmltag'];
@@ -276,12 +274,19 @@ class vnode {
     quchong(prop) {
         var curView;
         //if (typeof (this.view) == 'string') {
-        if (!this.name)
-            curView = viewList[this.name];
+        if (!this.name){
+            return;
+        }
+        
+        curView = viewList[this.name];
+
         // } else {
         //     curView = this.view;
         // }
+        console.log(this.name);
+        console.log(curView)
         var res = null;
+
         for (var i in this[prop]) {
             if (typeof (curView[prop][i]) != 'undefined' && typeof (curView[prop][i].default) != 'undefined') {
                 if (this[prop][i] !== curView[prop][i].default) {
