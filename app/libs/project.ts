@@ -944,7 +944,7 @@ class Project {
     async devHas() {
         let actpath = path.resolve(
             Configs.getItem("devpath"),
-            "common/" + this.config.game + "/act/" + this.config.name
+            "common/" + this.config.game + "/act/" + this.config.actname
         );
         debugger;
         return await fse.exists(actpath);
@@ -960,7 +960,7 @@ class Project {
             this.config.game +
                 (dev == "svn" ? "/release" : "") +
                 "/act/" +
-                this.config.name
+                this.config.actname
         );
         debugger;
         return await fse.exists(actpath);
@@ -983,7 +983,7 @@ class Project {
             Configs.getItem("devpath"),
             "common/" + this.config.game + "/act"
         );
-        let projectpath = path.resolve(actpath, this.config.name);
+        let projectpath = path.resolve(actpath, this.config.actname);
         debugger;
         if (await fse.exists(actpath)) {
             if (await fse.copy(this.distDir, projectpath)) {
@@ -1010,7 +1010,7 @@ class Project {
             Configs.getItem(dev + "Folder"),
             this.config.game + (dev == "svn" ? "/release" : "") + "/act"
         );
-        let projectpath = path.resolve(actpath, this.config.name);
+        let projectpath = path.resolve(actpath, this.config.actname);
         debugger;
         if (await fse.exists(actpath)) {
             if (!(await Files.createdirAsync(projectpath))) {

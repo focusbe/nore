@@ -1,5 +1,6 @@
 <template>
 	<div class="page_wrap">
+		<publish ref="publish" :project="project"></publish>
 		<div class="left_options">
 			<pagemanage
 			 :project="project"
@@ -62,15 +63,16 @@
 						/>
 					</Button>
 					<Button
-					 @click="preview"
+					 @click="publishCode"
 					 type="primary"
 					 title="发布"
 					>
 						<Icon
-						 type="logo-chrome"
+						 type="md-cloud-upload"
 						 size="20"
 						 color
 						/>
+						
 					</Button>
 					<!-- <Select
 					 v-model="curdevice"
@@ -163,7 +165,7 @@ import PSD from "../../componets/psd";
 import Server from "../../../libs/server";
 import { Project } from "../../../libs/project";
 import Files from "../../../libs/files";
-
+import Publish from "../../componets/publish";
 import Vue from "vue";
 import viewList from "../../elements/list.js";
 import Canvas from "../../componets/canvas.vue";
@@ -184,7 +186,7 @@ Vue.component("assets", Assets);
 Vue.component("my-psd", PSD);
 Vue.component("add-page", addpage);
 Vue.component("pagemanage", pagemanage);
-
+Vue.component("publish", Publish);
 export default {
 	name: "project_edit",
 	data() {
@@ -281,6 +283,9 @@ export default {
 		},
 	},
 	methods: {
+		async publishCode(){
+			this.$refs['publish'].show();
+		},
 		bindDrag() {
 			//监听把文件拖到窗口
 			var body = document.getElementsByTagName("body")[0];
