@@ -87,7 +87,9 @@ class Files {
                     reject("创建目录失败");
                     return;
                 }
-                fse.writeJson(src, json, { spaces: 4, EOL: "\n" }, function(err) {
+                fse.writeJson(src, json, { spaces: 4, EOL: "\n" }, function(
+                    err
+                ) {
                     if (err) reject(err);
                     else {
                         resolve(true);
@@ -333,6 +335,11 @@ class Files {
             );
         });
         return res;
+    }
+    static openFolder(folder) {
+        var shell = require("electron").shell;
+        //const os = require("os");
+        shell.showItemInFolder(folder);
     }
 }
 export default Files;

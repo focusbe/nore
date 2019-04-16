@@ -113,8 +113,8 @@ export default {
 		},
 		openinFolder() {
 			var actname = this.curcontextVnode.key;
-			const shell = require("electron").shell;
-			const os = require("os");
+			var shell = require("electron").shell;
+			//const os = require("os");
 			shell.showItemInFolder(path.resolve(Configs.getItem("workshop"),actname+'/data'));
 		},
 		getProjects: async function() {

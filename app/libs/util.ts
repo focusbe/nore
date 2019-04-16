@@ -1,4 +1,5 @@
 const path = require("path");
+const shelljs = require("shelljs");
 class Util {
     static idcache = {};
     static createId() {
@@ -35,6 +36,24 @@ class Util {
             }
         }
         return cssstr;
+    }
+    static async runSh(sh){
+        return await new Promise((reject, resolve) => {
+            shelljs.exec(
+                sh,
+                {
+                    async: true,
+                    silent: true
+                },
+                function(code, stdout, stderr) {
+                    if (!!stderr) {
+                        reject(stderr);
+                    } else {
+                        resolve(true);
+                    }
+                }
+            );
+        });
     }
 }
 export default Util;

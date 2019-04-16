@@ -16,7 +16,6 @@ import juicer from "juicer";
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync"); // 有多种适配器可选择
 import Files from "./files";
-const shelljs = require("shelljs");
 var jsxTransform = require("jsx-transform");
 import Games from "./games";
 import Util from "./util";
@@ -64,7 +63,10 @@ class ProjectsClass {
                     reject("参数错误");
                     return;
                 }
-                if (!!this.projectCache[config.actname] || this.has(config.actname)) {
+                if (
+                    !!this.projectCache[config.actname] ||
+                    this.has(config.actname)
+                ) {
                     reject("项目已存在");
                     return;
                 }
@@ -86,7 +88,10 @@ class ProjectsClass {
     delete(actname) {
         return new Promise(
             function(resolve, reject) {
-                let projectDir = path.resolve(Configs.getItem("workshop"), actname);
+                let projectDir = path.resolve(
+                    Configs.getItem("workshop"),
+                    actname
+                );
                 fse.remove(projectDir, err => {
                     if (err) {
                         reject(err);
@@ -133,24 +138,22 @@ class ProjectsClass {
                     return;
                     // callback(false, '请配置VSCOD路径', -1);
                 }
-                let vcodedir = path.resolve(Configs.getItem("vscodePath"), "bin/code");
+                let vcodedir = path.resolve(
+                    Configs.getItem("vscodePath"),
+                    "bin/code"
+                );
 
                 let project = this.getProjectDir(actname);
                 let sh = '"' + vcodedir + '" ' + project;
-                shelljs.exec(
-                    sh,
-                    {
-                        async: true,
-                        silent: true
-                    },
-                    function(code, stdout, stderr) {
-                        if (!!stderr) {
-                            reject(stderr);
-                        } else {
-                            resolve(true);
+                Util.runSh(sh)
+                    .then(res => {
+                        {
+                            resolve(res);
                         }
-                    }
-                );
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
             }.bind(this)
         );
     }
@@ -163,7 +166,10 @@ class ProjectsClass {
             return -1;
         }
         if (!this.projectCache[actname]) {
-            let projectroot = path.resolve(Configs.getItem("workshop"), actname);
+            let projectroot = path.resolve(
+                Configs.getItem("workshop"),
+                actname
+            );
             if (!fs.existsSync(projectroot)) {
                 return -2;
             }
@@ -325,7 +331,11 @@ class Project {
             return;
         }
 
-        jsxobj.css = Util.cssUrlChange(this.originDir, jsxobj.css, pageFiles.css);
+        jsxobj.css = Util.cssUrlChange(
+            this.originDir,
+            jsxobj.css,
+            pageFiles.css
+        );
         let imgFilepath = path.resolve(this.rootdir, "origin/images");
         let srcImgFile = path.resolve(this.rootdir, "src/images");
         try {
@@ -411,7 +421,10 @@ class Project {
             };
             if (env == Env.dist) {
                 files.buildcss = files.css;
-                files.css = path.resolve(parentPath, "css/build" + pagename + csstype);
+                files.css = path.resolve(
+                    parentPath,
+                    "css/build" + pagename + csstype
+                );
             }
             return files;
         }
@@ -464,7 +477,11 @@ class Project {
         } else {
             bijiao = srcTime;
         }
-        return Math.abs(bijiao - dbtime) < 3000 ? "same" : dbtime > bijiao ? "data" : type;
+        return Math.abs(bijiao - dbtime) < 3000
+            ? "same"
+            : dbtime > bijiao
+            ? "data"
+            : type;
     }
     async getEnvTime(env: Env, name) {
         var pageFiles = await this.getPageFiles(env, name);
@@ -552,7 +569,11 @@ class Project {
                 }
             }
             for (var i in children) {
-                if (children[i].tag == "head" || children[i].tag == "foot" || children[i].tag == "tree") {
+                if (
+                    children[i].tag == "head" ||
+                    children[i].tag == "foot" ||
+                    children[i].tag == "tree"
+                ) {
                     result[children[i].tag] = children[i].value;
                 }
             }
@@ -654,8 +675,14 @@ class Project {
             return resolve;
         }
         var self = this;
-        let projectDir = path.resolve(Configs.getItem("workshop"), this.config.actname);
-        let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
+        let projectDir = path.resolve(
+            Configs.getItem("workshop"),
+            this.config.actname
+        );
+        let scaffold = path.resolve(
+            __dirname,
+            "../../scaffold/" + this.config.scaffold
+        );
 
         Files.createdirAsync(projectDir)
             .then(() => {
@@ -669,13 +696,23 @@ class Project {
                         return;
                     }
                     try {
-                        let configPath = path.resolve(projectDir, "./configs/ztconfig.json");
+                        let configPath = path.resolve(
+                            projectDir,
+                            "./configs/ztconfig.json"
+                        );
                         let ztConfig = await Games.getGame(this.config.game);
 
                         if (!!ztConfig) {
-                            ztConfig = Object.assign(ztConfig, Configs.getList(), { game: this.config.game });
+                            ztConfig = Object.assign(
+                                ztConfig,
+                                Configs.getList(),
+                                { game: this.config.game }
+                            );
 
-                            let configres = await Files.writeJson(configPath, ztConfig);
+                            let configres = await Files.writeJson(
+                                configPath,
+                                ztConfig
+                            );
                         }
                     } catch (error) {}
 
@@ -746,7 +783,9 @@ class Project {
         }
         var templatesrc = this.dirProject("./src/templates/" + page.template);
         var templateAssets = this.dirCode("../../templates/" + page.template);
-        var TplPath = this.dirCode("../../templates/" + page.template + "/html.tpl");
+        var TplPath = this.dirCode(
+            "../../templates/" + page.template + "/html.tpl"
+        );
         // console.log(templatesrc);
         var temres = await Files.createdirAsync(templatesrc);
 
@@ -787,10 +826,16 @@ class Project {
                 }
                 if (trackcode[i]["position"] == "before") {
                     var tagstr = "</" + trackcode[i]["tag"] + ">";
-                    templatehtml = templatehtml.replace(tagstr, trackcode[i]["code"] + "\n" + tagstr);
+                    templatehtml = templatehtml.replace(
+                        tagstr,
+                        trackcode[i]["code"] + "\n" + tagstr
+                    );
                 } else if (trackcode[i]["position"] == "after") {
                     var tagstr = "<" + trackcode[i]["tag"] + ">";
-                    templatehtml = templatehtml.replace(tagstr, tagstr + "\n" + trackcode[i]["code"]);
+                    templatehtml = templatehtml.replace(
+                        tagstr,
+                        tagstr + "\n" + trackcode[i]["code"]
+                    );
                 }
             }
         }
@@ -798,7 +843,11 @@ class Project {
         var gameinfo: any = await Games.getGame(this.config.game);
         var common: any = await Games.getGame("common");
 
-        var wxid = !!gameinfo.wxid ? gameinfo.wxid : !!common.wxid ? common.wxid : "";
+        var wxid = !!gameinfo.wxid
+            ? gameinfo.wxid
+            : !!common.wxid
+            ? common.wxid
+            : "";
         page.header += '<script>var WXID="' + wxid + '"</script>';
 
         var maincssstr = "";
@@ -808,10 +857,20 @@ class Project {
             let extname = path.extname(tree[i]["path"]);
             let realPath = path.relative(templatesrc, tree[i]["path"]);
             if (extname == ".scss") {
-                maincssstr += '@import "../templates/' + page.template + "/" + realPath + '";\n';
+                maincssstr +=
+                    '@import "../templates/' +
+                    page.template +
+                    "/" +
+                    realPath +
+                    '";\n';
                 console.log(maincssstr);
             } else if (extname == ".js") {
-                mainjsstr += 'require("../templates/' + page.template + "/" + realPath + '");\n';
+                mainjsstr +=
+                    'require("../templates/' +
+                    page.template +
+                    "/" +
+                    realPath +
+                    '");\n';
             }
         }
         maincssstr += '@import "./build/' + name + '";\n';
@@ -832,17 +891,28 @@ class Project {
         var htmlattr;
         var cssstr = "";
         var htmlstr = html;
-        var csspath = path.resolve(this.rootdir, "src/css/build/" + name + ".scss");
+        var csspath = path.resolve(
+            this.rootdir,
+            "src/css/build/" + name + ".scss"
+        );
 
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
         var srcpath = path.resolve(this.rootdir, "src/");
-        var maincsspath = path.resolve(this.rootdir, "src/css/" + name + ".scss");
+        var maincsspath = path.resolve(
+            this.rootdir,
+            "src/css/" + name + ".scss"
+        );
         var mainjspath = path.resolve(this.rootdir, "src/js/" + "main" + ".js");
         while ((htmlattr = regstr.exec(html))) {
             if (!!htmlattr[1] && !!htmlattr[3]) {
                 htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
                 let stylestr = Util.cssUrlChange(srcpath, htmlattr[3], csspath);
-                cssstr += "#" + htmlattr[1] + "{\n\t" + stylestr.replace(/;/g, ";\n\t") + "\n}\n";
+                cssstr +=
+                    "#" +
+                    htmlattr[1] +
+                    "{\n\t" +
+                    stylestr.replace(/;/g, ";\n\t") +
+                    "\n}\n";
             }
         }
         cssstr = cssstr.replace(/\t\n\}/g, "}");
@@ -872,7 +942,10 @@ class Project {
         return info;
     }
     async devHas() {
-        let actpath = path.resolve(Configs.getItem("devpath"), "common/" + this.config.game + "/act/" + this.config.name);
+        let actpath = path.resolve(
+            Configs.getItem("devpath"),
+            "common/" + this.config.game + "/act/" + this.config.name
+        );
         debugger;
         return await fse.exists(actpath);
     }
@@ -882,7 +955,13 @@ class Project {
             throw new Error("没找到对应游戏的配置");
         }
         var dev = games.online || "svn";
-        let actpath = path.resolve(Configs.getItem(dev + "Folder"), this.config.game + (dev == "svn" ? "/release" : "") + "/act/" + this.config.name);
+        let actpath = path.resolve(
+            Configs.getItem(dev + "Folder"),
+            this.config.game +
+                (dev == "svn" ? "/release" : "") +
+                "/act/" +
+                this.config.name
+        );
         debugger;
         return await fse.exists(actpath);
     }
@@ -896,9 +975,14 @@ class Project {
             throw new Error("目前只支持代码在samba下的项目");
         }
         if (!(await Configs.getItem("devpath"))) {
-            throw new Error("请在设置中配置 测试目录 如：\\\\192.168.150.116\\");
+            throw new Error(
+                "请在设置中配置 测试目录 如：\\\\192.168.150.116\\"
+            );
         }
-        let actpath = path.resolve(Configs.getItem("devpath"), "common/" + this.config.game + "/act");
+        let actpath = path.resolve(
+            Configs.getItem("devpath"),
+            "common/" + this.config.game + "/act"
+        );
         let projectpath = path.resolve(actpath, this.config.name);
         debugger;
         if (await fse.exists(actpath)) {
@@ -922,51 +1006,62 @@ class Project {
         if (!(await Configs.getItem(dev + "Folder"))) {
             throw new Error("请在设置中配置" + dev + "代码目录");
         }
-        let actpath = path.resolve(Configs.getItem(dev + "Folder"), this.config.game + (dev == "svn" ? "/release" : "") + "/act");
+        let actpath = path.resolve(
+            Configs.getItem(dev + "Folder"),
+            this.config.game + (dev == "svn" ? "/release" : "") + "/act"
+        );
         let projectpath = path.resolve(actpath, this.config.name);
         debugger;
         if (await fse.exists(actpath)) {
+            if (!(await Files.createdirAsync(projectpath))) {
+                throw new Error("创建项目文件失败");
+            }
+
             if (dev == "svn") {
+                await this.updateSvn(projectpath);
             }
             if (await fse.copy(this.distDir, projectpath)) {
                 if (dev == "svn") {
+                    return await this.commitSvn(projectpath);
                 } else {
+                    Files.openFolder(projectpath);
+                    return true;
                 }
-                return true;
             }
             return false;
         } else {
             throw new Error(actpath + "文件夹不存在");
         }
     }
-    async updateSvn(svnpath) {
+    async svnClientisOk() {
         if (!(await Configs.getItem("svnClient"))) {
             throw new Error("请在设置中配置乌龟SVN安装目录");
         }
         if (!(await fse.exists(Configs.getItem("svnClient")))) {
             throw new Error("乌龟SVN安装目录不存在");
         }
-        let sh = '"' + Configs.getItem("svnClient") + '" /command:update /path ' + svnpath;
-        return await new Promise((reject, resolve) => {
-            shelljs.exec(
-                sh,
-                {
-                    async: true,
-                    silent: true
-                },
-                function(code, stdout, stderr) {
-                    if (!!stderr) {
-                        reject(stderr);
-                    } else {
-                        resolve(true);
-                    }
-                }
-            );
-        });
+        return true;
+    }
+    async updateSvn(svnpath) {
+        await this.svnClientisOk();
+        let sh =
+            '"' +
+            Configs.getItem("svnClient") +
+            '" /command:update /path ' +
+            svnpath;
+        return await Util.runSh(sh);
+    }
+    async commitSvn(svnpath) {
+        await this.svnClientisOk();
+        let sh =
+            '"' +
+            Configs.getItem("svnClient") +
+            '" /command:commit /path ' +
+            svnpath;
+        return await Util.runSh(sh);
     }
     save(data) {}
     runCmd() {}
-    commitSvn() {}
     uploadToDev() {}
     addWorkTime() {}
 }
