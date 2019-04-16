@@ -22,7 +22,6 @@ class Util {
         var regstr = /url\(([^\s\'\"\<\>]*?)\)/gim;
         var cssattr;
         while ((cssattr = regstr.exec(cssstr))) {
-            console.log(cssattr);
             if (!!cssattr[1] && cssattr.indexOf("//") < 0) {
                 // cssstr += "#" + htmlattr[1] + "{\n\t" + htmlattr[3].replace(/;/g, ";\n\t") + "\n}\n";
                 // htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");

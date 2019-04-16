@@ -815,7 +815,8 @@ class Project {
             }
         }
         maincssstr += '@import "./build/' + name + '";\n';
-        maincssstr = maincssstr.replace(/\\/g,'/')
+        maincssstr = maincssstr.replace(/\\/g,'/');
+        
         var app = new Vue({
             data: {
                 page: pageObj,
@@ -844,7 +845,6 @@ class Project {
                 cssstr += "#" + htmlattr[1] + "{\n\t" + stylestr.replace(/;/g, ";\n\t") + "\n}\n";
             }
         }
-        console.log(htmlstr);
         cssstr = cssstr.replace(/\t\n\}/g, "}");
         page.html = htmlstr;
         var reshtml = juicer(templatehtml, { page: page });
@@ -859,6 +859,7 @@ class Project {
             await Files.writeFile(csspath, cssstr);
             await Files.writeFile(maincsspath, maincssstr);
             if (!(await fse.exists(mainjspath))) {
+                mainjsstr = mainjsstr.replace(/\\/g,'/');
                 await Files.writeFile(mainjspath, mainjsstr);
             }
         } catch (error) {
