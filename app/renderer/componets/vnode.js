@@ -443,7 +443,7 @@ class vnode {
                         event.cancelBubble = true;
                     },
                     mousedown: function(event) {
-                        if (self.view == "root" || self.view.name == "root") {
+                        if (self.name == "root") {
                             return;
                         }
                         canvas.changeCurVnode(self);
