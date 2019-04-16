@@ -22,11 +22,11 @@ class Config {
             name: "工作区目录",
             type:'directory'
         },
-        svnFolders: {
+        svnFolder: {
             name: "svn代码目录",
             type:'directory'
         },
-        gitFolders: {
+        gitFolder: {
             name: "git代码目录",
             type:'directory'
         },

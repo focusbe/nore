@@ -815,8 +815,8 @@ class Project {
             }
         }
         maincssstr += '@import "./build/' + name + '";\n';
-        maincssstr = maincssstr.replace(/\\/g,'/');
-        
+        maincssstr = maincssstr.replace(/\\/g, "/");
+
         var app = new Vue({
             data: {
                 page: pageObj,
@@ -833,7 +833,7 @@ class Project {
         var cssstr = "";
         var htmlstr = html;
         var csspath = path.resolve(this.rootdir, "src/css/build/" + name + ".scss");
-        
+
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
         var srcpath = path.resolve(this.rootdir, "src/");
         var maincsspath = path.resolve(this.rootdir, "src/css/" + name + ".scss");
@@ -859,7 +859,7 @@ class Project {
             await Files.writeFile(csspath, cssstr);
             await Files.writeFile(maincsspath, maincssstr);
             if (!(await fse.exists(mainjspath))) {
-                mainjsstr = mainjsstr.replace(/\\/g,'/');
+                mainjsstr = mainjsstr.replace(/\\/g, "/");
                 await Files.writeFile(mainjspath, mainjsstr);
             }
         } catch (error) {
@@ -870,6 +870,99 @@ class Project {
     getInfo() {
         let info = this.db.get("info").value();
         return info;
+    }
+    async devHas() {
+        let actpath = path.resolve(Configs.getItem("devpath"), "common/" + this.config.game + "/act/" + this.config.name);
+        debugger;
+        return await fse.exists(actpath);
+    }
+    async localHas() {
+        var games = await Games.getGame(this.config.game);
+        if (!games) {
+            throw new Error("没找到对应游戏的配置");
+        }
+        var dev = games.online || "svn";
+        let actpath = path.resolve(Configs.getItem(dev + "Folder"), this.config.game + (dev == "svn" ? "/release" : "") + "/act/" + this.config.name);
+        debugger;
+        return await fse.exists(actpath);
+    }
+    async publishDev() {
+        var games = await Games.getGame(this.config.game);
+        if (!games) {
+            throw new Error("没找到对应游戏的配置");
+        }
+        var dev = games.dev || "ftp";
+        if (dev != "ftp") {
+            throw new Error("目前只支持代码在samba下的项目");
+        }
+        if (!(await Configs.getItem("devpath"))) {
+            throw new Error("请在设置中配置 测试目录 如：\\\\192.168.150.116\\");
+        }
+        let actpath = path.resolve(Configs.getItem("devpath"), "common/" + this.config.game + "/act");
+        let projectpath = path.resolve(actpath, this.config.name);
+        debugger;
+        if (await fse.exists(actpath)) {
+            if (await fse.copy(this.distDir, projectpath)) {
+                return true;
+            }
+            return false;
+        } else {
+            throw new Error(actpath + "文件夹不存在");
+        }
+    }
+    async publishOnline() {
+        var games = await Games.getGame(this.config.game);
+        if (!games) {
+            throw new Error("没找到对应游戏的配置");
+        }
+        var dev = games.online || "svn";
+        // if (dev != "ftp") {
+        //     throw new Error("目前只支持代码在samba下的项目");
+        // }
+        if (!(await Configs.getItem(dev + "Folder"))) {
+            throw new Error("请在设置中配置" + dev + "代码目录");
+        }
+        let actpath = path.resolve(Configs.getItem(dev + "Folder"), this.config.game + (dev == "svn" ? "/release" : "") + "/act");
+        let projectpath = path.resolve(actpath, this.config.name);
+        debugger;
+        if (await fse.exists(actpath)) {
+            if (dev == "svn") {
+            }
+            if (await fse.copy(this.distDir, projectpath)) {
+                if (dev == "svn") {
+                } else {
+                }
+                return true;
+            }
+            return false;
+        } else {
+            throw new Error(actpath + "文件夹不存在");
+        }
+    }
+    async updateSvn(svnpath) {
+        if (!(await Configs.getItem("svnClient"))) {
+            throw new Error("请在设置中配置乌龟SVN安装目录");
+        }
+        if (!(await fse.exists(Configs.getItem("svnClient")))) {
+            throw new Error("乌龟SVN安装目录不存在");
+        }
+        let sh = '"' + Configs.getItem("svnClient") + '" /command:update /path ' + svnpath;
+        return await new Promise((reject, resolve) => {
+            shelljs.exec(
+                sh,
+                {
+                    async: true,
+                    silent: true
+                },
+                function(code, stdout, stderr) {
+                    if (!!stderr) {
+                        reject(stderr);
+                    } else {
+                        resolve(true);
+                    }
+                }
+            );
+        });
     }
     save(data) {}
     runCmd() {}
