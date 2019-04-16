@@ -24,7 +24,8 @@ class PSD {
     private psdpath;
     private imgdir;
     private asseturl;
-    constructor(psdpath, imgdir, asseturl, pixelMax) {
+    private userwebp;
+    constructor(psdpath, imgdir, asseturl, userwebp, pixelMax) {
         if (!pixelMax) {
             pixelMax = 10000 * 10000;
         }
@@ -32,6 +33,7 @@ class PSD {
         this.psdpath = psdpath;
         this.imgdir = imgdir;
         this.asseturl = asseturl;
+        this.userwebp = userwebp;
     }
     async parse(debug) {
         var self = this;
@@ -149,7 +151,7 @@ class PSD {
             // }
             vNode.styles = Object.assign(pageSize, {
                 x: 0,
-                xalign:'center',
+                xalign: "center",
                 position: "relative",
                 y: 0,
                 background: "none",
@@ -318,15 +320,16 @@ class PSD {
                         let afterImgSaved;
                         function createCb(somValue, cb) {
                             return function(imgurl) {
+                                imgurl = self.asseturl + "/" + imgurl;
                                 cb(somValue, imgurl);
                             };
                         }
                         console.log(vNode);
                         if (!!vNode.styles && (!vNode.styles.background || vNode.styles.background == "none") && childrenLayers.length > 1 && (vNode.styles.width == curposition.width && vNode.styles.height == curposition.height)) {
-                            vNode.childrens.splice(0,1);
+                            vNode.childrens.splice(0, 1);
                             afterImgSaved = createCb(vNode, function(vNode, imgurl) {
                                 if (!!imgurl) {
-                                    vNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
+                                    vNode.styles.background = "url(" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
                                 } else {
                                     vNode.styles.img = "";
                                 }
@@ -335,7 +338,7 @@ class PSD {
                             curVNode.view = "button";
                             afterImgSaved = createCb(curVNode, function(curVNode, imgurl) {
                                 if (!!imgurl) {
-                                    curVNode.styles.background = "url(//" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
+                                    curVNode.styles.background = "url(" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
                                 } else {
                                     curVNode.styles.img = "";
                                 }
@@ -350,7 +353,7 @@ class PSD {
                                 }
                             });
                         }
-                        imgPool.push(new Image(this.imgdir, curLayer.path(), curLayer.layer.image, afterImgSaved, imgArea));
+                        imgPool.push(new Image(this.imgdir, curLayer.path(), curLayer.layer.image, afterImgSaved, imgArea, this.userwebp));
                     }
                 }
             }

@@ -1,7 +1,10 @@
 <template>
 	<div class="page_wrap">
 		<div class="left_options">
-			<pagemanage :project="project" @openPage="openPage"></pagemanage>
+			<pagemanage
+			 :project="project"
+			 @openPage="openPage"
+			></pagemanage>
 			<div class="options_section">
 				<h2>页面配置</h2>
 				<!-- <assets :actname="actname"></assets> -->
@@ -9,50 +12,95 @@
 		</div>
 		<div class="center">
 			<ul class="page_list">
-				<li v-for="(item,key) in pagelist" :class="item.name==curPage?'cur':''">
+				<li
+				 v-for="(item,key) in pagelist"
+				 :class="item.name==curPage?'cur':''"
+				>
 					<span @click="changePage(item.name)">{{item.name}}</span>
-					<Icon @click="closePage(key)" size="22" type="ios-close"/>
+					<Icon
+					 @click="closePage(key)"
+					 size="22"
+					 type="ios-close"
+					/>
 				</li>
 			</ul>
 
 			<div class="page_detail">
-				<div class="top_options_bar" v-if="curPage">
-					<Button type="primary" @click="clearCanvas" title="清空">
-						<Icon type="md-trash" size="20"/>
+				<div
+				 class="top_options_bar"
+				 v-if="curPage"
+				>
+					<Button
+					 type="primary"
+					 @click="clearCanvas"
+					 title="清空"
+					>
+						<Icon
+						 type="md-trash"
+						 size="20"
+						/>
 					</Button>
-					<Button type="primary" @click="savePage" title="保存">
-						<Icon type="md-sync" size="20"/>
+					<Button
+					 type="primary"
+					 @click="savePage"
+					 title="保存"
+					>
+						<Icon
+						 type="md-sync"
+						 size="20"
+						/>
 					</Button>
-					<Button @click="buildPage" type="primary" title="构建">
-						<Icon type="md-build" size="20" color/>
+					<Button
+					 @click="buildPage"
+					 type="primary"
+					 title="构建"
+					>
+						<Icon
+						 type="md-build"
+						 size="20"
+						 color
+						/>
 					</Button>
-					<Button @click="preview" type="primary" title="预览">
-						<Icon type="logo-chrome" size="20" color/>
+					<Button
+					 @click="preview"
+					 type="primary"
+					 title="发布"
+					>
+						<Icon
+						 type="logo-chrome"
+						 size="20"
+						 color
+						/>
 					</Button>
-					<Select v-model="curdevice" slot="prepend" style="width: 80px">
+					<!-- <Select
+					 v-model="curdevice"
+					 slot="prepend"
+					 style="width: 80px"
+					>
 						<Option value="pc">PC端</Option>
 						<Option value="phone">移动端</Option>
-					</Select>
+					</Select> -->
 					<my-psd
-						:actname="actname"
-						:pagename="curPage"
-						@savedesign="savedesign"
-						@finish="psdfinish"
-						title="上传PSD"
+					 :actname="actname"
+					 :pagename="curPage"
+					 :device="curdevice"
+					 @savedesign="savedesign"
+					 @finish="psdfinish"
+					 title="上传PSD"
 					></my-psd>
 				</div>
 				<div
-					v-for="(item,key) in pagelist"
-					v-show="curPage==item.name"
-					:class="'canvas canvas'+item.name "
-					v-bind:style="designeSize[curdevice]"
+				 v-for="(item,key) in pagelist"
+				 v-show="curPage==item.name"
+				 :class="'canvas canvas'+item.name "
+				 v-bind:style="designeSize[curdevice]"
 				>
 					<my-canvas
-						:ref="'canvas'+item.name"
-						:canvasData="item"
-						:pagename="item.name"
-						:projectname="actname"
-						@onChange="onCanvasChange"
+					 :ref="'canvas'+item.name"
+					 :canvasData="item"
+					 :pagename="item.name"
+					 :projectname="actname"
+					 @onChange="onCanvasChange"
 					/>
 				</div>
 			</div>
@@ -61,32 +109,46 @@
 			<div class="options_section">
 				<h2>组件</h2>
 				<ul class="element_list">
-					<li v-for="item in viewList" v-bind:key="item.name" v-if="!item.hidden">
-						<a @click="addView(item.name)" href="javascript:void(0)">
-							<Icon :type="item.icon" size="24" color/>
+					<li
+					 v-for="item in viewList"
+					 v-bind:key="item.name"
+					 v-if="!item.hidden"
+					>
+						<a
+						 @click="addView(item.name)"
+						 href="javascript:void(0)"
+						>
+							<Icon
+							 :type="item.icon"
+							 size="24"
+							 color
+							/>
 							<p>{{item.label}}</p>
 						</a>
 					</li>
 				</ul>
 			</div>
 			<styles-panel
-				@onChange="onCurStylesChange"
-				v-if="styleOptions"
-				:options="styleOptions"
-				:optionsValue="curStyles"
-				title="样式布局"
+			 @onChange="onCurStylesChange"
+			 v-if="styleOptions"
+			 :options="styleOptions"
+			 :optionsValue="curStyles"
+			 title="样式布局"
 			></styles-panel>
 			<br>
 			<my-options
-				@onChange="onCurPropsChange"
-				v-if="propOptions"
-				:options="propOptions"
-				:optionsValue="curProps"
-				title="组件参数"
+			 @onChange="onCurPropsChange"
+			 v-if="propOptions"
+			 :options="propOptions"
+			 :optionsValue="curProps"
+			 title="组件参数"
 			></my-options>
 			<br>
 		</div>
-		<div v-show="dragover" class="dragover"></div>
+		<div
+		 v-show="dragover"
+		 class="dragover"
+		></div>
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -207,28 +269,16 @@ export default {
 			return this.$refs["canvas" + this.curPage][0];
 		},
 		curPageInfo() {
-			return this.pagelist[this.curPage];
-		},
-		curpageName() {
-			var curpage = null;
-			let tmppage = null;
-			for (var i in this.pagelist) {
-				tmppage = this.pagelist[i];
-				if (
-					!!tmppage &&
-					!!tmppage["name"] &&
-					tmppage["name"] == this.curPage
-				) {
-					return;
+			if(!!this.curPage&&!!this.pagelist){
+				for(var i in this.pagelist){
+					if(this.curPage==this.pagelist[i]['name']){
+						return this.pagelist[i];
+					}
 				}
 			}
-			return curpage;
-			if (!this.pagelist[this.curPage]) {
-				return "";
-			}
-
-			return this.pagelist[this.curPage]["name"];
-		}
+			return null;
+			
+		},
 	},
 	methods: {
 		bindDrag() {
@@ -285,7 +335,7 @@ export default {
 			}
 			var canvasDataList = {};
 			for (var i in pagelist) {
-				canvasDataList[pagelist[i]["name"]] = pagelist[i];
+				canvasDataList[pagelist[i]["name"]] = null;
 			}
 			this.canvasDataList = canvasDataList;
 		},
@@ -303,6 +353,10 @@ export default {
 				this.curPage = pagename;
 				//this.getPageInfo(index);
 			}
+			console.log(this.curPageInfo);
+			
+			this.changeDevice(this.curPageInfo.device);
+			//var curCanvasData = this.canvasDataList[this.curPage];
 		},
 
 		async saveCurPage() {
@@ -311,8 +365,8 @@ export default {
 
 			if (!!curCanvasData) {
 				var rootJson = curCanvasData.toJson();
-				console.log(rootJson);
-				return;
+				// console.log(rootJson);
+				// return;
 				try {
 					var res = await this.project.savePage(this.curPage, {
 						tree: rootJson
@@ -438,7 +492,7 @@ export default {
 								}
 								//this.$Modal.remove();
 							} else {
-								this.$Message.error("构建失败");
+								this.$Message.error("保存页面失败导致构建失败");
 								// this.$Modal.remove();
 							}
 						}, 600);

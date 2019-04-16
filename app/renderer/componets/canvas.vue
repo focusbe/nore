@@ -21,9 +21,8 @@ export default {
 		);
 		this.curvnode = this.rootvnode;
 		this.projectPath = this.isssr
-			? "../"
-			: path.resolve(Configs.getItem("workshop"), this.projectname);
-			console.log(this.canvasData.tree);
+			? "./"
+			: path.resolve(Configs.getItem("workshop"), this.projectname+'/src');
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 	},
@@ -34,7 +33,6 @@ export default {
 				return;
 			}
 			this.curvnode = this.rootvnode;
-			console.log(tree)
 			this.rootvnode = new vnode(
 				tree.view,
 				tree.styles,
@@ -53,7 +51,6 @@ export default {
 			this.refresh();
 		},
 		addTreenodes(treenodes, curvnode) {
-			console.log(treenodes);
 			if (!curvnode) {
 				curvnode = this.rootvnode;
 			}
@@ -61,7 +58,6 @@ export default {
 				var curnode;
 				for (var i in treenodes) {
 					curnode = treenodes[i];
-					console.log(curnode);
 					if(!!curnode&&typeof(curnode)=='string'){
 						curvnode.childrens.push(curnode);
 						return;
@@ -88,7 +84,7 @@ export default {
 						
 					// }
 					// console.log(curviewObj);
-					console.log(curnode.view)
+
 					var newnode = new vnode(
 						curnode.view,
 						curnode.styles,

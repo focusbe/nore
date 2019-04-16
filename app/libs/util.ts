@@ -1,24 +1,41 @@
-
+const path = require("path");
 class Util {
     static idcache = {};
     static createId() {
-        let id: string = (new Date().getTime()).toString();
+        let id: string = new Date().getTime().toString();
         if (!!this.idcache[id]) {
             this.idcache[id]++;
             //console.log(this.idcache[id]);
-            id = id + '' + this.idcache[id];
-        }
-        else {
+            id = id + "" + this.idcache[id];
+        } else {
             this.idcache[id] = 1;
         }
         return id;
     }
     static isPath(str) {
-
-        if (typeof (str) == 'string' && str.indexOf('/') > -1 && str.indexOf('.') > -1 && str.indexOf('//') == -1) {
+        if (typeof str == "string" && str.indexOf("/") > -1 && str.indexOf(".") > -1 && str.indexOf("//") == -1) {
             return true;
         }
         return false;
+    }
+    static cssUrlChange(cssDir, cssstr, from = null) {
+        var regstr = /url\(([^\s\'\"\<\>]*?)\)/gim;
+        var cssattr;
+        while ((cssattr = regstr.exec(cssstr))) {
+            console.log(cssattr);
+            if (!!cssattr[1] && cssattr.indexOf("//") < 0) {
+                // cssstr += "#" + htmlattr[1] + "{\n\t" + htmlattr[3].replace(/;/g, ";\n\t") + "\n}\n";
+                // htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
+                let resUrl;
+                if (!!from) {
+                    resUrl = path.relative(from, path.resolve(cssDir, cssattr[1])).replace(/\\/g,'/');
+                } else {
+                    resUrl = path.resolve(cssDir, cssattr[1]).replace(/\\/g,'/');
+                }
+                cssstr = cssstr.replace(cssattr[1], resUrl);
+            }
+        }
+        return cssstr;
     }
 }
 export default Util;
@@ -53,5 +70,3 @@ export default Util;
 //     	});
 //     }
 // }
-
-

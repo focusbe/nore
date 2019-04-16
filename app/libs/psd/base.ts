@@ -118,6 +118,7 @@ class Image {
                         var areasharp = Sharp(this.fullpath).extract(position);
                         function saveEnd(bool, imgurl = "") {
                             if (!!bool) {
+                                imgurl = path.relative(this.outputdir,imgurl);
                                 this.outCallback(imgurl);
                                 cb(true, imgurl);
                             } else {

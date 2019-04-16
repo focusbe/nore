@@ -14,13 +14,19 @@ vueViews.keys().map(key => {
         viewList_obj[curElement['name']] = curElement;
     }
 })
-function viewList(name){
-    if(!name){
-        return null;
+// function viewList(name){
+//     if(!name){
+//         return null;
+//     }
+//     if(!!viewList_obj[name]){
+//         return viewList_obj[name];
+//     }
+//     return viewList_obj['htmltag']
+// }
+let handler = {
+    get:function(target,name){
+        return name in target ? target[name] : target['htmltag'];
     }
-    if(!!viewList_obj[name]){
-        return viewList_obj[name];
-    }
-    return viewList_obj['htmltag']
 }
+const viewList = new Proxy(viewList_obj, handler);
 export default viewList;
