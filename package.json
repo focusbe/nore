@@ -32,7 +32,7 @@
         ],
         "asarUnpack": [
             "./templates/**/*",
-            "./config/**/*",
+            "./config/",
             "./data/**/*",
             "./scaffold/**/*"
         ],
@@ -67,7 +67,7 @@
                 "!package-lock.json",
                 "!app/*",
                 "!output/*",
-                "!config/*",
+                "!config_dev/*",
                 "!assets/*",
                 "!build/*",
                 "!workshop/*"
@@ -143,6 +143,7 @@
         "sharp": "^0.22.0",
         "shelljs": "^0.8.3",
         "socket.io": "^2.2.0",
+        "sudo-prompt": "^8.2.5",
         "vue-server-renderer": "^2.5.21"
     }
 }

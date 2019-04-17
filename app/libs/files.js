@@ -1,6 +1,7 @@
 const fse = require("fs-extra");
 const path = require("path");
 const shelljs = require("shelljs");
+var sudo = require("sudo-prompt");
 class Files {
     static copy(src, dst, callback) {
         var _self = this;
@@ -35,11 +36,10 @@ class Files {
             //     if (!err) result(true);
             //     else reject(err);
             // });
-            this.createdir(src, (success) => {
+            this.createdir(src, success => {
                 if (!!success) {
                     result(success);
-                }
-                else {
+                } else {
                     reject("创建文件失败");
                 }
             });
@@ -56,8 +56,8 @@ class Files {
                 return false;
             }
             if (!!stats && !!stats.mtime) {
-                console.log(stats.mtime)
-                return stats.mtime;
+                console.log(stats.mtime.getTime());
+                return stats.mtime.getTime();
             }
             return false;
         }
@@ -65,29 +65,47 @@ class Files {
     }
     static async writeFile(src, content) {
         var res = await new Promise((resolve, reject) => {
-            this.createdir(path.dirname(src), function (bool) {
+            this.createdir(path.dirname(src), function(bool) {
                 if (!bool) {
-                    reject('创建目录失败');
+                    reject("创建目录失败");
                     return;
                 }
-                fse.writeFile(src, content, function (err) {
+                fse.writeFile(src, content, function(err) {
                     if (err) reject(err);
                     else {
                         resolve(true);
                     }
                 });
             });
-
+        });
+        return res;
+    }
+    static async writeJson(src, json) {
+        var res = await new Promise((resolve, reject) => {
+            this.createdir(path.dirname(src), function(bool) {
+                if (!bool) {
+                    reject("创建目录失败");
+                    return;
+                }
+                fse.writeJson(src, json, { spaces: 4, EOL: "\n" }, function(
+                    err
+                ) {
+                    if (err) reject(err);
+                    else {
+                        resolve(true);
+                    }
+                });
+            });
         });
         return res;
     }
     static createdir(src, callback) {
         let parentdir = path.dirname(src);
-        fse.exists(parentdir, function (exists) {
+        fse.exists(parentdir, function(exists) {
             if (!exists) {
-                Files.createdir(parentdir, function () {
+                Files.createdir(parentdir, function() {
                     try {
-                        fse.mkdir(src, function () {
+                        fse.mkdir(src, function() {
                             //创建目录
                             callback(src);
                         });
@@ -97,14 +115,14 @@ class Files {
                 });
             } else {
                 // console.log(src);
-                fse.exists(src, function (exists) {
+                fse.exists(src, function(exists) {
                     if (exists) {
                         //存在
                         callback(src);
                     } else {
                         //bu存在
                         try {
-                            fse.mkdir(src, function () {
+                            fse.mkdir(src, function() {
                                 //创建目录
                                 callback(src);
                             });
@@ -123,8 +141,8 @@ class Files {
         if (typeof istree == "undefined") {
             istree = true;
         }
-        return new Promise(function (result, reject) {
-            fse.pathExists(src, function (err, exists) {
+        return new Promise(function(result, reject) {
+            fse.pathExists(src, function(err, exists) {
                 if (!!err) {
                     reject(err);
                     return;
@@ -132,12 +150,12 @@ class Files {
                 if (!exists) {
                     result(folder);
                 }
-                fse.readdir(src, function (err, paths) {
+                fse.readdir(src, function(err, paths) {
                     if (!err) {
                         var promisArr = [];
                         var length = paths.length;
                         var done = 0;
-                        paths.forEach(async function (curpath) {
+                        paths.forEach(async function(curpath) {
                             var _src = src + "/" + curpath;
                             var filestat = fse.statSync(_src);
                             if (filestat) {
@@ -153,13 +171,13 @@ class Files {
                                     }
 
                                     Files.getTree(_src, istree, saveArr)
-                                        .then(function (res) {
+                                        .then(function(res) {
                                             done++;
                                             if (done >= length) {
                                                 result(folder);
                                             }
                                         })
-                                        .catch(function () {
+                                        .catch(function() {
                                             done++;
                                             if (done >= length) {
                                                 result(folder);
@@ -195,13 +213,13 @@ class Files {
         // var fileslist = fse.readdirSync(src);
         // return fileslist;
 
-        fse.readdir(src, function (err, paths) {
+        fse.readdir(src, function(err, paths) {
             if (!!err || !paths) {
                 callback(false);
                 return;
             }
             var filestlist = new Object();
-            paths.forEach(function (curpath) {
+            paths.forEach(function(curpath) {
                 var _src = path.resolve(src, curpath);
                 var readable;
                 var writable;
@@ -224,13 +242,13 @@ class Files {
         });
     }
     static exists(src, dst, callback) {
-        fse.exists(dst, function (exists) {
+        fse.exists(dst, function(exists) {
             if (exists) {
                 //不存在
                 callback(src, dst);
             } else {
                 //存在
-                fse.mkdir(dst, function () {
+                fse.mkdir(dst, function() {
                     //创建目录
                     callback(src, dst);
                 });
@@ -239,7 +257,7 @@ class Files {
     }
     static isdir(src, callback) {
         //判断打开的是文件 还是 文件夹
-        fse.stat(src, function (err, stat) {
+        fse.stat(src, function(err, stat) {
             if (err) {
                 console.error(err);
                 throw err;
@@ -253,8 +271,8 @@ class Files {
         }
         let exists = await fse.pathExists(filepath);
         if (exists) {
-            var res = await new Promise(function (resolve, reject) {
-                fse.unlink(filepath, function (err) {
+            var res = await new Promise(function(resolve, reject) {
+                fse.unlink(filepath, function(err) {
                     if (err) {
                         if (times < 5) {
                             setTimeout(async () => {
@@ -284,28 +302,30 @@ class Files {
             return false;
         }
         var targetPath = target + path.basename(src);
-        let exists = await fse.pathExists(targetPath);
+        let exists = await fse.pathExists(target);
         if (!!exists) {
             return true;
         }
         let res = await new Promise((resolve, reject) => {
             let sh;
-            if (process.platform == 'darwin' || rocess.platform == 'linux') {
-                sh = 'ln -s ' + src + ' ' + target;
+            console.log(process.platform);
+            if (process.platform == "darwin" || process.platform == "linux") {
+                sh = "ln -s " + src + " " + target;
+            } else if (process.platform == "win32") {
+                sh = "mklink /D " + target + " " + src;
+            } else {
+                reject("该平台不支持创建软连接");
             }
-            else if (process.platform == 'win32') {
-                sh = 'mklink /D ' + src + ' ' + target;
-            }
-            else {
-                reject('该平台不支持创建软连接')
-            }
-            shelljs.exec(
+            sudo.exec(
                 sh,
                 {
-                    async: true,
-                    silent: true
+                    name: "Nore",
+                    icns: path.resolve(__dirname, "../../assets/norecode.icns")
                 },
-                function (code, stdout, stderr) {
+                function(code, stdout, stderr) {
+                    console.log(code);
+                    console.log(stdout);
+                    console.log(stderr);
                     if (!!stderr) {
                         reject(stderr);
                     } else {
@@ -315,7 +335,11 @@ class Files {
             );
         });
         return res;
-
+    }
+    static openFolder(folder) {
+        var shell = require("electron").shell;
+        //const os = require("os");
+        shell.showItemInFolder(folder);
     }
 }
 export default Files;

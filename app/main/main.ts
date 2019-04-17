@@ -18,6 +18,8 @@ class Main {
                 app.quit();
                 app.exit();
             }
+            app.quit();
+            app.exit();
         });
         app.on("activate", function() {
             //WinManager.newwindow("main");

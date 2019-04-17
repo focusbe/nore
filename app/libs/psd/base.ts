@@ -78,11 +78,29 @@ class Rectangle {
             top: this.startPoint.y
         };
     }
+    public static hasIntersection(rec1: Rectangle, rec2: Rectangle) {
+        let newrec = this.intersection(rec1, rec2);
+        if (newrec.size.width < 0 || newrec.size.height < 0) {
+            return false;
+        }
+        return true;
+    }
     public static intersection(rec1: Rectangle, rec2: Rectangle) {
         let start = Point.max(rec1.startPoint, rec2.startPoint);
         let end = Point.min(rec1.endPoint, rec2.endPoint);
         let newrec = new Rectangle(start, end);
         return newrec;
+    }
+    public static isBefore(rec1: Rectangle, rec2: Rectangle) {
+        if (rec1.endPoint.y < rec2.startPoint.y) {
+            return true;
+        } else if (rec1.endPoint.x < rec2.startPoint.x) {
+            if (rec2.endPoint.y > rec1.startPoint.y) {
+                return true;
+            }
+            return false;
+        }
+        return false;
     }
 }
 //图片相关
@@ -118,6 +136,7 @@ class Image {
                         var areasharp = Sharp(this.fullpath).extract(position);
                         function saveEnd(bool, imgurl = "") {
                             if (!!bool) {
+                                imgurl = path.relative(this.outputdir, imgurl);
                                 this.outCallback(imgurl);
                                 cb(true, imgurl);
                             } else {
@@ -418,8 +437,8 @@ class PsdUtli {
         str = this.Pinyin(str);
         return str;
     }
-    static isButtonName(curclassname){
-        return (curclassname.indexOf("_btn") > -1 || curclassname.indexOf("button") > -1 || curclassname.indexOf("anniu") > -1);
+    static isButtonName(curclassname) {
+        return curclassname.indexOf("_btn") > -1 || curclassname.indexOf("button") > -1 || curclassname.indexOf("anniu") > -1;
     }
 }
 export { Point, Size, Rectangle, Image, PsdUtli, ImagePool };

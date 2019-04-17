@@ -15,13 +15,12 @@
 	</div>
 </template>
 <style lang="scss" scoped>
-.psduploader{
+.psduploader {
 	display: inline-block;
 	vertical-align: middle;
 }
 .filelist {
 	li {
-
 	}
 }
 </style>
@@ -31,7 +30,7 @@ import Tree from "./tree";
 import Vue from "vue";
 import Configs from "libs/configs";
 import Files from "libs/files";
-import PSD  from "libs/psd/index";
+import PSD from "libs/psd/index";
 import path from "path";
 import aRemote from "libs/aremote";
 
@@ -40,7 +39,8 @@ export default {
 	computed: {},
 	props: {
 		actname: String,
-		pagename: String
+		pagename: String,
+		device: String
 	},
 	data() {
 		return {
@@ -55,9 +55,7 @@ export default {
 			"psd"
 		);
 	},
-	updated() {
-
-	},
+	updated() {},
 	methods: {
 		async getList() {
 			var list = await this.assets.getList();
@@ -75,7 +73,8 @@ export default {
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,
-					"src/images/" + this.pagename
+					"images/" + this.pagename,
+					this.device == "phone"
 				);
 				var res = await mypsd.parse(false);
 				console.log(res);

@@ -107,14 +107,14 @@ export default {
 				// 	// self.$Message.success('删除成功！');
 				// }
 			} catch (error) {
-				// console.log(error);
-				alert(error);
+				//console.log(error);
+				alert(error.message);
 			}
 		},
 		openinFolder() {
 			var actname = this.curcontextVnode.key;
-			const shell = require("electron").shell;
-			const os = require("os");
+			var shell = require("electron").shell;
+			//const os = require("os");
 			shell.showItemInFolder(path.resolve(Configs.getItem("workshop"),actname+'/data'));
 		},
 		getProjects: async function() {

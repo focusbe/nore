@@ -13,7 +13,6 @@ import Elelments from "./elements/index.js";
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
 import mySocket from "./utli/mysocket";
-console.log(mySocket);
 mySocket.on('reloadPage',function(){
     window.location.reload();
 });

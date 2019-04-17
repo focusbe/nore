@@ -7,3 +7,4 @@ dist/
 output/
 yarn-error.log
 config/config.json
+config_dev/
