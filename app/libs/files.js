@@ -56,8 +56,8 @@ class Files {
                 return false;
             }
             if (!!stats && !!stats.mtime) {
-                console.log(stats.mtime);
-                return stats.mtime;
+                console.log(stats.mtime.getTime());
+                return stats.mtime.getTime();
             }
             return false;
         }

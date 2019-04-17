@@ -941,13 +941,34 @@ class Project {
         let info = this.db.get("info").value();
         return info;
     }
+    getDevPath(...value){
+        var devpath = Configs.getItem("devpath");
+        if(!value||!value.length){
+            return null;
+        }
+        if(!!devpath){
+            if(devpath[devpath.length-1]!='\\'){
+                devpath = devpath+'\\';
+            }
+            return devpath+path.join(...value);
+        }
+        return null;
+    }
     async devHas() {
-        let actpath = path.resolve(
-            Configs.getItem("devpath"),
-            "common/" + this.config.game + "/act/" + this.config.actname
-        );
+        // let actpath = path.resolve(
+        //     Configs.getItem("devpath"),
+        //     "common/" + this.config.game + "/act/" + this.config.actname
+        // );
+        let actpath = this.getDevPath("common/" + this.config.game + "/act/" + this.config.actname);
+        if(!actpath){
+            throw new Error('获取测试服地址失败')
+        }
         debugger;
-        return await fse.exists(actpath);
+        if(await fse.exists(actpath)){
+            //var gaptime =  (new Date().getTime())-await Files.getMtime(actpath);
+            return Util.howLong(await Files.getMtime(actpath))
+        }
+        return false;
     }
     async localHas() {
         var games = await Games.getGame(this.config.game);
@@ -974,22 +995,18 @@ class Project {
         if (dev != "ftp") {
             throw new Error("目前只支持代码在samba下的项目");
         }
-        if (!(await Configs.getItem("devpath"))) {
-            throw new Error(
-                "请在设置中配置 测试目录 如：\\\\192.168.150.116\\"
-            );
-        }
-        let actpath = path.resolve(
-            Configs.getItem("devpath"),
-            "common/" + this.config.game + "/act"
-        );
-        let projectpath = path.resolve(actpath, this.config.actname);
-        debugger;
+        // if (!(await Configs.getItem("devpath"))) {
+        //     throw new Error(
+        //         "请在设置中配置 测试目录 如：\\\\192.168.150.116\\"
+        //     );
+        // }
+        let actpath = this.getDevPath("common/" + this.config.game + "/act");
+        let projectpath = this.getDevPath("common/" + this.config.game + "/act",this.config.actname);
+        
         if (await fse.exists(actpath)) {
-            if (await fse.copy(this.distDir, projectpath)) {
-                return true;
-            }
-            return false;
+            
+            await fse.copy(this.distDir, projectpath);
+            return true;
         } else {
             throw new Error(actpath + "文件夹不存在");
         }
@@ -1020,15 +1037,13 @@ class Project {
             if (dev == "svn") {
                 await this.updateSvn(projectpath);
             }
-            if (await fse.copy(this.distDir, projectpath)) {
-                if (dev == "svn") {
-                    return await this.commitSvn(projectpath);
-                } else {
-                    Files.openFolder(projectpath);
-                    return true;
-                }
+            await fse.copy(this.distDir, projectpath);
+            if (dev == "svn") {
+                return await this.commitSvn(projectpath);
+            } else {
+                Files.openFolder(projectpath);
+                return true;
             }
-            return false;
         } else {
             throw new Error(actpath + "文件夹不存在");
         }

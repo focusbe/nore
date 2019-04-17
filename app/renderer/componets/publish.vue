@@ -1,25 +1,31 @@
 <template>
-    <Modal
-        v-model="modalshow"
-        title="发布代码"
-        @on-ok="ok"
-        :closable="true"
-        :fullscreen="false"
-        @on-cancel="cancel"
-        :loading="loading"
-        :footer="''"
-    >
-        <div slot="footer">
-            <!-- <Button
+	<Modal
+	 v-model="modalshow"
+	 title="发布代码"
+	 @on-ok="ok"
+	 :closable="true"
+	 :fullscreen="false"
+	 @on-cancel="cancel"
+	 :loading="loading"
+	 :footer="''"
+	>
+		<div slot="footer">
+			<!-- <Button
 			 @click="submitData"
 			 type="primary"
             >提交</Button>-->
-        </div>
-        <div class="btn_list">
-            <Button @click="publishdev" type="primary">上传到测试服</Button>
-            <Button @click="publishonline" type="primary">上传到正式服</Button>
-        </div>
-        <!-- <Form
+		</div>
+		<div class="btn_list">
+			<Button
+			 @click="publishdev"
+			 type="primary"
+			>上传到测试服</Button>
+			<Button
+			 @click="publishonline"
+			 type="primary"
+			>上传到正式服</Button>
+		</div>
+		<!-- <Form
 		 ref="form"
 		 :model="configsData"
 		 label-position="left"
@@ -51,11 +57,11 @@
 				/>
 			</FormItem>
         </Form>-->
-    </Modal>
+	</Modal>
 </template>
 <style lang="scss" scoped>
 .btn_list {
-    text-align: center;
+	text-align: center;
 }
 </style>
 <script>
@@ -99,11 +105,28 @@ export default {
     methods: {
         async publishdev() {
             try {
-                if (await this.project.publishDev()) {
-                    this.$Message.success("发布成功");
-                } else {
-                    this.$Message.error("发布失败");
+                var has = await this.project.devHas();
+                console.log(has);
+                if(has){
+                    this.$Modal.confirm({
+                        content:'测试服已有存在该项目并在：'+has+'修改过，是否确认上传',
+                        onOk:async ()=>{
+                            if (await this.project.publishDev()) {
+                                this.$Message.success("发布成功");
+                            } else {
+                                this.$Message.error("发布失败");
+                            }
+                        }
+                    })
                 }
+                else{
+                    if (await this.project.publishDev()) {
+                        this.$Message.success("发布成功");
+                    } else {
+                        this.$Message.error("发布失败");
+                    }
+                }
+                
             } catch (error) {
                 console.error(error);
                 this.$Message.error(error.message || "发布失败");
