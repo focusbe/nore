@@ -153,6 +153,7 @@ class Image {
                                     return;
                                 } else {
                                     saveEndFun(true, webpFile);
+                                    Files.delFile(this.fullpath);
                                 }
                             });
                         } else {
