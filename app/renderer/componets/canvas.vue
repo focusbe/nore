@@ -14,22 +14,21 @@ var curviewObj = null;
 
 export default {
 	created: function() {
-		this.rootvnode = new vnode(
-			'root',
-			{ overflow: "auto" },
-			null
-		);
+		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
 		this.projectPath = this.isssr
 			? "./"
-			: path.resolve(Configs.getItem("workshop"), this.projectname+'/src');
+			: path.resolve(
+					Configs.getItem("workshop"),
+					this.projectname + "/src"
+			  );
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 	},
 	mounted() {},
 	methods: {
 		initFromTree(tree) {
-			if(!tree){
+			if (!tree) {
 				return;
 			}
 			this.curvnode = this.rootvnode;
@@ -47,7 +46,7 @@ export default {
 			this.refresh();
 		},
 		clearCanvas() {
-			this.$set(this.rootvnode, "childrens", []);
+			this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 			this.refresh();
 		},
 		addTreenodes(treenodes, curvnode) {
@@ -58,30 +57,30 @@ export default {
 				var curnode;
 				for (var i in treenodes) {
 					curnode = treenodes[i];
-					if(!!curnode&&typeof(curnode)=='string'){
+					if (!!curnode && typeof curnode == "string") {
 						curvnode.childrens.push(curnode);
 						return;
 					}
-					if(!curnode||!curnode.view){
+					if (!curnode || !curnode.view) {
 						continue;
 					}
 					if (curnode.view == "button") {
 						curnode.view = "my-button";
 					}
 					//console.log(viewObj);
-					
+
 					// if(!!viewObj[curnode.view]){
 					// 	var curviewObj = curnode.view;
 					// }
 					// else{
 					// 	var curviewObj = 'htmltag';
-						
+
 					// 	if(!curnode.props){
 					// 		curnode.props = {}
-							
+
 					// 	}
 					// 	curnode.props.tagName = curnode.view;
-						
+
 					// }
 					// console.log(curviewObj);
 

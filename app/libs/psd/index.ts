@@ -221,6 +221,7 @@ class PSD {
                     curStyles.display = "none";
                 }
                 curStyles.background = "none";
+                var isBg = false;
                 if (!!artboard) {
                     //当前节点是一个画布 采用相对布局的方式
                     curDesignSize = {
@@ -255,6 +256,7 @@ class PSD {
                         let newInOriPoint = Point.relative(resRec.startPoint, curLayerRec.startPoint);
                         imgArea = new Rectangle(newInOriPoint, resRec.size).toStyles();
                     }
+                    curLayer.realPositon = curposition;
                     // console.log(curposition);
                     // console.log(imgArea);
 
@@ -265,7 +267,23 @@ class PSD {
                         y: parseInt(curposition.top) - parseInt(parentAbsPos.top),
                         position: "absolute"
                     });
-                    vNode.childrens.splice(0, 0, curVNode);
+                    var posInparent = vNode.childrens.length;
+                    let curRec = new Rectangle(curStyles.x, curStyles.y, curStyles.width, curStyles.height);
+                    for (var j = vNode.childrens.length - 1; j >= 0; j--) {
+                        let curVnodeChilStyle = vNode.childrens[j].styles;
+                        let othterRec = new Rectangle(curVnodeChilStyle.x, curVnodeChilStyle.y, curVnodeChilStyle.width, curVnodeChilStyle.height);
+                        if (Rectangle.hasIntersection(curRec, othterRec)) {
+                            posInparent = j;
+                        } else {
+                            if (Rectangle.isBefore(curRec, othterRec)) {
+                                posInparent = j;
+                            }
+                        }
+                    }
+                    isBg = curLayer.type == "layer" && parseInt(i) == childrenLayers.length - 1 && childrenLayers.length > 1 && vNode.styles.width == curposition.width && vNode.styles.height == curposition.height;
+                    if (!isBg) {
+                        vNode.childrens.splice(posInparent, 0, curVNode);
+                    }
                 }
                 curVNode.styles = curStyles;
                 curLayerJson = curLayer.export();
@@ -324,10 +342,12 @@ class PSD {
                                 cb(somValue, imgurl);
                             };
                         }
-                        console.log(vNode);
-                        if (!!vNode.styles && (!vNode.styles.background || vNode.styles.background == "none") && childrenLayers.length > 1 && (vNode.styles.width == curposition.width && vNode.styles.height == curposition.height)) {
-                            vNode.childrens.splice(0, 1);
+                        // console.log(vNode);
+                        if (isBg) {
                             afterImgSaved = createCb(vNode, function(vNode, imgurl) {
+                                if (!vNode.styles) {
+                                    vNode.styles = {};
+                                }
                                 if (!!imgurl) {
                                     vNode.styles.background = "url(" + imgurl.replace(/\\/g, "/") + ") no-repeat center";
                                 } else {
