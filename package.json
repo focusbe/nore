@@ -32,7 +32,7 @@
         ],
         "asarUnpack": [
             "./templates/**/*",
-            "./config/**/*",
+            "./config/",
             "./data/**/*",
             "./scaffold/**/*"
         ],
@@ -67,7 +67,7 @@
                 "!package-lock.json",
                 "!app/*",
                 "!output/*",
-                "!config/*",
+                "!config_dev/*",
                 "!assets/*",
                 "!build/*",
                 "!workshop/*"
