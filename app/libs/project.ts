@@ -963,7 +963,6 @@ class Project {
         if(!actpath){
             throw new Error('获取测试服地址失败')
         }
-        debugger;
         if(await fse.exists(actpath)){
             //var gaptime =  (new Date().getTime())-await Files.getMtime(actpath);
             return Util.howLong(await Files.getMtime(actpath))
@@ -983,7 +982,6 @@ class Project {
                 "/act/" +
                 this.config.actname
         );
-        debugger;
         return await fse.exists(actpath);
     }
     async publishDev() {
@@ -1028,7 +1026,6 @@ class Project {
             this.config.game + (dev == "svn" ? "/release" : "") + "/act"
         );
         let projectpath = path.resolve(actpath, this.config.actname);
-        debugger;
         if (await fse.exists(actpath)) {
             if (!(await Files.createdirAsync(projectpath))) {
                 throw new Error("创建项目文件失败");
