@@ -69,8 +69,10 @@ class Config {
         return res;
     }
     private constructor() {
-        let configFiles = inarar ? "config" : "config_dev";
-        this.file = path.join(__dirname, "../../" + configFiles + "/config.json");
+        let homepath = process.env.HOME || "/";
+        let configFiles = inarar ? ".norecode" : ".norecode_dev";
+
+        this.file = path.join(homepath, configFiles + "/config.json");
         console.log(this.file);
         var isexist = fs.existsSync(this.file);
         if (!isexist) {
