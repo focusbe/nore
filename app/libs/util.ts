@@ -38,7 +38,7 @@ class Util {
         return cssstr;
     }
     static async runSh(sh) {
-        return await new Promise((reject, resolve) => {
+        return await new Promise((resolve, reject) => {
             shelljs.exec(
                 sh,
                 {
@@ -47,6 +47,7 @@ class Util {
                 },
                 function(code, stdout, stderr) {
                     if (!!stderr) {
+                        console.log(stderr);
                         reject(stderr);
                     } else {
                         resolve(true);

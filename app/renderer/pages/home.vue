@@ -107,8 +107,8 @@ export default {
 				// 	// self.$Message.success('删除成功！');
 				// }
 			} catch (error) {
-				// console.log(error);
-				alert(error);
+				//console.log(error);
+				alert(error.message);
 			}
 		},
 		openinFolder() {
