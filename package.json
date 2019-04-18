@@ -23,11 +23,8 @@
         "asar": true,
         "publish": [
             {
-                "provider": "github",
-                "repo": "webcreator",
-                "owner": "foliouTeam",
-                "protocol": "https",
-                "token": "9d6f0554d880238a35b71a40c9bb129618070ff6"
+                "provider": "generic",
+                "url": "http://http://nore.focusbe.com/full/${os}/${arch}/${channel}/"
             }
         ],
         "asarUnpack": [
@@ -47,9 +44,14 @@
         "win": {
             "target": "nsis",
             "icon": "assets/norecode"
+            
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
         },
         "squirrelWindows": {
-            "iconUrl": "http://www.ztgame.com/logo.png"
+            "iconUrl": "http://nore.focusbe.com/icon.png"
         },
         "files": {
             "filter": [
