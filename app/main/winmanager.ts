@@ -41,9 +41,10 @@ class WinManager {
         config: { [key: string]: any } = {}
     ) {
         var self = this;
-        for (var i in config) {
-            this.defaultWindow[i] = config[i];
-        }
+        // for (var i in this.defaultWindow) {
+        //     config[i] = this.defaultWindow[i];
+        // }
+        config = Object.assign({},this.defaultWindow,config);
         if(!src){
             src = 'index.html';
         }
@@ -54,12 +55,12 @@ class WinManager {
             self.winCache[tag] = new BrowserWindow(config);
 
             self.winCache[tag].once("ready-to-show", function () {
-                let hwnd = self.winCache[tag].getNativeWindowHandle(); //获取窗口句柄。
                 self.winCache[tag].show();
                 if (typeof config.onShow == "function") {
                     config.onShow();
                 }
             });
+            
             self.winCache[tag].webContents.on("dom-ready", function () {
                 self.winCache[tag].webContents.executeJavaScript(
                     'window.WINDOWTAG="' + tag + '"'
