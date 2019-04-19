@@ -28,37 +28,68 @@ enum Env {
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
-    private constructor() {}
+    private workshopdir;
+    private constructor() { 
+        this.workshopdir = path.resolve(Configs.getItem("workshop"));
+    }
     static getInstance(): ProjectsClass {
+        
         if (!ProjectsClass.instance) {
+            
             ProjectsClass.instance = new ProjectsClass();
         }
         return this.instance;
     }
     getlist() {
         return new Promise(
-            function(resolve, reject) {
+            (resolve, reject) => {
                 if (!Configs.getItem("workshop")) {
                     reject("没有设置workshop");
                     return;
                 }
-                let workshopdir = path.resolve(Configs.getItem("workshop"));
-                Files.createdir(workshopdir, function() {
-                    Files.getList(workshopdir, function(list) {
+                
+                Files.createdir(this.workshopdir, () => {
+                    Files.getList(this.workshopdir, async (list) => {
                         if (!list) {
                             reject("获取文件失败");
                             return;
                         } else {
-                            resolve(list);
+                            let projectlist = [];
+                            //debugger;
+                            for(var i in list){
+                                let projectjson = await this.isProject(i);
+                                if(!!projectjson){
+                                    projectlist.push(projectjson);
+                                }
+                                resolve(projectlist);
+                            }
+                            //resolve(list);
                         }
                     });
                 });
-            }.bind(this)
+            }
         );
+    }
+    async isProject(name) {
+        let projectFile = path.resolve(this.workshopdir,name);
+        let imgFile = path.resolve(projectFile, 'data/preview.webp');
+        let dbFile = path.resolve(projectFile, 'data/db.json');
+        if (!await fse.exists(dbFile)) {
+            return false;
+        }
+        let json = await fse.readJson(dbFile);
+
+        if (!json || !json.info) {
+            return false;
+        }
+        if(await fse.exists(imgFile)){
+            json.info.preview = imgFile;
+        }
+        return json.info;
     }
     add(config) {
         return new Promise(
-            function(resolve, reject) {
+            function (resolve, reject) {
                 if (!config || !config.actname) {
                     reject("参数错误");
                     return;
@@ -72,7 +103,7 @@ class ProjectsClass {
                 }
                 let project = new Project(config);
                 this.projectCache[config.actname] = project;
-                project.create(function(res) {
+                project.create(function (res) {
                     if (res.ret > 0) {
                         resolve(project);
                     } else {
@@ -87,7 +118,7 @@ class ProjectsClass {
     }
     delete(actname) {
         return new Promise(
-            function(resolve, reject) {
+            function (resolve, reject) {
                 let projectDir = path.resolve(
                     Configs.getItem("workshop"),
                     actname
@@ -103,10 +134,10 @@ class ProjectsClass {
         );
     }
     getTempList() {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../templates");
-            Files.createdir(tempdir, function() {
-                Files.getList(tempdir, function(list) {
+            Files.createdir(tempdir, function () {
+                Files.getList(tempdir, function (list) {
                     if (!list) {
                         reject("获取列表失败");
                         return;
@@ -117,10 +148,10 @@ class ProjectsClass {
         });
     }
     getScaList() {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../scaffold");
-            Files.createdir(tempdir, function() {
-                Files.getList(tempdir, function(list) {
+            Files.createdir(tempdir, function () {
+                Files.getList(tempdir, function (list) {
                     if (!list) {
                         reject("获取列表失败");
                         return;
@@ -132,7 +163,7 @@ class ProjectsClass {
     }
     openWithIed(actname) {
         return new Promise(
-            function(resolve, reject) {
+            function (resolve, reject) {
                 if (!Configs.getItem("vscodePath")) {
                     reject("请配置VSCOD路径");
                     return;
@@ -318,6 +349,31 @@ class Project {
             .write();
         return res;
     }
+    async savePreImg(canvasData){
+        if(!canvasData){
+            return false;
+        }
+        let imgFile = path.resolve(this.datadir,'preview.webp');
+        try {
+            var dataBuffer = Buffer.from(canvasData, 'base64');
+            console.log(dataBuffer);
+            let res = await fse.writeFile(imgFile,dataBuffer);
+            console.log(res);
+        } catch (error) {
+            console.log(error)
+            return false;
+        }
+        return true;
+    }
+    async delPreImg(){
+        let imgFile = path.resolve(this.datadir,'preview.webp');
+        try {
+            await Files.delFile(imgFile);
+        } catch (error) {
+            return false;
+        }
+        return true;
+    }
     async saveToFile(name, pageinfo) {
         let curPageInfo = this.getPageByName(name);
         curPageInfo = Object.assign(curPageInfo, pageinfo);
@@ -340,7 +396,7 @@ class Project {
         let srcImgFile = path.resolve(this.rootdir, "src/images");
         try {
             Files.createLn(srcImgFile, imgFilepath);
-        } catch (error) {}
+        } catch (error) { }
         let jsxString = "<page";
         for (var i in curPageInfo) {
             if (this.isValiProp(i)) {
@@ -480,8 +536,8 @@ class Project {
         return Math.abs(bijiao - dbtime) < 3000
             ? "same"
             : dbtime > bijiao
-            ? "data"
-            : type;
+                ? "data"
+                : type;
     }
     async getEnvTime(env: Env, name) {
         var pageFiles = await this.getPageFiles(env, name);
@@ -548,7 +604,7 @@ class Project {
         }
         return true;
     }
-    pageJsonToData(pageJson, resultJson = {}) {}
+    pageJsonToData(pageJson, resultJson = {}) { }
     isComp(name) {
         if (!name) {
             return false;
@@ -637,8 +693,8 @@ class Project {
         jsx += `\n${tabstr}</${tag}>`;
         return { css: css, jsx: jsx };
     }
-    renderToHtml(name, jsx) {}
-    parseFile() {}
+    renderToHtml(name, jsx) { }
+    parseFile() { }
 
     create(callback) {
         var resolve: { [key: string]: any } = {
@@ -692,7 +748,7 @@ class Project {
                         callback({ ret: -1, msg: "获取脚手架失败" });
                         try {
                             fse.unlink(projectDir);
-                        } catch (error) {}
+                        } catch (error) { }
                         return;
                     }
                     try {
@@ -714,10 +770,10 @@ class Project {
                                 ztConfig
                             );
                         }
-                    } catch (error) {}
+                    } catch (error) { }
 
                     //保存基本信息
-                    Files.createdir(self.datadir, function(res) {
+                    Files.createdir(self.datadir, function (res) {
                         if (!!res) {
                             var dbres = self.initDB();
                             if (dbres) {
@@ -744,7 +800,7 @@ class Project {
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 resolve.msg = "复制文件失败";
                 resolve.ret = -1;
                 callback(resolve);
@@ -793,7 +849,7 @@ class Project {
             return false;
         }
         var copyres = await new Promise((resolve, reject) => {
-            Files.copy(templateAssets, templatesrc, function(err) {
+            Files.copy(templateAssets, templatesrc, function (err) {
                 if (!!err) {
                     reject("获取模板文件失败");
                     return;
@@ -804,8 +860,8 @@ class Project {
         if (!copyres) {
             return false;
         }
-        var templatehtml: String = await new Promise(function(resolve, reject) {
-            fs.readFile(TplPath, "utf8", function(err, data) {
+        var templatehtml: String = await new Promise(function (resolve, reject) {
+            fs.readFile(TplPath, "utf8", function (err, data) {
                 if (err) {
                     resolve("");
                     return;
@@ -846,8 +902,8 @@ class Project {
         var wxid = !!gameinfo.wxid
             ? gameinfo.wxid
             : !!common.wxid
-            ? common.wxid
-            : "";
+                ? common.wxid
+                : "";
         page.header += '<script>var WXID="' + wxid + '"</script>';
 
         var maincssstr = "";
@@ -941,16 +997,16 @@ class Project {
         let info = this.db.get("info").value();
         return info;
     }
-    getDevPath(...value){
+    getDevPath(...value) {
         var devpath = Configs.getItem("devpath");
-        if(!value||!value.length){
+        if (!value || !value.length) {
             return null;
         }
-        if(!!devpath){
-            if(devpath[devpath.length-1]!='\\'){
-                devpath = devpath+'\\';
+        if (!!devpath) {
+            if (devpath[devpath.length - 1] != '\\') {
+                devpath = devpath + '\\';
             }
-            return devpath+path.join(...value);
+            return devpath + path.join(...value);
         }
         return null;
     }
@@ -960,10 +1016,10 @@ class Project {
         //     "common/" + this.config.game + "/act/" + this.config.actname
         // );
         let actpath = this.getDevPath("common/" + this.config.game + "/act/" + this.config.actname);
-        if(!actpath){
+        if (!actpath) {
             throw new Error('获取测试服地址失败')
         }
-        if(await fse.exists(actpath)){
+        if (await fse.exists(actpath)) {
             //var gaptime =  (new Date().getTime())-await Files.getMtime(actpath);
             return Util.howLong(await Files.getMtime(actpath))
         }
@@ -978,9 +1034,9 @@ class Project {
         let actpath = path.resolve(
             Configs.getItem(dev + "Folder"),
             this.config.game +
-                (dev == "svn" ? "/release" : "") +
-                "/act/" +
-                this.config.actname
+            (dev == "svn" ? "/release" : "") +
+            "/act/" +
+            this.config.actname
         );
         return await fse.exists(actpath);
     }
@@ -999,10 +1055,10 @@ class Project {
         //     );
         // }
         let actpath = this.getDevPath("common/" + this.config.game + "/act");
-        let projectpath = this.getDevPath("common/" + this.config.game + "/act",this.config.actname);
-        
+        let projectpath = this.getDevPath("common/" + this.config.game + "/act", this.config.actname);
+
         if (await fse.exists(actpath)) {
-            
+
             await fse.copy(this.distDir, projectpath);
             return true;
         } else {
@@ -1072,10 +1128,10 @@ class Project {
             svnpath;
         return await Util.runSh(sh);
     }
-    save(data) {}
-    runCmd() {}
-    uploadToDev() {}
-    addWorkTime() {}
+    save(data) { }
+    runCmd() { }
+    uploadToDev() { }
+    addWorkTime() { }
 }
 
 class Page {
@@ -1085,7 +1141,7 @@ class Page {
         this.name = name;
         this.template = template;
     }
-    save() {}
+    save() { }
 }
 const Projects = ProjectsClass.getInstance();
 export { Project, Projects, Page };

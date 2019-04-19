@@ -174,10 +174,8 @@ import stylesPanels from "../../componets/panels/styles.vue";
 import Assets from "../../componets/assets";
 import addpage from "../../componets/addpage.vue";
 import pagemanage from "../../componets/pagemanage.vue";
-import { setInterval } from "timers";
-import { debug } from "util";
-import { Promise } from "q";
-import { resolve } from "url";
+import html2canvas from "html2canvas"
+import mySocket from "../../utli/mysocket";
 
 Vue.component("my-options", Options);
 Vue.component("styles-panel", stylesPanels);
@@ -352,6 +350,7 @@ export default {
 			}
 			if (!!this.curPage) {
 				this.saveCurPage();
+				
 			}
 
 			if (!!this.pagelist && !!pagename) {
@@ -370,8 +369,20 @@ export default {
 
 			if (!!curCanvasData) {
 				var rootJson = curCanvasData.toJson();
-				// console.log(rootJson);
-				// return;
+				try {
+					var total = this.elementNum(rootJson.childrens);
+					if(total>=5){
+						let temcanvas = await html2canvas(this.curCanvas.$el,{foreignObjectRendering:false,scrollY:100,width:750,scrollX:100});
+						let imgdata = temcanvas.toDataURL('image/webp',0.3).substring(23);
+						await this.project.savePreImg(imgdata);
+					}
+					else{
+						this.project.delPreImg();
+					}
+					mySocket.sendTo('main','getlist')
+				} catch (error) {
+					
+				}
 				try {
 					var res = await this.project.savePage(this.curPage, {
 						tree: rootJson
@@ -382,8 +393,21 @@ export default {
 				} catch (error) {
 					return false;
 				}
+				
 			}
 			return true;
+		},
+		elementNum(json){
+			let num = 0;
+			if(!!json&&typeof json =='object'){
+				for(var i in json){
+					num++;
+					if(!!json[i].childrens){
+						num+=this.elementNum(json[i].childrens)
+					}
+				}
+			}
+			return num;
 		},
 		resetEditor() {
 			this.styleOptions = {};

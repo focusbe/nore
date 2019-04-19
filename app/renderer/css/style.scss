@@ -21,7 +21,7 @@ html,
     background: #464646;
 }
 .darwin{
-    padding-top: 25px;
+    padding-top: 22px;
     .mac_topbar {
         display: block;
         position: fixed;
@@ -29,57 +29,61 @@ html,
         left: 0px;
         width: 100%;
         -webkit-app-region: drag;
-        height: 25px;
+        height: 22px;
         z-index: 999999;
+    }
+    .project_list{
+        margin-top: -6px;
     }
 }
 
 
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 
-::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
-    background-color: none;
-}
+// ::-webkit-scrollbar {
+//     width: 4px;
+//     height: 4px;
+//     background-color: none;
+// }
 
-/*定义滚动条轨道 内阴影+圆角*/
+// /*定义滚动条轨道 内阴影+圆角*/
 
-::-webkit-scrollbar-track {
-    // -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
-    border-radius: 2px;
-    background-color: none;
-}
+// ::-webkit-scrollbar-track {
+//     // -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+//     border-radius: 2px;
+//     background-color: none;
+// }
 
-/*定义滑块 内阴影+圆角*/
+// /*定义滑块 内阴影+圆角*/
 
-::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-    background-color: rgb(160, 152, 152);
-}
+// ::-webkit-scrollbar-thumb {
+//     border-radius: 10px;
+//     -webkit-box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
+//     background-color: rgb(160, 152, 152);
+// }
 
 
 .aligncenter {
     text-align: center;
 }
-.projectlist {
-    text-align: left;
-    display: inline-block;
-    transition: all 0.3s;
-    li {
-        display: inline-block;
-        text-align: center;
-        width: 150px;
-        margin: 10px;
-        font-size: 12px;
-        line-height: 1.6;
-        cursor: pointer;
-        img {
-            width: 100%;
-        }
-    }
-}
+// .project_list {
+//     text-align: left;
+//     display: block;
+//     transition: all 0.3s;
+//     margin-top: -3px;
+//     li {
+//         display: inline-block;
+//         text-align: center;
+//         width: 150px;
+//         margin: 10px;
+//         font-size: 12px;
+//         line-height: 1.6;
+//         cursor: pointer;
+//         img {
+//             width: 100%;
+//         }
+//     }
+// }
 
 .top_options_bar {
     position: relative;
@@ -99,7 +103,7 @@ html,
     position: relative;
     box-shadow: 0 0 3px #464646;
 }
-.page_wrap{
+.main_wrap{
     height: 100%;
     &>.center{
         flex-grow: 1;
@@ -229,44 +233,50 @@ html,
 }
 .project_list {
     li {
+        
+        border-radius: 5px;
         display: inline-block;
         margin: 10px;
         text-align: center;
-        width: 150px;
+        width: 200px;
+        height: 100px;
         overflow: hidden;
         a {
             position: relative;
-            border-radius: 6px;
             overflow: hidden;
             display: block;
             height: 100%;
             transition: all 0.3s;
+            background: #666;
             p {
                 font-size: 20px;
                 position: absolute;
                 top: 50%;
-                margin-top: -10px;
+                margin-top: -14px;
                 left: 0;
                 text-align: center;
                 width: 100%;
                 text-transform: Uppercase;
                 text-shadow: #000 1px 1px 5px;
             }
-            img {
+            div {
+                
                 transition: all 0.3s;
+                width: 100%;
+                height: auto;
+                transform: scale(1);
+                // position: absolute;
+                // top: 50%;
+                width: 100%;
+                height: 100%;
             }
         }
         a:hover {
-            img {
+            div {
                 transform: scale(1.1);
                 opacity: 0.8;
             }
         }
-        img {
-            width: auto;
-            height: 100%;
-        }
-        height: 80px;
         button {
             background: none;
             width: 100%;

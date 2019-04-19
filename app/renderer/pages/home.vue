@@ -6,12 +6,10 @@
 			 v-bind:key="key"
 			 v-contextmenu:contextmenu
 			>
-				<a @click="projectEdit(key)">
-					<img
-					 src="../images/bg.jpg"
-					 alt
-					>
-					<p>{{key}}</p>
+				<a @click="projectEdit(item.actname)" >
+					<div v-if="item.preview" :style="{background:'url('+item.preview+') no-repeat top center/100% auto'}"></div>
+					<p>{{item.game}}-{{item.actname}}</p>
+					
 				</a>
 			</li>
 			<li>
@@ -67,7 +65,11 @@ export default {
 		}
 		var self = this;
 	},
-	created: function() {},
+	created: function() {
+		mySocket.on('getlist',()=>{
+			this.getProjects();
+		})
+	},
 	methods: {
 		onContextMenu(vnode) {
 			this.curcontextVnode = vnode;
@@ -116,6 +118,7 @@ export default {
 		getProjects: async function() {
 			var self = this;
 			var res = await Projects.getlist();
+			console.log(res);
 			if (res) {
 				self.projectList = res;
 			} else {

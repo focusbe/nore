@@ -119,7 +119,7 @@ function setAppMenu(app: any) {
                     click() {
                         WinManager.newwindow("config_edit", '', {
                             width:500,
-                            height:540,
+                            height:450,
                             hash: "#/configs/edit"
                         });
                     }
@@ -137,7 +137,7 @@ function setAppMenu(app: any) {
                     click() {
                         WinManager.newwindow("config_edit", '', {
                             width:500,
-                            height:540,
+                            height:450,
                             frame:false,
                             hash: "#/configs/edit"
                         });
