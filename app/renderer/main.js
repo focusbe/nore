@@ -13,7 +13,7 @@ import Elelments from "./elements/index.js";
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
 import mySocket from "./utli/mysocket";
-mySocket.on('reloadPage',function(){
+mySocket.on('reloadPage', function () {
     window.location.reload();
 });
 Vue.use(contentmenu)
@@ -43,7 +43,7 @@ const router = new VueRouter({
             children: Pages["pagerouter"],
             redirect: { name: "home" }
         }
-        
+
     ]
 });
 const store = new Vuex.Store({
@@ -63,8 +63,9 @@ var app = new Vue({
     el: "#app",
     store,
     template: `
-  <div id="app">
-      <router-view class="view"></router-view>
+  <div id="app" class="${process.platform}">
+    <div class="mac_topbar"></div>
+    <router-view class="view"></router-view>
   </div>
   `
 }).$mount("#app");

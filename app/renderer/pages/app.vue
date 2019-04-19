@@ -1,15 +1,7 @@
 <template id="template">
-    <div class="layout" >
-        <div class="mac_topbar"></div>
-        <div class="content">
-            <div class="body">
-                
-                <router-view class="view">
-                    
-                </router-view>
-            </div>
-        </div>
-    </div>
+    <router-view class="main_wrap">
+        
+    </router-view>
 </template>
 <script>
 import mySocket from '../utli/mysocket';

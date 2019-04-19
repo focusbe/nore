@@ -1,12 +1,12 @@
 /* fallback */
 
 @import "public.scss";
-@font-face {
-    font-family: "Material Icons";
-    font-style: normal;
-    font-weight: 400;
-    src: url("../fonts/meterialicons.woff2") format("woff2");
-}
+// @font-face {
+//     font-family: "Material Icons";
+//     font-style: normal;
+//     font-weight: 400;
+//     src: url("../fonts/meterialicons.woff2") format("woff2");
+// }
 
 body,
 html,
@@ -15,51 +15,25 @@ html,
     height: 100%;
     width: 100%;
 }
+
 #app {
     height: 100%;
-}
-.view {
-    height: 100%;
-}
-.mac{
-    #app{
-        box-sizing: border-box;
-        padding-top:20px;
-    }
-    .mac_topbar{
-        display: none;
-    }
-}
-.material-icons {
-    font-family: "Material Icons";
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: "liga";
-    -webkit-font-smoothing: antialiased;
-}
-
-.mu-appbar-title {
-    -webkit-app-region: drag;
-}
-
-.content {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    
-    overflow: auto;
-    right: 0px;
     background: #464646;
 }
+.darwin{
+    padding-top: 25px;
+    .mac_topbar {
+        display: block;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        -webkit-app-region: drag;
+        height: 25px;
+        z-index: 999999;
+    }
+}
+
 
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 
@@ -85,14 +59,7 @@ html,
     background-color: rgb(160, 152, 152);
 }
 
-.body,
-.footer {
-    // padding: 20px;
-}
 
-.app_head {
-    position: fixed;
-}
 .aligncenter {
     text-align: center;
 }
@@ -113,17 +80,7 @@ html,
         }
     }
 }
-.mac_topbar {
-    position: fixed;
-    display: none;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    -webkit-app-region: drag;
-    height: 25px;
-    background: #3c3c3c;
-    z-index: 999999;
-}
+
 .top_options_bar {
     position: relative;
     top: 0;
@@ -143,6 +100,7 @@ html,
     box-shadow: 0 0 3px #464646;
 }
 .page_wrap{
+    height: 100%;
     &>.center{
         flex-grow: 1;
         flex-shrink: 1;

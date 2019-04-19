@@ -19,7 +19,7 @@ export default {
     },
     methods:{
         editconfigok(){
-            mySocket.sendAll('reloadPage');
+            mySocket.sendTo('MAIN','relaunch');
             window.close();
         }
     }

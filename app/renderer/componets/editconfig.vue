@@ -1,55 +1,38 @@
 <template>
-	<Modal
-	 v-model="modalshow"
-	 title="环境配置"
-	 @on-ok="ok"
-	 :closable="false"
-	 :fullscreen="true"
-	 @on-cancel="cancel"
-	 :loading="loading"
-	 :footer="''"
-	>
-		<div slot="footer">
-			<Button
-			 @click="submitData"
-			 type="primary"
-			>提交</Button>
-		</div>
+	<div class="editconfig">
 		<Form
-		 ref="form"
-		 :model="configsData"
-		 label-position="left"
-		 :label-width="100"
-		 :rules="configRules"
+			ref="form"
+			:model="configsData"
+			label-position="left"
+			:label-width="100"
+			:rules="configRules"
 		>
-			<FormItem
-			 v-for="(item,key) in configObj"
-			 v-bind:key="key"
-			 :prop="key"
-			 v-bind:label="item.name"
-			>
-				<Input
-				 placeholder
-				 v-model="configsData[key]"
-				/>
+			<FormItem v-for="(item,key) in configObj" v-bind:key="key" :prop="key" v-bind:label="item.name">
+				<Input placeholder v-model="configsData[key]"/>
 				<input
-				 class="fileinput"
-				 v-bind:name="key"
-				 @change="fileChange"
-				 type="file"
-				 webkitdirectory
-				 directory
+					class="fileinput"
+					v-bind:name="key"
+					@change="fileChange"
+					type="file"
+					webkitdirectory
+					directory
 				>
-				<Icon
-				 class="foldericon"
-				 type="ios-folder-open"
-				 :size="30"
-				/>
+				<Icon class="foldericon" type="ios-folder-open" :size="30"/>
 			</FormItem>
 		</Form>
-	</Modal>
+		<div class="footer">
+			<Button @click="submitData" type="default">保存</Button>
+			<Button @click="cancel" type="primary">取消</Button>
+		</div>
+	</div>
 </template>
 <style lang="scss" scoped>
+.footer{
+	text-align: right;
+	button{
+		margin: 0 10px;
+	}
+}
 .fileinput,
 .foldericon {
 	position: absolute;
@@ -64,6 +47,10 @@
 	width: auto;
 	z-index: 0;
 	top: 2px;
+}
+.editconfig {
+	box-sizing: border-box;
+	padding: 0px 20px;
 }
 </style>
 <script>
@@ -125,7 +112,7 @@ export default {
 			// 		this.$Message.error("Fail!");
 			// 	}
 			// });
-			this.ok();
+			this.$emit("ok", true);
 		},
 		show: function() {
 			this.modalshow = true;
@@ -133,12 +120,8 @@ export default {
 		hide: function() {
 			this.modalshow = false;
 		},
-		ok() {
-			this.$Message.info("Clicked ok");
-			this.$emit("ok", true);
-		},
 		cancel() {
-			//this.$Message.info("Clicked cancel");
+			window.close();
 		}
 	}
 };

@@ -4,7 +4,7 @@ import { inarar, DEBUG, isproduct } from "../libs/env";
 import AutoUpdater from "./autodater";
 import WinManager from "./winmanager";
 import initMenu from "./initmenu";
-
+import mySocket from "./mysocket";
 const fs = require("fs");
 class Main {
     constructor() {
@@ -14,12 +14,14 @@ class Main {
             WinManager.newwindow("main", "index.html");
         });
         app.on("window-all-closed", function() {
-            if (process.platform !== "darwin") {
+            // if (process.platform !== "darwin") {
+            //     app.quit();
+            //     app.exit();
+            // }
+            setTimeout(function(){
                 app.quit();
-                app.exit();
-            }
-            app.quit();
-            app.exit();
+            },500)
+            //app.exit();
         });
         app.on("activate", function() {
             //WinManager.newwindow("main");
@@ -27,6 +29,10 @@ class Main {
         app.on("quit", function() {
             WinManager.closeAll();
         });
+        mySocket.on('relaunch',function(){
+            app.relaunch();
+            app.exit(0);
+        })
         AutoUpdater.init();
         this.watch();
     }

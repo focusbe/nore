@@ -30,6 +30,7 @@ class WinManager {
 
             self.newwindow(data.tag, '', data);
         });
+        
     }
     private static instance = new WinManager();
     static getInstance(): WinManager {
@@ -79,7 +80,7 @@ class WinManager {
                 delete self.winCache[tag];
             });
         } else {
-            self.winCache[tag].loadURL(this.getUrl(src, config));
+            //self.winCache[tag].loadURL(this.getUrl(src, config));
             self.winCache[tag].show();
         }
         // and load the index.html of the app.
@@ -89,6 +90,9 @@ class WinManager {
             this.winCache[i].webContents.closeDevTools();
             this.winCache[i].close();
         }
+    }
+    reLaunch(){
+        
     }
     getUrl(src: string = 'index.html', config: { [key: string]: any }) {
         let search = config.search || "";

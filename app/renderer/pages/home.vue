@@ -30,10 +30,6 @@
 		 ref="projectForm"
 		 @ok="newprojectok"
 		></newproject>
-		<editconfig
-		 ref="configform"
-		 @ok="editconfigok"
-		></editconfig>
 		<v-contextmenu
 		 ref="contextmenu"
 		 @contextmenu="onContextMenu"
