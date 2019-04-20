@@ -375,7 +375,7 @@ class vnode {
                 if(!this.isssr&&!!styles[i]&&typeof(styles[i])=='string'){
                     // styles[i] = styles[i].replace(/__ASSETURL__/g,'//'+this.assetUrl.replace(/\\/g,'/'));
                     // console.log(styles[i]);
-                    console.log(this.assetUrl);
+                    //console.log(this.assetUrl);
                     styles[i] = Util.cssUrlChange(this.assetUrl,styles[i]);
                 }
                 if (i == "x" || i == "y" || i == "xalign" || i == "yalign") {

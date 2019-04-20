@@ -364,9 +364,7 @@ class Project {
         let imgFile = path.resolve(this.datadir,'preview.webp');
         try {
             var dataBuffer = Buffer.from(canvasData, 'base64');
-            console.log(dataBuffer);
             let res = await fse.writeFile(imgFile,dataBuffer);
-            console.log(res);
         } catch (error) {
             console.log(error)
             return false;
@@ -394,7 +392,7 @@ class Project {
         if (!pageFiles) {
             return;
         }
-
+        
         jsxobj.css = Util.cssUrlChange(
             this.originDir,
             jsxobj.css,
@@ -506,7 +504,6 @@ class Project {
                     cssStr = await fse.readFile(pageFiles.css, "utf8");
                 }
                 var tree = this.jsxToJson(jsxStr, cssStr);
-                console.log(tree);
                 if (!!tree) {
                     let res = this.saveToDb(name, tree);
                     return res;
@@ -523,13 +520,12 @@ class Project {
     }
     async hasBuildFile(name) {
         var pageFIles = await this.getPageFiles(Env.src, name);
-        console.log(pageFIles);
+
         var res = await fse.exists(pageFIles.html);
         return res;
     }
     async whoIsLatest(name, type = "origin") {
         var dbtime = this.getPageByName(name).updatetime;
-        console.log(dbtime);
         // console.log(dbtime);
         var originTime = await this.getEnvTime(Env.origin, name);
         var srcTime = await this.getEnvTime(Env.src, name);
@@ -542,7 +538,6 @@ class Project {
         } else {
             bijiao = srcTime;
         }
-        console.log(bijiao);
         return Math.abs(bijiao - dbtime) < 3000
             ? "same"
             : dbtime > bijiao
@@ -569,8 +564,7 @@ class Project {
         return res;
     }
     jsxToJson(jsx, css) {
-        console.log(jsx);
-        console.log(css);
+ 
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
         });
@@ -929,7 +923,7 @@ class Project {
                     "/" +
                     realPath +
                     '";\n';
-                console.log(maincssstr);
+     
             } else if (extname == ".js") {
                 mainjsstr +=
                     'require("../templates/' +
