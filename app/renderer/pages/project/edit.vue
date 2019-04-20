@@ -353,6 +353,16 @@ export default {
 
 			if (!!curCanvasData) {
 				var rootJson = curCanvasData.toJson();
+				
+				let result;
+				try {
+					var res = await this.project.savePage(this.curPage, {
+						tree: rootJson
+					});
+					result =res;
+				} catch (error) {
+					result = false;
+				}
 				try {
 					var total = this.elementNum(rootJson.childrens);
 					if(total>=5){
@@ -363,21 +373,11 @@ export default {
 					else{
 						this.project.delPreImg();
 					}
-					mySocket.sendTo('main','getlist')
+					//mySocket.sendTo('main','getlist')
 				} catch (error) {
 					
 				}
-				try {
-					var res = await this.project.savePage(this.curPage, {
-						tree: rootJson
-					});
-					if (!!res) {
-						return true;
-					}
-				} catch (error) {
-					return false;
-				}
-				
+				return result;
 			}
 			return true;
 		},
