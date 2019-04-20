@@ -30,7 +30,10 @@ class ProjectsClass {
     private static instance: ProjectsClass;
     private workshopdir;
     private constructor() { 
-        this.workshopdir = path.resolve(Configs.getItem("workshop"));
+        // if(!!Configs.getItem("workshop")){
+        //     this.workshopdir = path.resolve(Configs.getItem("workshop"));
+        // }
+        
     }
     static getInstance(): ProjectsClass {
         
@@ -47,7 +50,9 @@ class ProjectsClass {
                     reject("没有设置workshop");
                     return;
                 }
-                
+                if(!!Configs.getItem("workshop")){
+                    this.workshopdir = path.resolve(Configs.getItem("workshop"));
+                }
                 Files.createdir(this.workshopdir, () => {
                     Files.getList(this.workshopdir, async (list) => {
                         if (!list) {
@@ -71,6 +76,9 @@ class ProjectsClass {
         );
     }
     async isProject(name) {
+        if(!!Configs.getItem("workshop")){
+            this.workshopdir = path.resolve(Configs.getItem("workshop"));
+        }
         let projectFile = path.resolve(this.workshopdir,name);
         let imgFile = path.resolve(projectFile, 'data/preview.webp');
         let dbFile = path.resolve(projectFile, 'data/db.json');
