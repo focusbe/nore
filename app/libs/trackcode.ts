@@ -65,7 +65,7 @@ class TrackCode {
             return false;
         }
         var gameinfo = await Games.getGame(gamename);
-        console.log(gameinfo);
+        //console.log(gameinfo);
         if(!gameinfo||!gameinfo['trackcode']){
             return false;
         }

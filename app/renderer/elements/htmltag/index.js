@@ -23,7 +23,7 @@ var container = createview({
         // console.log(dom);
         // alert(1);
         var tagname = dom.props.tagName;
-        console.log(`<${dom.props.tagName}><slot></slot></${dom.props.tagName}>`);
+        //console.log(`<${dom.props.tagName}><slot></slot></${dom.props.tagName}>`);
         return `
             <${dom.props.tagName}><slot></slot></${dom.props.tagName}>
         `;

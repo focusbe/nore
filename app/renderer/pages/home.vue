@@ -122,7 +122,7 @@ export default {
 		getProjects: async function() {
 			var self = this;
 			var res = await Projects.getlist();
-			console.log(res);
+			//console.log(res);
 			if (res) {
 				self.projectList = res;
 			} else {

@@ -341,7 +341,7 @@ export default {
 				this.curPage = pagename;
 				//this.getPageInfo(index);
 			}
-			console.log(this.curPageInfo);
+			//console.log(this.curPageInfo);
 			
 			this.changeDevice(this.curPageInfo.device);
 			//var curCanvasData = this.canvasDataList[this.curPage];
@@ -482,7 +482,7 @@ export default {
 		},
 		async buildPage() {
 			var hasBuildFile = await this.project.hasBuildFile(this.curPage);
-			console.log(hasBuildFile);
+			//console.log(hasBuildFile);
 			if (!!hasBuildFile) {
 				this.$Modal.confirm({
 					title: "Nore",

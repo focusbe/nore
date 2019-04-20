@@ -178,7 +178,7 @@ export default {
 		},
 		async getScalList() {
 			this.scaList = await Projects.getScaList();
-			console.log(this.scaList);
+			//console.log(this.scaList);
 		},
 		validateTitle: function(rule, value, callback) {
 			var re = new RegExp("^[a-zA-Z0-9\-\_]+$");

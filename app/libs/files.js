@@ -47,7 +47,7 @@ class Files {
         return res;
     }
     static async getMtime(file) {
-        console.log(file);
+        //console.log(file);
         let exists = await fse.exists(file);
         if (exists) {
             try {
@@ -56,7 +56,7 @@ class Files {
                 return false;
             }
             if (!!stats && !!stats.mtime) {
-                console.log(stats.mtime.getTime());
+                //console.log(stats.mtime.getTime());
                 return stats.mtime.getTime();
             }
             return false;
@@ -308,7 +308,7 @@ class Files {
         }
         let res = await new Promise((resolve, reject) => {
             let sh;
-            console.log(process.platform);
+            //console.log(process.platform);
             if (process.platform == "darwin" || process.platform == "linux") {
                 sh = "ln -s " + src + " " + target;
             } else if (process.platform == "win32") {
@@ -323,9 +323,9 @@ class Files {
                     icns: path.resolve(__dirname, "../../assets/norecode.icns")
                 },
                 function(code, stdout, stderr) {
-                    console.log(code);
-                    console.log(stdout);
-                    console.log(stderr);
+                    // console.log(code);
+                    // console.log(stdout);
+                    // console.log(stderr);
                     if (!!stderr) {
                         reject(stderr);
                     } else {

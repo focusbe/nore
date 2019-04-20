@@ -454,11 +454,11 @@ export default {
 			var curView = viewList[vnode.name];
 			this.styleOptions = curView.styles;
 			
-			console.log(this.propOptions);
+			//console.log(this.propOptions);
 			this.curStyles = vnode.styles;
 			this.curProps = vnode.props;
 			this.propOptions = curView.props;
-			console.log(this.curProps);
+			//console.log(this.curProps);
 		},
 		getOptionsValue: function(options) {
 			//this.optionsValue = {};
@@ -467,7 +467,6 @@ export default {
 				optionsvalue[i] = options[i]["default"];
 			}
 			return optionsvalue;
-			ze;
 		},
 		changeCurProps: function() {
 			if (!!this.curElement) {

@@ -39,8 +39,8 @@ export default {
     created: function() {
         //this.getOptionsValue();
         for(var i in this.options){
-            console.log(i);
-            console.log(this.options);
+            // console.log(i);
+            // console.log(this.options);
         }
     },
     data: function() {
@@ -54,8 +54,8 @@ export default {
     },
     updated: function() {
         for(var i in this.options){
-            console.log(i);
-            console.log(this.options[i]);
+            // console.log(i);
+            // console.log(this.options[i]);
         }
     },
     watch: {

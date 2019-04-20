@@ -81,7 +81,7 @@ export default {
 			var self = this;
 			this.isparse = true;
 			try {
-				console.log(this.uploadpath);
+				//console.log(this.uploadpath);
 				var mypsd = new PSD(
 					file.path,
 					this.uploadpath,

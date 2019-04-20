@@ -73,7 +73,7 @@ class Config {
         let configFiles = inarar ? ".norecode" : ".norecode_dev";
 
         this.file = path.join(homepath, configFiles + "/config.json");
-        console.log(this.file);
+        //console.log(this.file);
         var isexist = fs.existsSync(this.file);
         if (!isexist) {
             this.save(this.getConfigJson(this.defaultConfig));

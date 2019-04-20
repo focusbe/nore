@@ -28,10 +28,10 @@ class View{
         return html;
     }
     beforeRendered(){
-        console.log('beforeRendered');
+        //console.log('beforeRendered');
     }
     onRendered(){
-        console.log('onrendered');
+        //console.log('onrendered');
     }
 }
 

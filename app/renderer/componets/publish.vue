@@ -106,7 +106,7 @@ export default {
         async publishdev() {
             try {
                 var has = await this.project.devHas();
-                console.log(has);
+                //console.log(has);
                 if(has){
                     this.$Modal.confirm({
                         content:'测试服已有存在该项目并在：'+has+'修改过，是否确认上传',

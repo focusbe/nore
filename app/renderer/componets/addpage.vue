@@ -167,7 +167,7 @@ export default {
 					if (valid) {
 						//this.$Message.success("Success!");
 						var id = this.curProject.addPage(this.pageInfo);
-						console.log(id);
+						//console.log(id);
 						if (id == -1) {
 							this.$Message.error("请传入正确的参数");
 						} else if (id == -2) {
@@ -175,7 +175,7 @@ export default {
 						} else if (!!id) {
 							this.hide();
 							this.$Message.info("创建成功");
-							console.log(id);
+							//console.log(id);
 							this.$emit("ok", id);
 						} else {
 							this.$Message.error("保存页面失败");
