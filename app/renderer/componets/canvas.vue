@@ -333,7 +333,7 @@ export default {
 			{
 				style: {
 					width: "100%",
-					height: "auto"
+					height: "100%",
 				},
 				// attrs: {
 				// 	canvasversion: this.version

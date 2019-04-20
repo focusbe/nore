@@ -6,10 +6,12 @@
 			 :project="project"
 			 @openPage="openPage"
 			></pagemanage>
-			<div class="options_section">
-				<h2>页面配置</h2>
-				<!-- <assets :actname="actname"></assets> -->
-			</div>
+			<!-- <div class="options_section">
+				<h2>活动配置</h2>
+				<ul class="form_ul">
+					<li><label for="">标题:</label><Input  v-model="projectInfo.title" type="text" size="small"></Input></li>
+				</ul>
+			</div> -->
 		</div>
 		<div class="center">
 			<ul class="page_list">
@@ -225,28 +227,7 @@ export default {
 		var project = new Project(actname);
 		this.project = project;
 		this.getPagelist();
-
-		// Server.start(function(res) {
-		// 	if (
-		// 		!!res &&
-		// 		!!res.instance &&
-		// 		!!res.instance.server &&
-		// 		!!res.instance.server._connectionKey
-		// 	) {
-		// 		var port = res.instance.server._connectionKey;
-		// 		port = port.split(":");
-		// 		port = port[port.length - 1];
-		// 		self.serverpath =
-		// 			"http://localhost:" + port + "/" + self.actname;
-		// 	} else {
-		// 	}
-		// });
-		// project.getinfo(function(res) {
-
-		// 	self.prejectInfo = res;
-		// });
 	},
-	getProjectInfo: function() {},
 	mounted: function() {
 		var self = this;
 		document.onkeydown = function(e) {
@@ -267,6 +248,9 @@ export default {
 	computed: {
 		curCanvas() {
 			return this.$refs["canvas" + this.curPage][0];
+		},
+		projectInfo(){
+			return this.project.getInfo();
 		},
 		curPageInfo() {
 			if(!!this.curPage&&!!this.pagelist){
@@ -372,7 +356,7 @@ export default {
 				try {
 					var total = this.elementNum(rootJson.childrens);
 					if(total>=5){
-						let temcanvas = await html2canvas(this.curCanvas.$el,{foreignObjectRendering:false,scrollY:100,width:750,scrollX:100});
+						let temcanvas = await html2canvas(this.curCanvas.$el.firstChild,{foreignObjectRendering:false,scrollY:100,width:750,scrollX:100});
 						let imgdata = temcanvas.toDataURL('image/webp',0.3).substring(23);
 						await this.project.savePreImg(imgdata);
 					}

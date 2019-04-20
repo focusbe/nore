@@ -172,7 +172,7 @@ export default {
 	methods: {
 		getGameList: async function() {
 			this.gameList = await Configs.gameList();
-			this.gameList['outher'] = {
+			this.gameList['other'] = {
 				'cname':'其他'
 			}
 		},
@@ -186,11 +186,16 @@ export default {
 				return callback(new Error("请填写项目名称"));
 			} else if (!re.test(value)) {
 				return callback(new Error("项目名称为英文或拼音"));
-			} else if (!!this.ProjectList[value]) {
-				return callback(new Error("项目名称已存在"));
-			} else {
+			} 
+			// else if (!!this.ProjectList[value]) {
+			// 	return callback(new Error("项目名称已存在"));
+			// } 
+			else {
 				callback();
 			}
+		},
+		hasProject(actname){
+			
 		},
 		submitData: function() {
 			var self = this;
@@ -219,7 +224,7 @@ export default {
 							self.hide();
 							self.$Message.info("创建成功");
 							mySocket.sendTo("MAIN", "open", {
-								tag: "project_edit",
+								tag: "project_edit_"+self.projectInfo.actname,
 								hash:
 									"#/project/edit" +
 									"?actname=" +

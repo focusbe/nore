@@ -35,7 +35,7 @@ class PSD {
         this.asseturl = asseturl;
         this.userwebp = userwebp;
     }
-    async parse(debug) {
+    async parse(debug,onProgress) {
         var self = this;
         //判断文件是否存在，保存图片的目录是否存在
         let exists = await fse.exists(this.psdpath);
@@ -48,11 +48,16 @@ class PSD {
                 else reject("创建图片保存路径失败");
             });
         });
+        onProgress(1,5,"正在打开PSD")
         let psd = await psdjs.open(this.psdpath);
+        
         let psdtree = psd.tree();
+        onProgress(1,10,"正在解析PSD")
         psd = null;
         let res = this.getvnodetree(psdtree);
-        let errorimg = null;
+        onProgress(1,20,"正在保存图片");
+        let errorimg = [];
+        let saved = 0;
         if (!debug) {
             await new Promise(function(result, reject) {
                 res.imgPool.start(function(event, data) {
@@ -66,7 +71,15 @@ class PSD {
                         case "finish":
                             result(data);
                             break;
+                        case "change":
+                            saved++;
+                            
+                            break;
                     }
+                    let total = errorimg.length+saved;
+                    let percent = Math.floor(total/res.imgPool.pool.length*80)+20;
+                    let msg = "正在保存图片，已处理："+total+'/'+res.imgPool.pool.length+'，失败：'+errorimg.length;
+                    onProgress(1,percent,msg);
                 });
             });
         }

@@ -1,17 +1,23 @@
 <template>
 	<div class="psduploader">
 		<Upload
-		 multiple
-		 :show-upload-list="false"
-		 type="drag"
-		 :format="['psd']"
-		 :before-upload="upload"
-		 action="javascript:void(0)"
+			multiple
+			:show-upload-list="false"
+			type="drag"
+			:format="['psd']"
+			:before-upload="upload"
+			action="javascript:void(0)"
 		>
-			<Button>
-				PSD
-			</Button>
+			<Button>PSD</Button>
 		</Upload>
+
+		<Modal v-model="isparse" title="PSD解析中" :mask-closable="false" :closable="false">
+			<Progress :percent="percent.value"/>
+			<p>{{percent.msg}}</p>
+			<div slot="footer">
+				<!-- <Button type="default" size="large">取消</Button> -->
+			</div>
+		</Modal>
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -45,7 +51,12 @@ export default {
 	data() {
 		return {
 			filepath: "",
-			savepath: ""
+			savepath: "",
+			percent: {
+				value: 0,
+				msg: ""
+			},
+			isparse: false
 		};
 	},
 	created() {
@@ -68,6 +79,7 @@ export default {
 				"src/images/" + this.pagename
 			);
 			var self = this;
+			this.isparse = true;
 			try {
 				console.log(this.uploadpath);
 				var mypsd = new PSD(
@@ -76,15 +88,22 @@ export default {
 					"images/" + this.pagename,
 					this.device == "phone"
 				);
-				var res = await mypsd.parse(false);
-				console.log(res);
+				var res = await mypsd.parse(false, (state, percent, msg) => {
+					if (!!state) {
+						if(percent==100){
+							this.isparse = false;
+						}
+						this.percent = { value: percent, msg: msg };
+					}
+				});
 				// res = null;
 				// mypsd = null;
 				self.$emit("finish", res.vNode);
 				mypsd = null;
 				res = null;
 			} catch (error) {
-				console.error(error);
+				this.isparse = false;
+				alert('解析失败请检查PSD是否符合上传标准');
 			}
 
 			return false;
