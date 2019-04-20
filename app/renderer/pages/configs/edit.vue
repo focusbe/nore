@@ -1,10 +1,14 @@
 <template id="">
-	<editconfig
+	<editconfig class="editconfig"
 	 ref="configform"
      isShow="1"
 	 @ok="editconfigok"
 	></editconfig>
 </template>
+<style lang="scss" scoped>
+    
+</style>
+
 <script>
 import Vue from "vue";
 import editconfig from "../../componets/editconfig.vue";

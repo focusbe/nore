@@ -1,5 +1,6 @@
 <template>
 	<div class="editconfig">
+		<h2>配置环境</h2>
 		<Form
 			ref="form"
 			:model="configsData"
@@ -51,6 +52,10 @@
 .editconfig {
 	box-sizing: border-box;
 	padding: 0px 20px;
+	h2{
+		font-size: 16px;
+		line-height: 2;
+	}
 }
 </style>
 <script>
