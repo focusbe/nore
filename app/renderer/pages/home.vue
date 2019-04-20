@@ -2,8 +2,8 @@
 	<div class="page_wrap">
 		<ul class="project_list">
 			<li
-			 v-for="(item,key) in projectList"
-			 v-bind:key="key"
+			 v-for="(item) in projectList"
+			 v-bind:key="item.actname"
 			 v-contextmenu:contextmenu
 			>
 				<a @click="projectEdit(item.actname)" >
