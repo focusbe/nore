@@ -356,7 +356,7 @@ export default {
 				try {
 					var total = this.elementNum(rootJson.childrens);
 					if(total>=5){
-						let temcanvas = await html2canvas(this.curCanvas.$el.firstChild,{foreignObjectRendering:false,scrollY:100,width:750,scrollX:100});
+						let temcanvas = await html2canvas(this.curCanvas.$el.firstChild,{foreignObjectRendering:false});
 						let imgdata = temcanvas.toDataURL('image/webp',0.3).substring(23);
 						await this.project.savePreImg(imgdata);
 					}

@@ -91,7 +91,7 @@ class ProjectsClass {
             return false;
         }
         if(await fse.exists(imgFile)){
-            json.info.preview = imgFile;
+            json.info.preview = imgFile.replace(/\\/g,'/');
         }
         return json.info;
     }
@@ -529,6 +529,7 @@ class Project {
     }
     async whoIsLatest(name, type = "origin") {
         var dbtime = this.getPageByName(name).updatetime;
+        console.log(dbtime);
         // console.log(dbtime);
         var originTime = await this.getEnvTime(Env.origin, name);
         var srcTime = await this.getEnvTime(Env.src, name);
@@ -541,6 +542,7 @@ class Project {
         } else {
             bijiao = srcTime;
         }
+        console.log(bijiao);
         return Math.abs(bijiao - dbtime) < 3000
             ? "same"
             : dbtime > bijiao
