@@ -2,8 +2,8 @@
 	<div class="page_wrap">
 		<ul class="project_list">
 			<li
-			 v-for="(item,key) in projectList"
-			 v-bind:key="key"
+			 v-for="(item) in projectList"
+			 v-bind:key="item.actname"
 			 v-contextmenu:contextmenu
 			>
 				<a @click="projectEdit(item.actname)" >
@@ -93,6 +93,10 @@ export default {
 			});
 		},
 		async openinVscode() {
+			if(!Configs.getItem('vscodePath')){
+				alert('请先设置VSCODE的安装目录');
+				return;
+			}
 			var actname = this.curcontextVnode.key;
 			try {
 				var res = await Projects.openWithIed(actname);
