@@ -93,6 +93,10 @@ export default {
 			});
 		},
 		async openinVscode() {
+			if(!Configs.getItem('vscodePath')){
+				alert('请先设置VSCODE的安装目录');
+				return;
+			}
 			var actname = this.curcontextVnode.key;
 			try {
 				var res = await Projects.openWithIed(actname);
