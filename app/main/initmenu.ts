@@ -1,6 +1,7 @@
 const electron = require("electron");
 const Menu = electron.Menu;
 import WinManager from "./winmanager";
+import AutoUpdater from "./autodater";
 function setAppMenu(app: any) {
     var self = this;
     let template: any;
@@ -104,8 +105,14 @@ function setAppMenu(app: any) {
                     label: "关于",
                     click() {
                         require("electron").shell.openExternal(
-                            "http://norecode.com"
+                            "http://nore.focusbe.com"
                         );
+                    }
+                },
+                {
+                    label: "检查更新",
+                    click() {
+                        AutoUpdater.check();
                     }
                 }
             ]

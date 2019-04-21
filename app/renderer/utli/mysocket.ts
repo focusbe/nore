@@ -14,6 +14,7 @@ class MySocket {
     constructor() {
         var self = this;
         ipcRenderer.on("senddata", function(sender: any, data: SocketEvent) {
+            console.log(data);
             if (!data) {
                 return;
             }
@@ -21,7 +22,7 @@ class MySocket {
                 !!data.event &&
                 typeof self.callback[data["event"]] == "function"
             ) {
-                if (!!data.data) {
+                if (!data.data) {
                     data.data = null;
                 }
                 self.callback[data["event"]](data.data);

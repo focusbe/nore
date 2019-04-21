@@ -24,7 +24,7 @@
         "publish": [
             {
                 "provider": "generic",
-                "url": "http://http://nore.focusbe.com/full/${os}/${arch}/${channel}/"
+                "url": "http://nore.focusbe.com/full/${os}/${arch}/"
             }
         ],
         "asarUnpack": [

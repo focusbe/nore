@@ -33,7 +33,10 @@ class Main {
             app.relaunch();
             app.exit(0);
         })
-        AutoUpdater.init();
+        mySocket.on('quitInstall',function(){
+            AutoUpdater.install();
+        })
+        AutoUpdater.check();
         this.watch();
     }
     watch() {

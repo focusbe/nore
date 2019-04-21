@@ -48,6 +48,7 @@ import Configs from "../../libs/configs";
 import mySocket from "../utli/mysocket";
 Vue.component("newproject", newproject);
 Vue.component("editconfig", editconfig);
+
 const path = require('path');
 export default {
 	name: "home",
@@ -68,6 +69,18 @@ export default {
 	created: function() {
 		mySocket.on('getlist',()=>{
 			this.getProjects();
+		})
+		mySocket.on('console',(data)=>{
+			console.log(data);
+		})
+		mySocket.on('updateDownloaded',()=>{
+			this.$Modal.confirm({
+				title:'更新',
+				content:'<p>发现有新版本是否更新</p>',
+				onOk:()=>{
+					mySocket.sendTo('MAIN','quitInstall');
+				}
+			});
 		})
 	},
 	methods: {
