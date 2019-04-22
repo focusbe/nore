@@ -2,7 +2,7 @@
     "name": "NoreCode",
     "version": "0.0.1",
     "productName": "Nore Code",
-    "description": "集成前端开发，切图，逻辑，组件调用，项目发布的客户端",
+    "description": "集成前端开发，切图，逻辑编辑，组件调用，项目发布的客户端",
     "productFileName": "NoreCode",
     "main": "dist/main/index.js",
     "scripts": {
