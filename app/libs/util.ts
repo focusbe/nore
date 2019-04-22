@@ -20,8 +20,8 @@ class Util {
         return false;
     }
     static cssUrlChange(cssDir, cssstr, from = null) {
-        console.log(cssDir);
-        console.log(from);
+        // console.log(cssDir);
+        // console.log(from);
         var regstr = /url\(([^\s\'\"\<\>]*?)\)/gim;
         var cssattr;
         while ((cssattr = regstr.exec(cssstr))) {
