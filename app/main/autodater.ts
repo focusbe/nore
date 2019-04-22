@@ -58,6 +58,9 @@ class AutoUpdater{
     }
     static check(){
         myconsole('checkForUpdates');
+        if (DEBUG) {
+            return;
+        }
         autoUpdater.checkForUpdates();
     }
     static install(){
