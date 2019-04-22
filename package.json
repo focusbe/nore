@@ -46,8 +46,8 @@
             "icon": "assets/norecode"
         },
         "nsis": {
-            "oneClick": false,
-            "allowToChangeInstallationDirectory": true
+            "oneClick": true,
+            "allowToChangeInstallationDirectory": false
         },
         "squirrelWindows": {
             "iconUrl": "http://nore.focusbe.com/icon.png"
