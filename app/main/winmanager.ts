@@ -1,4 +1,3 @@
-
 declare interface ObjectConstructor {
     assign(...objects: Object[]): Object;
 }
@@ -6,10 +5,14 @@ const electron = require("electron");
 const BrowserWindow = electron.BrowserWindow;
 const url = require("url");
 const path = require("path");
-import { DEBUG, isproduct } from './libs/env';
+import mySocket from './mySocket';
+import { DEBUG, isproduct } from "../libs/env";
+if (!isproduct) {
+    var serverurl: string = require("_serverurl").replace("http://", "");
+}
 
 class WinManager {
-    private static defaultWindow: { [key: string]: any } = {
+    private defaultWindow: { [key: string]: any } = {
         width: 1000,
         height: 800,
         frame: true,
@@ -20,33 +23,51 @@ class WinManager {
         titleBarStyle: "hidden",
         backgroundColor: "#3c3c3c"
     };
-    public static winCache: { [key: string]: any } = {};
-    constructor() {
-
-    }
-    static newwindow(tag: string, src: string = '', config: { [key: string]: any } = {}) {
+    public winCache: { [key: string]: any } = {};
+    private constructor() {
         var self = this;
-        for (var i in config) {
-            this.defaultWindow[i] = config[i];
-        }
+        mySocket.on('open', function (data: any) {
 
+            self.newwindow(data.tag, '', data);
+        });
+        
+    }
+    private static instance = new WinManager();
+    static getInstance(): WinManager {
+        return WinManager.instance
+    }
+    public newwindow(
+        tag: string,
+        src: string = "index.html",
+        config: { [key: string]: any } = {}
+    ) {
+        var self = this;
+        // for (var i in this.defaultWindow) {
+        //     config[i] = this.defaultWindow[i];
+        // }
+        config = Object.assign({},this.defaultWindow,config);
+        if(!src){
+            src = 'index.html';
+        }
         if (!this.winCache[tag]) {
-            if (!src) {
-                return;
-            }
+            // if (!src) {
+            //     return;
+            // }
             self.winCache[tag] = new BrowserWindow(config);
 
             self.winCache[tag].once("ready-to-show", function () {
-
-                let hwnd = self.winCache[tag].getNativeWindowHandle(); //获取窗口句柄。
                 self.winCache[tag].show();
                 if (typeof config.onShow == "function") {
                     config.onShow();
                 }
             });
+            
             self.winCache[tag].webContents.on("dom-ready", function () {
-                self.winCache[tag].webContents.executeJavaScript('window.WINDOWTAG="' + tag + '"');
+                self.winCache[tag].webContents.executeJavaScript(
+                    'window.WINDOWTAG="' + tag + '"'
+                );
             });
+
             self.winCache[tag].loadURL(this.getUrl(src, config));
             if (DEBUG) {
                 this.winCache[tag].webContents.openDevTools();
@@ -59,20 +80,29 @@ class WinManager {
                 delete self.winCache[tag];
             });
         } else {
-            self.winCache[tag].loadURL(this.getUrl(src, config));
+            //self.winCache[tag].loadURL(this.getUrl(src, config));
             self.winCache[tag].show();
         }
         // and load the index.html of the app.
     }
-    static getUrl(src: string, config: { [key: string]: any }) {
+    closeAll() {
+        for (var i in this.winCache) {
+            this.winCache[i].webContents.closeDevTools();
+            this.winCache[i].close();
+        }
+    }
+    reLaunch(){
+        
+    }
+    getUrl(src: string = 'index.html', config: { [key: string]: any }) {
         let search = config.search || "";
         let hash = config.hash || "";
         let cururl: string;
-        //console.log(path.join(__dirname, (!isproduct ? "../renderer/" : "../renderer/") + src));
+
         if (src.indexOf("//") < 0) {
             cururl = url.format({
-                pathname: isproduct?path.join(__dirname, "../renderer/" + src):'localhost:3000/'+src,
-                protocol: isproduct ? "file" : "http",
+                pathname: path.join(__dirname, "../renderer/" + src),
+                protocol: isproduct ? "file" : "file",
                 slashes: true,
                 search: search,
                 hash: hash
@@ -83,5 +113,5 @@ class WinManager {
         return cururl;
     }
 }
-
-export default WinManager;
+const winManager = WinManager.getInstance();
+export default winManager;

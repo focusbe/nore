@@ -18,16 +18,22 @@ function runSh(sh, callback) {
         windowsHide: false,
         encoding: 'buffer'
     });
+
     child.stdout.on('data', (data) => {
         data = iconv.decode(data, 'utf8');
         callback('data', data);
     });
     child.stderr.on('data', (data) => {
         data = iconv.decode(data, 'utf8');
-        callback('error', data);
+        callback('data', data);
     });
-    child.on('close', (code) => {
-        callback('close', code);
+    child.stdout.on('error', (data) => {
+        data = iconv.decode(data, 'utf8');
+        callback('data', data);
+    });
+    child.stderr.on('error', (data) => {
+        data = iconv.decode(data, 'utf8');
+        callback('data', data);
     });
     return child;
 }
@@ -48,9 +54,30 @@ var deleteFolder= function(path) {
         fs.rmdirSync(path);
     }
 };
-
+const arguments = {};
+var argvs = process.argv.splice(2);
+var lastindex;
+for(var i =0;i<argvs.length;i++){
+    var res = {};
+    if(argvs[i].indexOf('-')==0){
+        lastindex = clearH(argvs[i]);
+        arguments[lastindex] = true;
+    }else{
+        arguments[lastindex] = argvs[i];
+    }
+}
+function clearH(str){
+    if(str.indexOf('-')==0){
+        str = str.replace('-','');
+        if(str.indexOf('-')==0){
+            str = clearH(str)
+        }
+    }
+    return str;
+}
 module.exports = {
     runSh,
     platform,
-    deleteFolder
+    deleteFolder,
+    arguments
 }

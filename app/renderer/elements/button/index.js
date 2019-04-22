@@ -1,7 +1,7 @@
 import createview from '../createview';
 var Button = createview({
     tagName: 'a',
-    icon: 'link',
+    icon: 'ios-link',
     label: '按钮',
     name: 'my-button',
     props: {
@@ -52,14 +52,13 @@ var Button = createview({
     },
     render: function (dom) {
         return {
-            attrs:
-            {
+            attrs: {
                 href: dom.props.href,
                 class: dom.props.class,
                 id: dom.props.id
             },
-            domProps: {
-                innerHTML: dom.props.text
+            scopedSlots: {
+                default: props => createElement('span', props.text)
             }
         };
     },

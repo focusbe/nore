@@ -1,54 +1,28 @@
-// const {Projects,Project,Files} = require('../main/libs/project');
-// const {Configs} = require('../main/libs/lib');
-// const {Server} = require('../main/libs/server');
+//const {Projects,Project,Files} = require('../main/libs/project');
+const Configs = require('../libs/configs');
 import Vue from "vue";
 import Vuex from "vuex";
 import VueRouter from "vue-router";
 import App from "./pages/app.vue";
+
 import "./css/style.scss";
-import "material-design-icons";
 import iView from "iview";
 import "./css/themes.less";
 import Elelments from "./elements/index.js";
-var path = require('path');
 // console.log(path);
+import contentmenu from 'v-contextmenu'
+import 'v-contextmenu/dist/index.css'
+import mySocket from "./utli/mysocket";
+mySocket.on('reloadPage', function () {
+    window.location.reload();
+});
+Vue.use(contentmenu)
 Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
-
-function getPages() {
-    var pages = require.context("./pages", true, /\.vue$/);
-    var pagerouter = [];
-    var pageUrls = [];
-    pages.keys().map(key => {
-        let path = key.replace(".vue", "").replace('./','');
-        let pathname = path.replace("/", "_");
-        if (pathname.indexOf("public") == 0 || pathname.indexOf("app") == 0) {
-            return;
-        }
-        pageUrls.push({
-            name: pathname,
-            path: path
-        });
-        pagerouter.push({
-            name: pathname,
-            path: path,
-            ismenue: true,
-            component: pages(key).default
-        });
-        // pagerouter.push({
-        //     name: pathname + "_withparam",
-        //     path: path + "/(.*)",
-        //     ismenue: false,
-        //     component: pages(key)
-        // });
-    });
-    return { pagerouter, pageUrls };
-}
-
-const Pages = getPages();
-console.log(Pages);
+import Pages from './pages';
+import components from './componets'
 App.props = {
     pageUrls: {
         type: Array,
@@ -57,24 +31,25 @@ App.props = {
         }
     }
 };
+
 const router = new VueRouter({
     mode: "hash",
     base: __dirname,
     routes: [
-        { path: "/", redirect: { name: "home" }, },
         {
             path: "/",
             name: "app",
             component: App,
-            children: Pages["pagerouter"]
+            children: Pages["pagerouter"],
+            redirect: { name: "home" }
         }
-        
+
     ]
 });
-
 const store = new Vuex.Store({
     state: {
         count: 0
+
     },
     mutations: {
         increment(state) {
@@ -88,8 +63,9 @@ var app = new Vue({
     el: "#app",
     store,
     template: `
-  <div id="app">
-      <router-view class="view"></router-view>
+  <div id="app" class="${process.platform}">
+    <div class="mac_topbar"></div>
+    <router-view class="view"></router-view>
   </div>
   `
 }).$mount("#app");

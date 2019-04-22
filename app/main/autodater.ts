@@ -1,34 +1,44 @@
 const autoUpdater = require("electron-updater").autoUpdater;
-import {inarar,DEBUG,isproduct} from './libs/env';
+import {inarar,DEBUG,isproduct} from '../libs/env';
 import mySocket from "./mysocket";
+function myconsole(data:any){
+    mySocket.sendTo("main", "console",data);
+}
 class AutoUpdater{
+    static inited = false;
     static init() {
+        if(this.inited){
+            return;
+        }
+        this.inited = true;
+        myconsole("DEBUG:"+DEBUG);
         if (DEBUG) {
             return;
         }
         var self = this;
         autoUpdater.on("checking-for-update", () => {
-            //console.log('checking');
+            myconsole('检查更新中');
         });
         autoUpdater.on("update-available", (ev:any, info:any) => {
             // if (DEBUG) {
-            //     console.log('有更新');
+            //     myconsole('有更新');
             // }
-            // console.log('available');
+            myconsole('有更新');
         });
         autoUpdater.on("update-not-available", (ev:any, info:any) => {
-            // console.log('not-available');
+            // myconsole('not-available');
             //alert('无更新');
+            myconsole('无更新');
         });
         autoUpdater.on("error", (ev:any, err:any) => {
-            //console.log('error:');
-            //console.log(ev);
-            // console.log(err);
+            myconsole('error:');
+            //myconsole(ev);
+            myconsole(err);
         });
         autoUpdater.on("download-progress", (ev:any, progressObj:any) => {
-            // console.log('download progress');
-            // console.log(ev);
-            // console.log(progressObj);
+            myconsole('download progress');
+            myconsole(ev);
+            myconsole(progressObj);
             // 			{total: 83452555,
             //   delta: 233280,
             //   transferred: 437227,
@@ -37,13 +47,25 @@ class AutoUpdater{
             //self.sendTo('main','alert','Download progress...');
         });
         autoUpdater.on("update-downloaded", (ev:any, info:any) => {
-            //console.log('update-downloaded');
+            myconsole('update-downloaded');
             // setTimeout(function () {
             // 	autoUpdater.quitAndInstall();
             // }, 5000)
-            mySocket.sendTo("main", "update-downloaded");
+            mySocket.sendTo("main", "console","update downloaded");
+            mySocket.sendTo("main", "updateDownloaded",null);
         });
+        
+    }
+    static check(){
+        myconsole('checkForUpdates');
+        if (DEBUG) {
+            return;
+        }
         autoUpdater.checkForUpdates();
     }
+    static install(){
+        autoUpdater.quitAndInstall();
+    }
 }
+AutoUpdater.init();
 export default AutoUpdater;

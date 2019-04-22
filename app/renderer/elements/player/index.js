@@ -1,7 +1,7 @@
 import createview from '../createview';
 
 var player =  createview({
-    icon:'play',
+    icon:'logo-youtube',
     label:'视频',
     name:'player',
     props:{

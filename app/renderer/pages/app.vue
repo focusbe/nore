@@ -1,21 +1,10 @@
 <template id="template">
-    <div class="layout" >
-        <div class="mac_topbar"></div>
-        <div class="content">
-            <div class="body">
-                
-                <router-view class="view">
-                    
-                </router-view>
-            </div>
-        </div>
-    </div>
+    <router-view class="main_wrap">
+        
+    </router-view>
 </template>
 <script>
-
-// import "../js/common.js";
-// import $ from "jquery";
-
+import mySocket from '../utli/mysocket';
 export default {
     data: function() {
         return {
@@ -26,17 +15,16 @@ export default {
     updated: function() {},
     mounted: function() {
         var self = this;
-        // Socket.on("new_project", function() {
-        //     self.showNewProject();
-        // });
+        mySocket.on("new_project", function() {
+            self.showNewProject();
+        });
     },
     methods: {
         exit: function() {
             window.close();
         },
         showNewProject: function() {
-            
-            //this.$router.push({path:'/project/edit'});
+            this.$router.push({path:'/project/edit'});
         },
         closeNew: function() {
             this.newPopup = false;

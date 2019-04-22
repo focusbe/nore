@@ -1,5 +1,7 @@
 const electron = require("electron");
 const Menu = electron.Menu;
+import WinManager from "./winmanager";
+import AutoUpdater from "./autodater";
 function setAppMenu(app: any) {
     var self = this;
     let template: any;
@@ -103,8 +105,30 @@ function setAppMenu(app: any) {
                     label: "关于",
                     click() {
                         require("electron").shell.openExternal(
-                            "https://www.baidu.com"
+                            "http://nore.focusbe.com"
                         );
+                    }
+                },
+                {
+                    label: "检查更新",
+                    click() {
+                        AutoUpdater.check();
+                    }
+                }
+            ]
+        },
+        {
+            label: "设置",
+            role: "learn more",
+            submenu: [
+                {
+                    label: "配置环境",
+                    click() {
+                        WinManager.newwindow("config_edit", '', {
+                            width:500,
+                            height:450,
+                            hash: "#/configs/edit"
+                        });
                     }
                 }
             ]
@@ -115,6 +139,17 @@ function setAppMenu(app: any) {
         template.unshift({
             label: app.getName(),
             submenu: [
+                {
+                    label: "配置环境",
+                    click() {
+                        WinManager.newwindow("config_edit", '', {
+                            width:500,
+                            height:450,
+                            frame:false,
+                            hash: "#/configs/edit"
+                        });
+                    }
+                },
                 {
                     label: "关于",
                     role: "about"

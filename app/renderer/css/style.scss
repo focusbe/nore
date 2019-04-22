@@ -1,12 +1,12 @@
 /* fallback */
 
 @import "public.scss";
-@font-face {
-    font-family: "Material Icons";
-    font-style: normal;
-    font-weight: 400;
-    src: url("../fonts/meterialicons.woff2") format("woff2");
-}
+// @font-face {
+//     font-family: "Material Icons";
+//     font-style: normal;
+//     font-weight: 400;
+//     src: url("../fonts/meterialicons.woff2") format("woff2");
+// }
 
 body,
 html,
@@ -15,42 +15,28 @@ html,
     height: 100%;
     width: 100%;
 }
+
 #app {
     height: 100%;
-}
-.view {
-    height: 100%;
-}
-
-.material-icons {
-    font-family: "Material Icons";
-    font-weight: normal;
-    font-style: normal;
-    font-size: 24px;
-    line-height: 1;
-    letter-spacing: normal;
-    text-transform: none;
-    display: inline-block;
-    white-space: nowrap;
-    word-wrap: normal;
-    direction: ltr;
-    -webkit-font-feature-settings: "liga";
-    -webkit-font-smoothing: antialiased;
-}
-
-.mu-appbar-title {
-    -webkit-app-region: drag;
-}
-
-.content {
-    position: absolute;
-    top: 25px;
-    left: 0;
-    bottom: 0;
-    overflow: auto;
-    right: 0px;
     background: #464646;
 }
+.darwin{
+    padding-top: 22px;
+    .mac_topbar {
+        display: block;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        -webkit-app-region: drag;
+        height: 22px;
+        z-index: 999999;
+    }
+    .project_list{
+        margin-top: -6px;
+    }
+}
+
 
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 
@@ -60,15 +46,15 @@ html,
     background-color: none;
 }
 
-/*定义滚动条轨道 内阴影+圆角*/
+// /*定义滚动条轨道 内阴影+圆角*/
 
-::-webkit-scrollbar-track {
-    // -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
-    border-radius: 2px;
-    background-color: none;
-}
+// ::-webkit-scrollbar-track {
+//     // -webkit-box-shadow: inset 0 0 3px rgba(0,0,0,0.3);
+//     border-radius: 2px;
+//     background-color: none;
+// }
 
-/*定义滑块 内阴影+圆角*/
+// /*定义滑块 内阴影+圆角*/
 
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
@@ -76,87 +62,139 @@ html,
     background-color: rgb(160, 152, 152);
 }
 
-.body,
-.footer {
-    padding: 20px;
-}
 
-.app_head {
-    position: fixed;
-}
 .aligncenter {
     text-align: center;
 }
-.projectlist {
-    text-align: left;
-    display: inline-block;
-    transition: all 0.3s;
-    li {
-        display: inline-block;
-        text-align: center;
-        width: 150px;
-        margin: 10px;
-        font-size: 12px;
-        line-height: 1.6;
-        cursor: pointer;
-        img {
-            width: 100%;
-        }
-    }
-}
-.mac_topbar {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    width: 100%;
-    -webkit-app-region: drag;
-    height: 25px;
-    background: #3c3c3c;
-    z-index: 999999;
-}
+// .project_list {
+//     text-align: left;
+//     display: block;
+//     transition: all 0.3s;
+//     margin-top: -3px;
+//     li {
+//         display: inline-block;
+//         text-align: center;
+//         width: 150px;
+//         margin: 10px;
+//         font-size: 12px;
+//         line-height: 1.6;
+//         cursor: pointer;
+//         img {
+//             width: 100%;
+//         }
+//     }
+// }
+
 .top_options_bar {
-    position: absolute;
+    position: relative;
     top: 0;
     left: 0;
     width: 100%;
     text-align: center;
     z-index: 100;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin: 5px 0;
 }
 .canvas {
     margin: 0 auto;
     background: #fff;
     overflow: auto;
+    overflow-x:hidden;
     position: relative;
-    top: 50px;
     box-shadow: 0 0 3px #464646;
 }
+.main_wrap{
+    height: 100%;
+    &>.center{
+        flex-grow: 1;
+        flex-shrink: 1;
+        display: flex;
+        flex-direction: column;
+        overflow-x:hidden;
+    }
+    
+    .page_list{
+        flex-grow: 0;
+        flex-shrink: 0;
+        white-space: nowrap;
+        overflow-x: auto;
+        li{
+            display: inline-block;
+            background: #424242;
+            padding: 0 10px;
+            margin-left: 1px;
+            border-radius: 2px;
+        }
+        li.cur{
+            background: #535353;
+        }
+    }
+
+    .page_detail{
+        flex-grow: 1;
+        position: relative;
+        height: 100%;
+        flex-shrink: 1;
+        padding-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
 .left_options {
     width: 220px;
     height: 100%;
     background: #464646;
-    position: absolute;
+    position: relative;
+    height: 100%;
     left: 0;
     border-right: 1px solid #2c2c2c;
     box-shadow: 1px 1px 2px #464646;
     top: 0;
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    &>*{
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
 }
 .right_area {
     width: 280px;
     height: 100%;
     background: #464646;
-    position: absolute;
+    position: relative;
     right: 0;
     top: 0;
     border-left: 1px solid #2c2c2c;
     box-shadow: -1px 1px 2px #464646;
+    flex-grow: 0;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    &>div{
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
 }
 .options_section {
+    display: flex;
+    flex-direction: column;
     h2 {
         background: #373737;
         line-height: 2;
         border-top: 1px solid #242424;
         border-bottom: 1px solid #242424;
         text-indent: 10px;
+        flex-shrink: 0;
+        flex-grow:0;
+    }
+    &>*{
+        flex-shrink: 1;
+        flex-grow: 1;
+        overflow: auto;
     }
 }
 .element_list {
@@ -180,6 +218,7 @@ html,
         }
     }
 }
+
 .canvas_outer {
     position: absolute;
     left: 220px;
@@ -197,44 +236,61 @@ html,
 }
 .project_list {
     li {
+        
+        border-radius: 5px;
         display: inline-block;
         margin: 10px;
         text-align: center;
-        width: 150px;
+        width: 200px;
+        height: 120px;
         overflow: hidden;
         a {
             position: relative;
-            border-radius: 6px;
             overflow: hidden;
             display: block;
             height: 100%;
             transition: all 0.3s;
+            background: #666;
             p {
                 font-size: 20px;
                 position: absolute;
                 top: 50%;
-                margin-top: -10px;
+                margin-top: -14px;
                 left: 0;
                 text-align: center;
                 width: 100%;
                 text-transform: Uppercase;
                 text-shadow: #000 1px 1px 5px;
             }
-            img {
+            div {
+                &:after{
+                    position: absolute;
+                    background: rgba(0,0,0,0.3);
+                    width: 100%;
+                    height: 100%;
+                    left: 0;
+                    top: 0;
+                    content:' ';
+                }
                 transition: all 0.3s;
+                width: 100%;
+                height: auto;
+                transform: scale(1);
+                // position: absolute;
+                // top: 50%;
+                width: 100%;
+                height: 100%;
             }
         }
         a:hover {
-            img {
+            div {
                 transform: scale(1.1);
-                opacity: 0.8;
+                // opacity: 0.8;
+                &:after{
+                    opacity: 0;
+                }
             }
         }
-        img {
-            width: auto;
-            height: 100%;
-        }
-        height: 80px;
         button {
             background: none;
             width: 100%;

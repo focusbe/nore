@@ -40,9 +40,6 @@ var container =  createview({
             type:'hidden'
         }
     },
-    render:function(dom){
-        //return {attrs:{href:dom.props.href}, domProps:{innerHtml:dom.props.text}};
-    },
     onRendered:function(dom){
         //alert('容器渲染');
     }
