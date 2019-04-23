@@ -23,6 +23,7 @@ class Main {
             // }
             setTimeout(function(){
                 app.quit();
+                app.exit();
             },500)
             //app.exit();
         });
