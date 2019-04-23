@@ -39,7 +39,18 @@ import Files from "libs/files";
 import PSD from "libs/psd/index";
 import path from "path";
 import aRemote from "libs/aremote";
-
+function showMem() {
+    //开启--exprose-gc时显示内存占用
+    if (typeof global.gc == "function") {
+        console.log("手动gc一次");
+        global.gc();
+    }
+    let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
+    let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
+    console.log('rss":' + rss + "M");
+    console.log('memused":' + memused + "M");
+    memused = null;
+}
 export default {
 	name: "my-psd",
 	computed: {},
@@ -82,13 +93,13 @@ export default {
 			this.isparse = true;
 			try {
 				//console.log(this.uploadpath);
-				var mypsd = new PSD(
+				let mypsd = new PSD(
 					file.path,
 					this.uploadpath,
 					"images/" + this.pagename,
 					this.device == "phone"
 				);
-				var res = await mypsd.parse(false, (state, percent, msg) => {
+				let res = await mypsd.parse(false, (state, percent, msg) => {
 					if (!!state) {
 						if(percent==100){
 							this.isparse = false;
@@ -101,9 +112,11 @@ export default {
 				self.$emit("finish", res.vNode);
 				mypsd = null;
 				res = null;
+				showMem();
 			} catch (error) {
 				this.isparse = false;
 				alert('解析失败请检查PSD是否符合上传标准');
+				showMem();
 			}
 
 			return false;

@@ -6,18 +6,18 @@ import { Point, Size, Rectangle, Image, PsdUtli, ImagePool } from "./base";
 //识别的系统字；
 console.log(global);
 //显示内存占用
-// function showMem() {
-//     //开启--exprose-gc时显示内存占用
-//     if (typeof global.gc == "function") {
-//         console.log("手动gc一次");
-//         global.gc();
-//     }
-//     let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
-//     let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
-//     console.log('rss":' + rss + "M");
-//     console.log('memused":' + memused + "M");
-//     memused = null;
-// }
+function showMem() {
+    //开启--exprose-gc时显示内存占用
+    if (typeof global.gc == "function") {
+        console.log("手动gc一次");
+        global.gc();
+    }
+    let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
+    let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
+    console.log('rss":' + rss + "M");
+    console.log('memused":' + memused + "M");
+    memused = null;
+}
 
 class PSD {
     private pixelMax;
