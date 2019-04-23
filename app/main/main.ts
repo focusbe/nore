@@ -1,5 +1,6 @@
 const electron = require("electron");
 const app = electron.app;
+app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=2048')
 import { inarar, DEBUG, isproduct } from "../libs/env";
 import AutoUpdater from "./autodater";
 import WinManager from "./winmanager";

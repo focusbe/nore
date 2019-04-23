@@ -145,7 +145,7 @@ export default {
 		showEditConfig() {
 			mySocket.sendTo("MAIN", "open", {
 				width: 500,
-				height: 460,
+				height: 500,
 				tag: "config_edit",
 				hash: "#/configs/edit"
 			});

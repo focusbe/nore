@@ -32,14 +32,6 @@
                     <Button @click="publishCode" type="primary" title="发布">
                         <Icon type="md-cloud-upload" size="20" color/>
                     </Button>
-                    <!-- <Select
-					 v-model="curdevice"
-					 slot="prepend"
-					 style="width: 80px"
-					>
-						<Option value="pc">PC端</Option>
-						<Option value="phone">移动端</Option>
-                    </Select>-->
                     <my-psd
                         :actname="actname"
                         :pagename="curPage"
@@ -106,7 +98,6 @@
 </style>
 
 <script>
-
 import Server from "../../../libs/server";
 import { Project } from "../../../libs/project";
 import Files from "../../../libs/files";

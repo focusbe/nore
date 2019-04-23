@@ -4,7 +4,7 @@ const path = require("path");
 import Files from "../files";
 import { Point, Size, Rectangle, Image, PsdUtli, ImagePool } from "./base";
 //识别的系统字；
-
+console.log(global);
 //显示内存占用
 // function showMem() {
 //     //开启--exprose-gc时显示内存占用
@@ -35,7 +35,7 @@ class PSD {
         this.asseturl = asseturl;
         this.userwebp = userwebp;
     }
-    async parse(debug,onProgress) {
+    async parse(debug, onProgress) {
         var self = this;
         //判断文件是否存在，保存图片的目录是否存在
         let exists = await fse.exists(this.psdpath);
@@ -48,14 +48,14 @@ class PSD {
                 else reject("创建图片保存路径失败");
             });
         });
-        onProgress(1,5,"正在打开PSD")
+        onProgress(1, 5, "正在打开PSD");
         let psd = await psdjs.open(this.psdpath);
-        
+
         let psdtree = psd.tree();
-        onProgress(1,10,"正在解析PSD")
+        onProgress(1, 10, "正在解析PSD");
         psd = null;
         let res = this.getvnodetree(psdtree);
-        onProgress(1,20,"正在保存图片");
+        onProgress(1, 20, "正在保存图片");
         let errorimg = [];
         let saved = 0;
         if (!debug) {
@@ -73,13 +73,17 @@ class PSD {
                             break;
                         case "change":
                             saved++;
-                            
+
                             break;
                     }
-                    let total = errorimg.length+saved;
-                    let percent = Math.floor(total/res.imgPool.pool.length*80)+20;
-                    let msg = "正在保存图片，已处理："+total+'/'+res.imgPool.pool.length+'，失败：'+errorimg.length;
-                    onProgress(1,percent,msg);
+                    let total = errorimg.length + saved;
+                    let percent = Math.floor((total / res.imgPool.pool.length) * 80) + 20;
+                    let msg = "正在保存图片，已处理：" + total + "/" + res.imgPool.pool.length + "，失败：" + errorimg.length;
+                    onProgress(1, percent, msg);
+                    if (typeof global.gc == "function") {
+                        console.log("手动gc一次");
+                        global.gc();
+                    }
                 });
             });
         }
@@ -336,10 +340,10 @@ class PSD {
                             fontstyle.fontSize = font.sizes[0] + "px";
                             console.log(font.sizes[0]);
                             console.log(curVNode.styles.height);
-                            if (curVNode.styles.height <= (font.sizes[0] + 4)) {
+                            if (curVNode.styles.height <= font.sizes[0] + 4) {
                                 fontstyle.lineHeight = 1;
                             }
-                            fontstyle.height = 'auto';
+                            fontstyle.height = "auto";
                         }
                         if (!!font.colors && font.colors.length > 0) {
                             fontstyle.color = PsdUtli.colorRGB2Hex(font.colors[0]);
