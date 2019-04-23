@@ -161,15 +161,6 @@ class Image {
                             areasharp.webp().toFile(tempfile, (err, info) => {
                                 if (!!err) {
                                     saveEndFun(false);
-                                    // try {
-                                    //     fse.unlink(this.fullpath);
-                                    // } catch (error) {}
-                                    // try {
-                                    //     console.log('unlink');
-                                    //     fse.unlink(tempfile);
-                                    // } catch (error) {
-                                    //     //console.log(error);
-                                    // }
                                     Files.delFile(this.fullpath);
                                     Files.delFile(tempfile);
                                     return;

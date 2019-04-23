@@ -13,6 +13,24 @@ class Util {
         }
         return id;
     }
+    static showMem() {
+        //开启--exprose-gc时显示内存占用
+        if (typeof global.gc == "function") {
+            console.log("手动gc一次");
+            global.gc();
+        }
+        let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
+        let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
+        console.log('rss":' + rss + "M");
+        console.log('memused":' + memused + "M");
+        memused = null;
+    }
+    static gc(){
+        if (typeof global.gc == "function") {
+            console.log("手动gc一次");
+            global.gc();
+        }
+    }
     static isPath(str) {
         if (typeof str == "string" && str.indexOf("/") > -1 && str.indexOf(".") > -1 && str.indexOf("//") == -1) {
             return true;
@@ -86,34 +104,3 @@ class Util {
     }
 }
 export default Util;
-// var fs = require('fs');
-// var co = require('co');
-// var prompt = require('co-prompt');
-// var makeDir = require('make-dir');
-
-// var Util = function(){
-//     createObj:function(options){
-//         var defaultOptions ={
-//             projectname:'',
-//             buildtool:'',
-//             gosid:'',
-//             gamename:''
-//         }
-//         options = Object.assign(options,defaultOptions);
-//         if( !options.projectname || !options.gamename || !options.buildtool|| !options.gosid){
-//     		return {false,'缺少参数'}
-//     	}
-
-//     	path = 'src/' + options.gamename+'/'+options.projectname;
-//     	makeDir(path).then(() => {
-//     		makeDir(path + '/css').then();
-//     		makeDir(path + '/images').then();
-//     		makeDir(path + '/js').then();
-
-//     		// 写入配置文件
-//     		fs.writeFile(path + '/config.json', JSON.stringify({ "name": project, "developer": developer }), (err) => {
-//     			if(err) throw err;
-//     		});
-//     	});
-//     }
-// }

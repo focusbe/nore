@@ -13,6 +13,7 @@ import Elelments from "./elements/index.js";
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
 import mySocket from "./utli/mysocket";
+import Utli from "../libs/util";
 mySocket.on('reloadPage', function () {
     window.location.reload();
 });
@@ -22,20 +23,7 @@ Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
 
-function showMem() {
-    //开启--exprose-gc时显示内存占用
-    if (typeof global.gc == "function") {
-        console.log("手动gc一次");
-        global.gc();
-    }
-    let rss = parseInt(process.memoryUsage().rss / 1024 / 1024);
-    let memused = parseInt(process.memoryUsage().heapUsed / 1024 / 1024);
-    console.log('rss":' + rss + "M");
-    console.log('memused":' + memused + "M");
-    memused = null;
-}
-
-setInterval(showMem,2000);
+setInterval(Utli.showMem,2000);
 
 import Pages from './pages';
 import components from './componets/install';
