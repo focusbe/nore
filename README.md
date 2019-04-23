@@ -24,8 +24,8 @@ npm run build #运行打包构建
 2. 容器转换为其他组件
 
 ----BugList----
-1. 文字显示被截取（liaohui）
-2. 双击打开页面不直观（liaohui）
+1. 文字显示被截取（liaohui）fixed
+2. 双击打开页面不直观（liaohui）fixed
 
 
 
