@@ -32,6 +32,9 @@
                     <Button @click="publishCode" type="primary" title="发布">
                         <Icon type="md-cloud-upload" size="20" color/>
                     </Button>
+                    <Button @click="showInFolder" type="primary" title="在文件夹中显示">
+                        <Icon type="md-folder" size="20" color/>
+                    </Button>
                     <my-psd
                         :actname="actname"
                         :pagename="curPage"
@@ -274,9 +277,14 @@ export default {
 			//this.saveScreenShot();
 			// this.savePage(false);
         },
-
+        showInFolder(){
+            Files.openFolder(this.project.datadir);
+        },
         async saveCurPage() {
-            this.curCanvas.syncRoot();
+            if(!!this.curCanvas){
+                this.curCanvas.syncRoot();
+            }
+            
             var curCanvasData = this.canvasDataList[this.curPage];
 
             if (!!curCanvasData) {
@@ -419,8 +427,8 @@ export default {
                     }
                 }
                 return result;
-			}
-			
+            }
+            
         },
         async buildPage() {
             var hasBuildFile = await this.project.hasBuildFile(this.curPage);

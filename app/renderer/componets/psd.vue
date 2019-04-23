@@ -39,6 +39,7 @@ import Files from "libs/files";
 import PSD from "libs/psd/index";
 import path from "path";
 import aRemote from "libs/aremote";
+import Util from '../../libs/util';
 
 export default {
 	name: "my-psd",
@@ -82,13 +83,13 @@ export default {
 			this.isparse = true;
 			try {
 				//console.log(this.uploadpath);
-				var mypsd = new PSD(
+				let mypsd = new PSD(
 					file.path,
 					this.uploadpath,
 					"images/" + this.pagename,
 					this.device == "phone"
 				);
-				var res = await mypsd.parse(false, (state, percent, msg) => {
+				let res = await mypsd.parse(false, (state, percent, msg) => {
 					if (!!state) {
 						if(percent==100){
 							this.isparse = false;
@@ -101,9 +102,11 @@ export default {
 				self.$emit("finish", res.vNode);
 				mypsd = null;
 				res = null;
+				Util.gc();
 			} catch (error) {
 				this.isparse = false;
 				alert('解析失败请检查PSD是否符合上传标准');
+				Util.gc();
 			}
 
 			return false;

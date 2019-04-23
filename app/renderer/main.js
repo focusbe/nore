@@ -13,6 +13,7 @@ import Elelments from "./elements/index.js";
 import contentmenu from 'v-contextmenu'
 import 'v-contextmenu/dist/index.css'
 import mySocket from "./utli/mysocket";
+import Utli from "../libs/util";
 mySocket.on('reloadPage', function () {
     window.location.reload();
 });
@@ -21,6 +22,9 @@ Vue.use(Elelments);
 Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
+
+setInterval(Utli.showMem,2000);
+
 import Pages from './pages';
 import components from './componets/install';
 App.props = {
