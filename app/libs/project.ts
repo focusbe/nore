@@ -6,8 +6,8 @@ const postcss = require("postcss");
 const postcssJs = require("postcss-js");
 const Vue = require("vue");
 import Canvas from "../renderer/componets/canvas.vue";
-var beautify = require("js-beautify").html;
 Vue.component("my-canvas", Canvas);
+var beautify = require("js-beautify").html;
 const renderer = require("vue-server-renderer").createRenderer();
 import Trackcode from "./trackcode";
 import Configs from "./configs";
@@ -124,9 +124,9 @@ class ProjectsClass {
     has(actname) {
         return fs.existsSync(this.getProjectDir(actname));
     }
-    delete(actname) {
-        return new Promise(
-            function (resolve, reject) {
+    async delete(actname) {
+        await new Promise(
+             (resolve, reject) =>{
                 let projectDir = path.resolve(
                     Configs.getItem("workshop"),
                     actname
@@ -138,7 +138,7 @@ class ProjectsClass {
                     }
                     resolve(true);
                 });
-            }.bind(this)
+            }
         );
     }
     getTempList() {

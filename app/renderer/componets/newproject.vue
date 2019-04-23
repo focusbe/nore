@@ -85,7 +85,6 @@ const { Projects, Project, Files } = require("../../libs/project.ts");
 import mySocket from "../utli/mysocket";
 import Configs from "../../libs/configs";
 export default {
-	name: "newproject",
 	data() {
 		return {
 			gameList: {},

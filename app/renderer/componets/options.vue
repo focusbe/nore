@@ -17,6 +17,7 @@
 </template>
 <script>
 export default {
+    name:'my-options',
     props: {
         optionName: {
             type: String,

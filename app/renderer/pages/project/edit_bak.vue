@@ -153,11 +153,11 @@
 		 v-show="dragover"
 		 class="dragover"
 		></div>
-		<add-page
+		<addpage
 		 ref="pageForm"
 		 :curProject="project"
 		 @ok="addPageOk"
-		></add-page>
+		></addpage>
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -170,22 +170,10 @@
 <script>
 import Vue from "vue";
 import viewList from "../../elements/list.js";
-import Canvas from "../../componets/canvas.vue";
-import Options from "../../componets/options.vue";
-import stylesPanels from "../../componets/panels/styles.vue";
 import { Project } from "../../../libs/project";
 import Files from "../../../libs/files";
-import Assets from "../../componets/assets";
-import PSD from "../../componets/psd";
 import Server from "../../../libs/server";
-import addpage from "../../componets/addpage.vue";
 
-Vue.component("my-options", Options);
-Vue.component("styles-panel", stylesPanels);
-Vue.component("my-canvas", Canvas);
-Vue.component("assets", Assets);
-Vue.component("my-psd", PSD);
-Vue.component("add-page", addpage);
 export default {
 	name: "project_edit",
 	data() {

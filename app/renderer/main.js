@@ -22,7 +22,7 @@ Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
 import Pages from './pages';
-import components from './componets'
+import components from './componets/install';
 App.props = {
     pageUrls: {
         type: Array,

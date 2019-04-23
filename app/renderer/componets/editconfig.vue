@@ -62,7 +62,6 @@
 const { Projects, Project, Files } = require("../../libs/project");
 import Configs from "../../libs/configs";
 export default {
-	name: "editconfig",
 	data() {
 		return {
 			modalshow: false,

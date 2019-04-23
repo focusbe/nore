@@ -64,6 +64,7 @@
                     />
                 </div>
             </div>
+            
         </div>
         <div class="right_area">
             <div class="options_section">
@@ -77,13 +78,13 @@
                     </li>
                 </ul>
             </div>
-            <styles-panel
+            <panels-styles
                 @onChange="onCurStylesChange"
                 v-if="styleOptions"
                 :options="styleOptions"
                 :optionsValue="curStyles"
                 title="样式布局"
-            ></styles-panel>
+            ></panels-styles>
             <br>
             <my-options
                 @onChange="onCurPropsChange"
@@ -105,30 +106,14 @@
 </style>
 
 <script>
-import PSD from "../../componets/psd";
+
 import Server from "../../../libs/server";
 import { Project } from "../../../libs/project";
 import Files from "../../../libs/files";
-import Publish from "../../componets/publish";
 import Vue from "vue";
 import viewList from "../../elements/list.js";
-import Canvas from "../../componets/canvas.vue";
-import Options from "../../componets/options.vue";
-import stylesPanels from "../../componets/panels/styles.vue";
-import Assets from "../../componets/assets";
-import addpage from "../../componets/addpage.vue";
-import pagemanage from "../../componets/pagemanage.vue";
 import html2canvas from "html2canvas";
 import mySocket from "../../utli/mysocket";
-
-Vue.component("my-options", Options);
-Vue.component("styles-panel", stylesPanels);
-Vue.component("my-canvas", Canvas);
-Vue.component("assets", Assets);
-Vue.component("my-psd", PSD);
-Vue.component("add-page", addpage);
-Vue.component("pagemanage", pagemanage);
-Vue.component("publish", Publish);
 export default {
     name: "project_edit",
     data() {

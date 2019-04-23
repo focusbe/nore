@@ -41,13 +41,9 @@
 </template>
 <script>
 import Vue from "vue";
-import newproject from "../componets/newproject.vue";
-import editconfig from "../componets/editconfig.vue";
 const { Projects, Project, Files } = require("../../libs/project.ts");
 import Configs from "../../libs/configs";
 import mySocket from "../utli/mysocket";
-Vue.component("newproject", newproject);
-Vue.component("editconfig", editconfig);
 
 const path = require('path');
 export default {

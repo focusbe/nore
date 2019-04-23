@@ -13,6 +13,7 @@ var viewObj = viewList;
 var curviewObj = null;
 
 export default {
+	name:'my-canvas',
 	created: function() {
 		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;

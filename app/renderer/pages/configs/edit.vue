@@ -10,9 +10,6 @@
 </style>
 
 <script>
-import Vue from "vue";
-import editconfig from "../../componets/editconfig.vue";
-Vue.component("editconfig", editconfig);
 import mySocket from "../../utli/mysocket";
 export default {
     name:"config_edit",

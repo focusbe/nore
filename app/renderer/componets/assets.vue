@@ -44,7 +44,6 @@ import Tree from "./tree";
 import Vue from "vue";
 Vue.component("my-tree", Tree);
 export default {
-	name: "assets",
 	computed: {},
 	props: {
 		actname: String

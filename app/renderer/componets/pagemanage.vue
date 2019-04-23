@@ -22,11 +22,11 @@
 				/>
 			</li>
 		</ul>
-		<add-page
+		<addpage
 		 ref="pageForm"
 		 :curProject="project"
 		 @ok="addPageOk"
-		></add-page>
+		></addpage>
 	</div>
 </template>
 <style lang="scss" scoped>
