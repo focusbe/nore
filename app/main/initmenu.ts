@@ -114,6 +114,14 @@ function setAppMenu(app: any) {
                     click() {
                         AutoUpdater.check();
                     }
+                },
+                {
+                    label: "使用说明",
+                    click() {
+                        require("electron").shell.openExternal(
+                            "http://doc.dev.ztgame.com/web/#/1?page_id=113"
+                        );
+                    }
                 }
             ]
         },
@@ -150,9 +158,17 @@ function setAppMenu(app: any) {
                         });
                     }
                 },
+                // {
+                //     label: "关于",
+                //     role: "about"
+                // },
                 {
-                    label: "关于",
-                    role: "about"
+                    label: "使用说明",
+                    click() {
+                        require("electron").shell.openExternal(
+                            "http://doc.dev.ztgame.com/web/#/1?page_id=113"
+                        );
+                    }
                 },
                 {
                     type: "separator"

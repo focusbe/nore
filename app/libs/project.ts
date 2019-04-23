@@ -381,6 +381,7 @@ class Project {
         return true;
     }
     async saveToFile(name, pageinfo) {
+        return true;
         let curPageInfo = this.getPageByName(name);
         curPageInfo = Object.assign(curPageInfo, pageinfo);
         if (!name || !pageinfo || !curPageInfo) {

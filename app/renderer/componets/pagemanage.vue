@@ -81,8 +81,12 @@ export default {
 		addPage() {
 			this.$refs.pageForm.show();
 		},
-		addPageOk() {
+		addPageOk(info) {
+			
 			this.getPagelist();
+			if(typeof(info)=='object'){
+				this.openPage(info);
+			}
         },
         hasPage(){
 

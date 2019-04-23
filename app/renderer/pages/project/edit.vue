@@ -32,6 +32,9 @@
                     <Button @click="publishCode" type="primary" title="发布">
                         <Icon type="md-cloud-upload" size="20" color/>
                     </Button>
+                    <Button @click="showInFolder" type="primary" title="在文件夹中显示">
+                        <Icon type="md-folder" size="20" color/>
+                    </Button>
                     <my-psd
                         :actname="actname"
                         :pagename="curPage"
@@ -58,7 +61,7 @@
             </div>
             
         </div>
-        <div class="right_area">
+        <!-- <div class="right_area">
             <div class="options_section">
                 <h2>组件</h2>
                 <ul class="element_list">
@@ -87,7 +90,7 @@
             ></my-options>
             <br>
         </div>
-        <div v-show="dragover" class="dragover"></div>
+        <div v-show="dragover" class="dragover"></div> -->
     </div>
 </template>
 <style lang="scss" scoped>
@@ -274,9 +277,14 @@ export default {
 			//this.saveScreenShot();
 			// this.savePage(false);
         },
-
+        showInFolder(){
+            Files.openFolder(this.project.datadir);
+        },
         async saveCurPage() {
-            this.curCanvas.syncRoot();
+            if(!!this.curCanvas){
+                this.curCanvas.syncRoot();
+            }
+            
             var curCanvasData = this.canvasDataList[this.curPage];
 
             if (!!curCanvasData) {
@@ -382,34 +390,34 @@ export default {
 		},
         async savePage(tip = true) {
 			this.saveScreenShot();
-            var lastest = await this.project.whoIsLatest(this.curPage);
-            if (lastest == "origin") {
-                var result = await new Promise((resolve, reject) => {
-                    this.$Modal.confirm({
-                        title: "Nore",
-                        okText: "同步并保存",
-                        cancleText: "取消",
-                        content:
-                            "<p>当前页面不是已通过源代码改动，是否覆盖</p>",
-                        loading: false,
-                        onOk: async () => {
-                            var result = await this.saveCurPage();
-                            if (tip) {
-                                if (result) {
-                                    this.$Message.success("保存成功");
-                                } else {
-                                    this.$Message.error("保存失败");
-                                }
-                            }
-                            resolve(result);
-                        },
-                        onCancel: () => {
-                            resolve(false);
-                        }
-                    });
-                });
-                return result;
-            } else {
+            // var lastest = await this.project.whoIsLatest(this.curPage);
+            // if (lastest == "origin") {
+            //     var result = await new Promise((resolve, reject) => {
+            //         this.$Modal.confirm({
+            //             title: "Nore",
+            //             okText: "同步并保存",
+            //             cancleText: "取消",
+            //             content:
+            //                 "<p>当前页面不是已通过源代码改动，是否覆盖</p>",
+            //             loading: false,
+            //             onOk: async () => {
+            //                 var result = await this.saveCurPage();
+            //                 if (tip) {
+            //                     if (result) {
+            //                         this.$Message.success("保存成功");
+            //                     } else {
+            //                         this.$Message.error("保存失败");
+            //                     }
+            //                 }
+            //                 resolve(result);
+            //             },
+            //             onCancel: () => {
+            //                 resolve(false);
+            //             }
+            //         });
+            //     });
+            //     return result;
+            // } else {
                 var result = await this.saveCurPage();
                 if (tip) {
                     if (result) {
@@ -419,8 +427,7 @@ export default {
                     }
                 }
                 return result;
-			}
-			
+			// }
         },
         async buildPage() {
             var hasBuildFile = await this.project.hasBuildFile(this.curPage);
