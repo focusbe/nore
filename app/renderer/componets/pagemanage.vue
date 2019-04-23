@@ -12,7 +12,7 @@
         </h2>
 		<ul class="options_wrap">
 			<li v-for="(item,key) in pagelist">
-				<span @dblclick="openPage(item)">{{item.name}}</span>
+				<span @click="openPage(item)">{{item.name}}</span>
 				<Icon
                 title="删除"
 				 @click="deletePage(item.name)"

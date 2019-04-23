@@ -314,9 +314,9 @@ class PSD {
                         this.getvnodetree(curLayer, curVNode, imgPool, curDesignSize);
                     }
                 } else if (curLayer.type == "layer") {
-                    // if (!!curLayerJson.text && !!curLayerJson.text.font) {
-                    //     console.log(curLayerJson.text);
-                    // }
+                    if (!!curLayerJson.text && !!curLayerJson.text.font) {
+                        console.log(curLayerJson.text);
+                    }
 
                     if (!!curLayerJson.text && (curLayerJson.text.value.length > 100 || (!!curLayerJson.text.font && PsdUtli.isSystemFont(curLayerJson.text.font)))) {
                         let fontname = PsdUtli.isSystemFont(curLayerJson.text.font);
@@ -334,9 +334,12 @@ class PSD {
                         let fontstyle: { [key: string]: any } = {};
                         if (!!font.sizes && font.sizes.length > 0) {
                             fontstyle.fontSize = font.sizes[0] + "px";
-                            if (curVNode.styles.height <= font.sizes[0] + 1) {
+                            console.log(font.sizes[0]);
+                            console.log(curVNode.styles.height);
+                            if (curVNode.styles.height <= (font.sizes[0] + 4)) {
                                 fontstyle.lineHeight = 1;
                             }
+                            fontstyle.height = 'auto';
                         }
                         if (!!font.colors && font.colors.length > 0) {
                             fontstyle.color = PsdUtli.colorRGB2Hex(font.colors[0]);
