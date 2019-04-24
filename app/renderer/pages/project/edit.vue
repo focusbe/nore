@@ -59,7 +59,7 @@
                     />
                 </div>
             </div>
-            
+            <editanimate></editanimate>
         </div>
         <div class="right_area">
             <div class="options_section">
@@ -136,7 +136,8 @@ export default {
                     width: "750px",
                     height: "100%"
                 }
-            }
+            },
+            animateLine:{}
         };
     },
 

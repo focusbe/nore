@@ -902,8 +902,8 @@ class Project {
 
         var gameinfo: any = await Games.getGame(this.config.game);
         var common: any = await Games.getGame("common");
-
-        var wxid = !!gameinfo.wxid
+        
+        var wxid = !!gameinfo&&!!gameinfo.wxid
             ? gameinfo.wxid
             : !!common.wxid
                 ? common.wxid
