@@ -2,7 +2,7 @@
 
 下载地址：<a href="http://nore.focusbe.com/" target="_blank">http://nore.focusbe.com/</a>
 
-<img src="https://raw.githubusercontent.com/foliouTeam/NoreCode/liupeng_dev/assets/norecode.png" width="200" alt="Nore"/>
+<img src="https://raw.githubusercontent.com/foliouTeam/NoreCode/master/assets/norecode.png" width="200" alt="Nore"/>
 
 (开发中。。。)
 
