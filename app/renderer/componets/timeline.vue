@@ -1,32 +1,59 @@
 <template>
 	<div class="timeline">
 		<span
-			v-for="i in framesNum"
-			:key="i"
-			@click="selected(i)"
-			v-contextmenu:contextmenu
-			:class="!!selectStatus[i]?'selected':'1'"
+		 v-for="i in framesNum"
+		 :key="i"
+		 @click="selected(i)"
+		 v-contextmenu:contextmenu
+		 :class="!!selectStatus[i]?'selected':'1'"
 		>
 			<em v-if="getFrame(i)"></em>
 		</span>
-		<v-contextmenu ref="contextmenu" @contextmenu="onContextMenu">
+		<v-contextmenu
+		 ref="contextmenu"
+		 @contextmenu="onContextMenu"
+		>
 			<v-contextmenu-item
-				v-for="(item,index) in curContextMenu"
-				@click="contextMenuClicked(item)"
+			 v-for="(item,index) in curContextMenu"
+			 @click="contextMenuClicked(item)"
 			>{{item.label}}</v-contextmenu-item>
 		</v-contextmenu>
-		<Modal v-model="modalshow" title="添加补间动画" :footer="''">
+		<Modal
+		 v-model="modalshow"
+		 title="添加补间动画"
+		 :footer="''"
+		>
 			<div slot="footer">
-				<Button @click="cofimGapFun" type="primary">确定</Button>
+				<Button
+				 @click="cofimGapFun"
+				 type="primary"
+				>确定</Button>
 			</div>
-			<Form ref="form" :model="funInfo" label-position="left" :label-width="100">
-				<FormItem prop="name" label="动画名称">
+			<Form
+			 ref="form"
+			 :model="funInfo"
+			 label-position="left"
+			 :label-width="100"
+			>
+				<FormItem
+				 prop="name"
+				 label="动画名称"
+				>
 					<Select v-model="funInfo.name">
-						<Option v-for="(item, key) in funlist" :value="item" :key="key">{{item}}</Option>
+						<Option
+						 v-for="(item, key) in funlist"
+						 :value="item"
+						 :key="key"
+						>{{item}}</Option>
+
 					</Select>
 				</FormItem>
 			</Form>
 		</Modal>
+        <svg width="256" height="112" viewBox="0 0 256 112">
+        <path fill="none" stroke="currentColor" stroke-width="1" d="M8,56 C8,33.90861 25.90861,16 48,16 C70.09139,16 88,33.90861 88,56 C88,78.09139 105.90861,92 128,92 C150.09139,92 160,72 160,56 C160,40 148,24 128,24 C108,24 96,40 96,56 C96,72 105.90861,92 128,92 C154,93 168,78 168,56 C168,33.90861 185.90861,16 208,16 C230.09139,16 248,33.90861 248,56 C248,78.09139 230.09139,96 208,96 L48,96 C25.90861,96 8,78.09139 8,56 Z"></path>
+      </svg>
+        <svg width="580" height="400" viewBox="0 0 580 400" class="mysvg"><path xmlns="http://www.w3.org/2000/svg" id="svg_1" d="m100.999999,145.499999c51,60 106,44 139,17c33,-27 64,-36 95,-1c31,35 -19,117 6,61c25,-56 70,-62 85,-58" opacity="1" stroke-width="1" stroke="#ffffff" fill="none"/></svg>
 	</div>
 </template>
 <style lang="scss" scoped>
@@ -91,7 +118,7 @@ export default {
 	},
 	data: function() {
 		return {
-			funlist: ["ease-in-out", "linear"],
+			funlist: ["spring", "linear", "easeInQuad"],
 			modalshow: false,
 			framesNum: 200,
 			frames: {},
@@ -147,7 +174,7 @@ export default {
 			menu.push({
 				label: "运行所有动画",
 				method: "runall",
-				value: 1
+				value: 1    
 			});
 
 			return menu;
@@ -159,24 +186,53 @@ export default {
 			// console.log(vnode.key);
 		},
 		runall() {
+            var path = Anime.path('.mysvg path');
+            Anime({
+                targets:  this.element,
+                translateX: path('x'),
+                translateY: path('y'),
+                rotate: path('angle'),
+                easing: 'linear',
+                duration: 2000,
+                loop: true
+            });
+            return;
 			var curDelay = 0;
-			var tl = anime.timeline({
-				easing: "easeOutExpo",
-				duration: 1000
+			var tl = Anime.timeline({
+				easing: "steps(1)",
+				loop: false,
+				update: function(anim) {
+					console.log(anim.currentTime);
+					
+				},
+				begin: function(anim) {
+					
+				},
+				complete: function(anim) {
+					
+				}
 			});
+			var start = 0;
 			for (var i in this.frames) {
-				console.log(i);
+				let easing = "steps(1)";
+				if (!!this.getease(start)) {
+					easing = this.getease(start);
+				}
+				console.log(easing);
 				let curAnimate = {
-					targets: this.element
+					targets: this.element,
+					easing: easing
 				};
 				let Styles = this.frames[i];
 				let run = Object.assign(curAnimate, Styles, {
-					delay: 0,
 					duration: i * 100 - curDelay
 				});
 				console.log(run);
-				Anime(run);
-				curDelay = i * 100;
+				tl.add(run);
+				start = i;
+				// console.log(run);
+				// Anime(run);
+				// curDelay = i * 100;
 			}
 		},
 		getGap(index) {
@@ -264,7 +320,7 @@ export default {
 			}
 			return indexArr;
 		},
-		addGapFun(start, end, funstr) {
+		addGapFun() {
 			// this.gapfun.push({
 			//     start:start,
 			//     end:end
@@ -287,14 +343,22 @@ export default {
 				this.$Message.error("没有检测到区间");
 				return;
 			}
-			console.log(curgap);
 			this.gapfun.push({
 				start: curgap[0],
-				end: curgap[1],
 				fun: this.funInfo.name
 			});
-			console.log(this.gapfun);
+			// console.log(this.gapfun);
 			this.modalshow = false;
+		},
+		getease(startIndex) {
+			for (var i in this.gapfun) {
+				console.log(this.gapfun[i]["start"]);
+				console.log(startIndex);
+				if (this.gapfun[i]["start"] == startIndex) {
+					return this.gapfun[i]["fun"];
+				}
+			}
+			return null;
 		}
 	}
 };
