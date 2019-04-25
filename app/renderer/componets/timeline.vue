@@ -1,46 +1,29 @@
 <template>
 	<div class="timeline">
 		<span
-		 v-for="i in framesNum"
-         :key="i"
-		 @click="selected(i)"
-		 v-contextmenu:contextmenu
-         :class="!!selectStatus[i]?'selected':'1'"
-		> <em v-if="getFrame(i)"></em></span>
-		<v-contextmenu
-		 ref="contextmenu"
-		 @contextmenu="onContextMenu"
+			v-for="i in framesNum"
+			:key="i"
+			@click="selected(i)"
+			v-contextmenu:contextmenu
+			:class="!!selectStatus[i]?'selected':'1'"
 		>
-			<v-contextmenu-item v-for="(item,index) in curContextMenu" @click="contextMenuClicked(item)">{{item.label}}</v-contextmenu-item>
+			<em v-if="getFrame(i)"></em>
+		</span>
+		<v-contextmenu ref="contextmenu" @contextmenu="onContextMenu">
+			<v-contextmenu-item
+				v-for="(item,index) in curContextMenu"
+				@click="contextMenuClicked(item)"
+			>{{item.label}}</v-contextmenu-item>
 		</v-contextmenu>
-        <Modal
-		 v-model="modalshow"
-		 title="添加补间动画"
-		 :footer="''"
-		>
+		<Modal v-model="modalshow" title="添加补间动画" :footer="''">
 			<div slot="footer">
-				<Button
-				 @click="cofimGapFun"
-				 type="primary"
-				>确定</Button>
+				<Button @click="cofimGapFun" type="primary">确定</Button>
 			</div>
-			<Form
-			 ref="form"
-			 :model="funInfo"
-			 label-position="left"
-			 :label-width="100"
-			>
-				<FormItem
-				 prop="name"
-				 label="动画名称"
-				>
+			<Form ref="form" :model="funInfo" label-position="left" :label-width="100">
+				<FormItem prop="name" label="动画名称">
 					<Select v-model="funInfo.name">
-					<Option
-					 v-for="(item, key) in funlist"
-					 :value="item"
-					 :key="key"
-					>{{item}}</Option>
-				</Select>
+						<Option v-for="(item, key) in funlist" :value="item" :key="key">{{item}}</Option>
+					</Select>
 				</FormItem>
 			</Form>
 		</Modal>
@@ -67,13 +50,13 @@
 			top: -3px;
 		}
 	}
-    
+
 	& > span:nth-child(5n + 0) {
 		background: #4c4c4c;
 	}
-    & > span.selected{
-        background: #9b771c;
-    }
+	& > span.selected {
+		background: #9b771c;
+	}
 }
 </style>
 
@@ -99,24 +82,26 @@
 // 	// e.preventDefault();
 // 	// menu.popup({ window: remote.getCurrentWindow() });
 // });
+import Anime from "animejs";
+console.log(Anime);
 export default {
-	props: {},
+	props: { element: null },
 	created: function() {
 		//this.getPagelist();
 	},
 	data: function() {
 		return {
-            funlist:['ease-in-out','linear'],
-            modalshow:false,
+			funlist: ["ease-in-out", "linear"],
+			modalshow: false,
 			framesNum: 200,
-            frames: {},
-            gapfun:[],
-            zone: [],
-            curFrameIndex:-1,
-            selectStatus: {},
-            funInfo:{
-                name:''
-            }
+			frames: {},
+			gapfun: [],
+			zone: [],
+			curFrameIndex: -1,
+			selectStatus: {},
+			funInfo: {
+				name: ""
+			}
 		};
 	},
 	render: function() {},
@@ -124,56 +109,91 @@ export default {
 		//alert(1);
 	},
 	updated: function() {},
-    watch: {},
-    computed:{
-        curContextMenu(){
-            var index = this.curFrameIndex;
-            console.log(index);
-            var menu = [];
-            if(this.getFrame(index)){
-                menu = [{label:'删除关键帧',method:'delFrame',value:index}]
-            }
-            else{
-                menu = [{label:'插入关键帧',method:'addFrame',value:index}]
-            }
+	watch: {},
+	computed: {
+		curContextMenu() {
+			var index = this.curFrameIndex;
+			console.log(index);
+			var menu = [];
+			if (this.getFrame(index)) {
+				menu = [
+					{ label: "删除关键帧", method: "delFrame", value: index }
+				];
+			} else {
+				menu = [
+					{ label: "插入关键帧", method: "addFrame", value: index }
+				];
+			}
 
-            // if(this.zoneIndex(index)){
-            //     menu.push({label:'删除轨迹动画',method:'delZone',value:this.zoneIndex(index)});
-            // }
-            // else {
-            //     menu.push({label:'添加轨迹动画',method:'delZone',value:this.zoneIndex(index)});
-            // }
-            if(this.getGapFun(index)){
-                menu.push({label:'删除补间动画',method:'delGapFun',value:this.getGapFun(index)});
-            }
-            else if(this.getGap(index)){
-                menu.push({label:'添加补间动画',method:'addGapFun',value:this.getGap(index)});
-            }
-            
-            return menu;
-        }
-    },
+			// if(this.zoneIndex(index)){
+			//     menu.push({label:'删除轨迹动画',method:'delZone',value:this.zoneIndex(index)});
+			// }
+			// else {
+			//     menu.push({label:'添加轨迹动画',method:'delZone',value:this.zoneIndex(index)});
+			// }
+			if (this.getGapFun(index)) {
+				menu.push({
+					label: "删除补间动画",
+					method: "delGapFun",
+					value: this.getGapFun(index)
+				});
+			} else if (this.getGap(index)) {
+				menu.push({
+					label: "添加补间动画",
+					method: "addGapFun",
+					value: this.getGap(index)
+				});
+			}
+			menu.push({
+				label: "运行所有动画",
+				method: "runall",
+				value: 1
+			});
+
+			return menu;
+		}
+	},
 	methods: {
-        onContextMenu(vnode){
-            this.curFrameIndex = vnode.key;
-            // console.log(vnode.key);
-        },
-        getGap(index){
-            var start = 0;
-            var end = 0;
-            for(var i in this.frames){
-                if(index<=i){
-                    end = parseInt(i);
-                }
-                else{
-                    start = i;
-                }
-            }
-            if(!!end&&start<end){
-                return [start,end];
-            }
-            return null;
-        },
+		onContextMenu(vnode) {
+			this.curFrameIndex = vnode.key;
+			// console.log(vnode.key);
+		},
+		runall() {
+			var curDelay = 0;
+			var tl = anime.timeline({
+				easing: "easeOutExpo",
+				duration: 1000
+			});
+			for (var i in this.frames) {
+				console.log(i);
+				let curAnimate = {
+					targets: this.element
+				};
+				let Styles = this.frames[i];
+				let run = Object.assign(curAnimate, Styles, {
+					delay: 0,
+					duration: i * 100 - curDelay
+				});
+				console.log(run);
+				Anime(run);
+				curDelay = i * 100;
+			}
+		},
+		getGap(index) {
+			var start = 0;
+			var end = 0;
+			for (var i in this.frames) {
+				if (index <= i) {
+					end = parseInt(i);
+				} else {
+					start = i;
+				}
+			}
+			if (!!end && start < end) {
+				return [start, end];
+			}
+			return null;
+		},
 		getFrame(timeIndex) {
 			if (!!this.frames[timeIndex]) {
 				return this.frames[timeIndex];
@@ -181,11 +201,14 @@ export default {
 			return null;
 		},
 		selected(index) {
-            this.selectStatus = {};
-            this.$set(this.selectStatus,index,true);
+			this.selectStatus = {};
+			this.$set(this.selectStatus, index, true);
 		},
 		addFrame(timeIndex, styles) {
-            this.$set(this.frames,timeIndex,{x: parseInt(Math.random()*100)});
+			this.$set(this.frames, timeIndex, {
+				translateX: parseInt(Math.random() * 100),
+				translateY: parseInt(Math.random() * 100)
+			});
 			// this.frames[timeIndex] = styles;
 		},
 		addZone(start, end, path) {
@@ -198,15 +221,15 @@ export default {
 		},
 		delZone(index) {
 			this.zone.splice(index, 1);
-        },
-        contextMenuClicked(item){
-            if(item.method){
-                let str = 'this.'+item.method+'('+item.value+')';
-                // // console.log(str);
-                // eval(str)
-                this[item.method](item.value);
-            }
-        },
+		},
+		contextMenuClicked(item) {
+			if (item.method) {
+				let str = "this." + item.method + "(" + item.value + ")";
+				// // console.log(str);
+				// eval(str)
+				this[item.method](item.value);
+			}
+		},
 		zoneIndex(timeIndex) {
 			let index = [];
 			for (var i in this.zone) {
@@ -223,54 +246,56 @@ export default {
 			return index;
 		},
 		delFrame(timeIndex) {
-            this.$set(this.frames,timeIndex,null)
+			this.$set(this.frames, timeIndex, null);
 			//delete this.frames[timeIndex];
-        },
-        getGapFun(index){
-            let indexArr = [];
-            for(var i in this.gapfun){
-                if(index>this.gapfun[i]['start']&&index<this.gapfun[i]['end']){
-                    indexArr.push(i);        
-                }
-            }
-            if(indexArr.length==0){
-                indexArr = null;
-            }
-            return indexArr;
-        },
-        addGapFun(start,end,funstr){
-            // this.gapfun.push({
-            //     start:start,
-            //     end:end
-            // });
-            this.modalshow = true;
-        },
-        delGapFun(index){
-            // this.zone.splice(index, 1);
-            for(var in this.gapfun){
-                
-            }
-        },
-        cofimGapFun(){
-            console.log(this.curFrameIndex);
-            var curgap = this.getGap(this.curFrameIndex);
-            if(!this.funInfo.name){
-                this.$Message.error('请选择过度函数');
-                return;
-            }
-            if(!curgap){
-                this.$Message.error('没有检测到区间');
-                return;
-            }
-            console.log(curgap);
-            this.gapfun.push({
-                start:curgap[0],
-                end:curgap[1],
-                fun:this.funInfo.name
-            });
-            console.log(this.gapfun);
-            this.modalshow = false;
-        }
+		},
+		getGapFun(index) {
+			let indexArr = [];
+			for (var i in this.gapfun) {
+				if (
+					index > this.gapfun[i]["start"] &&
+					index < this.gapfun[i]["end"]
+				) {
+					indexArr.push(i);
+				}
+			}
+			if (indexArr.length == 0) {
+				indexArr = null;
+			}
+			return indexArr;
+		},
+		addGapFun(start, end, funstr) {
+			// this.gapfun.push({
+			//     start:start,
+			//     end:end
+			// });
+			this.modalshow = true;
+		},
+		delGapFun(index) {
+			// this.zone.splice(index, 1);
+			for (var i in this.gapfun) {
+			}
+		},
+		cofimGapFun() {
+			console.log(this.curFrameIndex);
+			var curgap = this.getGap(this.curFrameIndex);
+			if (!this.funInfo.name) {
+				this.$Message.error("请选择过度函数");
+				return;
+			}
+			if (!curgap) {
+				this.$Message.error("没有检测到区间");
+				return;
+			}
+			console.log(curgap);
+			this.gapfun.push({
+				start: curgap[0],
+				end: curgap[1],
+				fun: this.funInfo.name
+			});
+			console.log(this.gapfun);
+			this.modalshow = false;
+		}
 	}
 };
 </script>

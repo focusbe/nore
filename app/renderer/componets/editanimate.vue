@@ -11,7 +11,7 @@
 			</a>
 		</h2>
 		<ul>
-			<timeline></timeline>
+			<timeline :element="curElement"></timeline>
 			<li v-for="(item,key) in animateLine">
 				<p @click="openAnimate(key)">
 					<Icon
@@ -95,6 +95,7 @@ export default {
 	},
 	data: function() {
 		return {
+			curElement:null,
 			animateLine: {},
 			animaShowStatus: {},
 			animateInfo: {
@@ -121,6 +122,11 @@ export default {
 	updated: function() {},
 	watch: {},
 	methods: {
+		changeCurElement(dom){
+			console.log(dom);
+			this.curElement = dom;
+		},
+		
 		validateTitle: function(rule, value, callback) {
 			var re = new RegExp("^[a-zA-Z0-9-_]+$");
 			if (!value) {

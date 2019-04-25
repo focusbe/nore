@@ -84,7 +84,7 @@
         "@babel/cli": "^7.2.3",
         "@babel/core": "^7.2.2",
         "@types/node": "^10.12.18",
-        "anim.js": "^0.0.1",
+        "animejs": "^3.0.1",
         "axios": "^0.18.0",
         "babel-loader": "^8.0.4",
         "babel-plugin-import": "^1.6.7",

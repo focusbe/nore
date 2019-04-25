@@ -59,7 +59,7 @@
                     />
                 </div>
             </div>
-            <editanimate></editanimate>
+            <editanimate ref="editanimate"></editanimate>
         </div>
         <div class="right_area">
             <div class="options_section">
@@ -484,6 +484,10 @@ export default {
                     break;
                 case "curvnode":
                     //console.log(params);
+                    if(!!params.vuenode&&!!params.vuenode.elm){
+                        this.$refs['editanimate'].changeCurElement(params.vuenode.elm);
+                    }
+                    
                     this.setPanles(params);
             }
         },
