@@ -20,6 +20,42 @@ class PSD {
         this.asseturl = asseturl;
         this.userwebp = userwebp;
     }
+    async getErrorLayer(psdnode = null, parentName = "", errorArr = []) {
+        if (!psdnode) {
+            let psd = await psdjs.open(this.psdpath);
+            psdnode = psd.tree().export();
+        }
+        if (!!parentName) {
+            parentName += "/";
+        }
+        if (!psdnode.name) {
+            psdnode.name = "";
+        }
+        if (!this.isgoodNode(psdnode)) {
+            errorArr.push(parentName + psdnode.name);
+        }
+        if (!!psdnode.children && psdnode.children.length > 0) {
+            for (var i in psdnode.children) {
+                await this.getErrorLayer(psdnode.children[i], parentName + psdnode.name, errorArr);
+            }
+        }
+        if (errorArr.length == 0) {
+            return null;
+        }
+        return errorArr;
+    }
+    isgoodNode(psdnode) {
+        if (!!psdnode.blendingMode) {
+            if (psdnode.blendingMode != "normal") {
+                return false;
+            } else if (psdnode.type == "layer" && !!psdnode.mask) {
+                for (var i in psdnode.mask) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     async parse(debug, onProgress) {
         var self = this;
         //判断文件是否存在，保存图片的目录是否存在
@@ -174,6 +210,9 @@ class PSD {
             let curposition;
             for (let i in childrenLayers) {
                 curLayer = childrenLayers[i];
+                if (!this.isgoodNode(curLayer.export())) {
+                    continue;
+                }
                 curVNode = {};
                 artboard = null;
                 curLayerJson = null;

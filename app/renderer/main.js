@@ -23,6 +23,8 @@ Vue.use(Vuex);
 Vue.use(iView);
 Vue.use(VueRouter);
 
+require('../libs/psd/test.js');
+
 // setInterval(Utli.showMem,2000);
 
 import Pages from './pages';
