@@ -133,7 +133,7 @@ export default {
 			});
 		}
 		this.getTemList();
-		this.getGameList();
+		// this.getGameList();
 	},
 	// computed: {
 	// 	gameList: function() {

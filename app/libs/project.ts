@@ -9,7 +9,7 @@ import Canvas from "../renderer/componets/canvas.vue";
 Vue.component("my-canvas", Canvas);
 var beautify = require("js-beautify").html;
 const renderer = require("vue-server-renderer").createRenderer();
-import Trackcode from "./trackcode";
+// import Trackcode from "./trackcode";
 import Configs from "./configs";
 import viewList from "../renderer/elements/list.js";
 import juicer from "juicer";
@@ -710,24 +710,24 @@ class Project {
             callback(resolve);
             return resolve;
         }
-        if (!this.config.game) {
-            resolve.msg = "请选择游戏";
-            resolve.ret = -1;
-            callback(resolve);
-            return resolve;
-        }
-        if (!this.config.title) {
-            resolve.msg = "请填写项目标题标题";
-            resolve.ret = -1;
-            callback(resolve);
-            return resolve;
-        }
-        if (!this.config.desc) {
-            resolve.msg = "请填写项目描述";
-            resolve.ret = -1;
-            callback(resolve);
-            return resolve;
-        }
+        // if (!this.config.game) {
+        //     resolve.msg = "请选择游戏";
+        //     resolve.ret = -1;
+        //     callback(resolve);
+        //     return resolve;
+        // }
+        // if (!this.config.title) {
+        //     resolve.msg = "请填写项目标题标题";
+        //     resolve.ret = -1;
+        //     callback(resolve);
+        //     return resolve;
+        // }
+        // if (!this.config.desc) {
+        //     resolve.msg = "请填写项目描述";
+        //     resolve.ret = -1;
+        //     callback(resolve);
+        //     return resolve;
+        // }
         if (!this.config.scaffold) {
             resolve.msg = "请选择脚手架";
             resolve.ret = -1;
@@ -877,38 +877,38 @@ class Project {
             return false;
         }
 
-        var trackcode = await Trackcode.getCode(this.config.game);
+        // var trackcode = await Trackcode.getCode(this.config.game);
 
-        if (!!trackcode) {
-            for (var i in trackcode) {
-                if (!trackcode[i]["code"]) {
-                    continue;
-                }
-                if (trackcode[i]["position"] == "before") {
-                    var tagstr = "</" + trackcode[i]["tag"] + ">";
-                    templatehtml = templatehtml.replace(
-                        tagstr,
-                        trackcode[i]["code"] + "\n" + tagstr
-                    );
-                } else if (trackcode[i]["position"] == "after") {
-                    var tagstr = "<" + trackcode[i]["tag"] + ">";
-                    templatehtml = templatehtml.replace(
-                        tagstr,
-                        tagstr + "\n" + trackcode[i]["code"]
-                    );
-                }
-            }
-        }
+        // if (!!trackcode) {
+        //     for (var i in trackcode) {
+        //         if (!trackcode[i]["code"]) {
+        //             continue;
+        //         }
+        //         if (trackcode[i]["position"] == "before") {
+        //             var tagstr = "</" + trackcode[i]["tag"] + ">";
+        //             templatehtml = templatehtml.replace(
+        //                 tagstr,
+        //                 trackcode[i]["code"] + "\n" + tagstr
+        //             );
+        //         } else if (trackcode[i]["position"] == "after") {
+        //             var tagstr = "<" + trackcode[i]["tag"] + ">";
+        //             templatehtml = templatehtml.replace(
+        //                 tagstr,
+        //                 tagstr + "\n" + trackcode[i]["code"]
+        //             );
+        //         }
+        //     }
+        // }
 
-        var gameinfo: any = await Games.getGame(this.config.game);
-        var common: any = await Games.getGame("common");
+        // var gameinfo: any = await Games.getGame(this.config.game);
+        // var common: any = await Games.getGame("common");
         
-        var wxid = !!gameinfo&&!!gameinfo.wxid
-            ? gameinfo.wxid
-            : !!common.wxid
-                ? common.wxid
-                : "";
-        page.header += '<script>var WXID="' + wxid + '"</script>';
+        // var wxid = !!gameinfo&&!!gameinfo.wxid
+        //     ? gameinfo.wxid
+        //     : !!common.wxid
+        //         ? common.wxid
+        //         : "";
+        // page.header += '<script>var WXID="' + wxid + '"</script>';
 
         var maincssstr = "";
         var mainjsstr = "";

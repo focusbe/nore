@@ -16,26 +16,26 @@ class Config {
     private static instance: Config;
     private config;
     private defaultConfig = {
-        devpath: {
-            name: "测试目录",
-            type: "directory"
-        },
+        // devpath: {
+        //     name: "测试目录",
+        //     type: "directory"
+        // },
         workshop: {
-            name: "工作区目录",
+            name: "项目保存目录",
             type: "directory"
         },
-        svnFolder: {
-            name: "svn代码目录",
-            type: "directory"
-        },
-        gitFolder: {
-            name: "git代码目录",
-            type: "directory"
-        },
-        svnClient: {
-            name: "乌龟SVN安装目录",
-            type: "directory"
-        },
+        // svnFolder: {
+        //     name: "svn代码目录",
+        //     type: "directory"
+        // },
+        // gitFolder: {
+        //     name: "git代码目录",
+        //     type: "directory"
+        // },
+        // svnClient: {
+        //     name: "乌龟SVN安装目录",
+        //     type: "directory"
+        // },
         vscodePath: {
             name: "vsCode路径",
             type: ".exe"
@@ -48,15 +48,15 @@ class Config {
         }
         return this.instance;
     }
-    private async gameList() {
-        const response = await axios.get("http://nore.focusbe.com/games.json");
-        if (!!response && !!response.data) {
-            return response.data;
-        }
-        return {};
-        // var configfile = path.resolve(__dirname, "../../config/games.json");
-        // return jsonfile.readFileSync(configfile);
-    }
+    // private async gameList() {
+    //     const response = await axios.get("http://nore.focusbe.com/games.json");
+    //     if (!!response && !!response.data) {
+    //         return response.data;
+    //     }
+    //     return {};
+    //     // var configfile = path.resolve(__dirname, "../../config/games.json");
+    //     // return jsonfile.readFileSync(configfile);
+    // }
     private getConfigJson(configs) {
         var res = {};
         for (var i in configs) {

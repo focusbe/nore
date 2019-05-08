@@ -25,7 +25,7 @@
 			 label="活动名称"
 			>
 				<Input
-				 placeholder="请填写英文或拼音"
+				 placeholder="请填写英文或拼音，用于项目文件夹名"
 				 v-model="projectInfo.actname"
 				/>
 			</FormItem>
@@ -33,25 +33,13 @@
 			 prop="title"
 			 label="标题"
 			>
-				<Input v-model="projectInfo.title" />
+				<Input v-model="projectInfo.title" placeholder="请填写页面标题"/>
 			</FormItem>
 			<FormItem
 			 prop="desc"
 			 label="描述"
 			>
-				<Input v-model="projectInfo.desc" />
-			</FormItem>
-			<FormItem
-			 prop="game"
-			 label="游戏"
-			>
-				<Select v-model="projectInfo.game">
-					<Option
-					 v-for="(item, key) in gameList"
-					 :value="key"
-					 :key="key"
-					>{{ item.cname }}</Option>
-				</Select>
+				<Input v-model="projectInfo.desc" placeholder="请填写页面标题"/>
 			</FormItem>
 			<FormItem
 			 prop="scaffold"
@@ -103,43 +91,43 @@ export default {
 				title: "",
 				desc: "",
 				actname: "",
-				game: "",
-				template: "",
+				// game: "",
+				// template: "",
 				scaffold:""
 			},
 			projectRules: {
 				title: [
 					{
-						required: true,
-						message: "请填写项目标题",
+						required: false,
+						message: "请填写中文标题",
 						trigger: "blur"
 					}
 				],
 				desc: [
 					{
-						required: true,
+						required: false,
 						message: "请填写项目描述",
 						trigger: "blur"
 					}
 				],
-				game: [
-					{
-						required: true,
-						message: "请选择游戏项目",
-						trigger: "blur"
-					}
-				],
+				// game: [
+				// 	{
+				// 		required: false,
+				// 		message: "请选择游戏项目",
+				// 		trigger: "blur"
+				// 	}
+				// ],
 				scaffold: [
 					{
 						required: true,
-						message: "请选择游戏项目",
+						message: "请选择脚手架",
 						trigger: "blur"
 					}
 				],
 				actname: [
 					{
 						required: true,
-						message: "请填写项目名称",
+						message: "请填写英文名称",
 						trigger: "blur"
 					},
 					{ validator: this.validateTitle, trigger: "blur" }
@@ -170,7 +158,7 @@ export default {
 	props: {},
 	methods: {
 		getGameList: async function() {
-			this.gameList = await Configs.gameList();
+			//this.gameList = await Configs.gameList();
 			this.gameList['other'] = {
 				'cname':'其他'
 			}

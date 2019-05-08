@@ -23,15 +23,15 @@
                     <Button type="primary" @click="clearCanvas" title="清空">
                         <Icon type="md-trash" size="20"/>
                     </Button>
-                    <Button type="primary" @click="savePage" title="保存">
+                    <!-- <Button type="primary" @click="savePage" title="保存">
                         <Icon type="md-sync" size="20"/>
+                    </Button> -->
+                    <Button @click="buildPage" type="primary" title="生成HTML">
+                        <Icon type="md-code" size="20" color/>
                     </Button>
-                    <Button @click="buildPage" type="primary" title="构建">
-                        <Icon type="md-build" size="20" color/>
-                    </Button>
-                    <Button @click="publishCode" type="primary" title="发布">
+   <!-- `                 <Button @click="publishCode" type="primary" title="发布">
                         <Icon type="md-cloud-upload" size="20" color/>
-                    </Button>
+                    </Button>` -->
                     <Button @click="showInFolder" type="primary" title="在文件夹中显示">
                         <Icon type="md-folder" size="20" color/>
                     </Button>
