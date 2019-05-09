@@ -15,7 +15,7 @@ class WinManager {
     private defaultWindow: { [key: string]: any } = {
         width: 1000,
         height: 800,
-        frame: true,
+        frame: false,
         webPreferences: {
             webSecurity: false
         },
