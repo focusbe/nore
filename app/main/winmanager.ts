@@ -21,7 +21,9 @@ class WinManager {
         },
         show: false,
         titleBarStyle: "hidden",
-        backgroundColor: "#30333d"
+        transparent: true
+        
+        // backgroundColor: "#30333d"
     };
     public winCache: { [key: string]: any } = {};
     private constructor() {

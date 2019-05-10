@@ -15,15 +15,14 @@
 				</a>
 			</li>
 			<li>
-				<Button
-				 type="primary"
+				<a
 				 @click="showprojectadd"
 				>
 					<Icon
 					 type="ios-add-circle"
 					 :size="30"
 					/>
-				</Button>
+				</a>
 			</li>
 		</ul>
 		<newproject

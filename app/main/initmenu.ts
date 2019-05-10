@@ -104,9 +104,7 @@ function setAppMenu(app: any) {
                 {
                     label: "关于",
                     click() {
-                        require("electron").shell.openExternal(
-                            "http://nore.focusbe.com"
-                        );
+                        
                     }
                 },
                 {
@@ -124,11 +122,11 @@ function setAppMenu(app: any) {
                 {
                     label: "配置环境",
                     click() {
-                        WinManager.newwindow("config_edit", '', {
-                            width:500,
-                            height:500,
-                            hash: "#/configs/edit"
-                        });
+                        // WinManager.newwindow("config_edit", '', {
+                        //     width:500,
+                        //     height:500,
+                        //     hash: "#/configs/edit"
+                        // });
                     }
                 }
             ]

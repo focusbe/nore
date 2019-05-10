@@ -1,6 +1,6 @@
 const electron = require("electron");
 const app = electron.app;
-app.commandLine.appendSwitch('js-flags', '--expose_gc --max-old-space-size=2048')
+app.commandLine.appendSwitch("js-flags", "--expose_gc --max-old-space-size=2048");
 import { inarar, DEBUG, isproduct } from "../libs/env";
 import AutoUpdater from "./autodater";
 import WinManager from "./winmanager";
@@ -21,10 +21,10 @@ class Main {
             //     app.quit();
             //     app.exit();
             // }
-            setTimeout(function(){
+            setTimeout(function() {
                 app.quit();
                 app.exit();
-            },500)
+            }, 500);
             //app.exit();
         });
         app.on("activate", function() {
@@ -33,15 +33,40 @@ class Main {
         app.on("quit", function() {
             WinManager.closeAll();
         });
-        mySocket.on('relaunch',function(){
+        mySocket.on("relaunch", function() {
             app.relaunch();
             app.exit(0);
-        })
-        mySocket.on('quitInstall',function(){
+        });
+        mySocket.on("quitInstall", function() {
             AutoUpdater.install();
-        })
-        AutoUpdater.check();
-        this.watch();
+        });
+        mySocket.on("min", function(wintag: any) {
+            if (!!wintag && !!WinManager.winCache[wintag]) {
+                WinManager.winCache[wintag].minimize();
+            }
+        });
+        mySocket.on("max", function(wintag: any) {
+            if (!!wintag && !!WinManager.winCache[wintag]) {
+                var curWin = WinManager.winCache[wintag];
+                if (curWin.isMaximized()) {
+                    curWin.unmaximize();
+                } else {
+                    curWin.maximize();
+                }
+            }
+        });
+        //         ipcMain.on('min', e=> mainWindow.minimize());
+        // ipcMain.on('max', e=> {
+        //     if (mainWindow.isMaximized()) {
+        //         mainWindow.unmaximize()
+        //     } else {
+        //         mainWindow.maximize()
+        //     }
+        // });
+        // ipcMain.on('close', e=> mainWindow.close());
+
+        //         AutoUpdater.check();
+        //         this.watch();
     }
     watch() {
         if (DEBUG) {

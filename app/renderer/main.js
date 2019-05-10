@@ -70,7 +70,7 @@ var app = new Vue({
     store,
     template: `
   <div id="app" class="${process.platform}">
-    <div class="mac_topbar"></div>
+    
     <router-view class="view"></router-view>
   </div>
   `
