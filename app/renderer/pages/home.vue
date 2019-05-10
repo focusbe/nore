@@ -1,44 +1,31 @@
 <template id="template">
 	<div class="page_wrap">
 		<ul class="project_list">
-			<li
-			 v-for="(item) in projectList"
-			 v-bind:key="item.actname"
-			 v-contextmenu:contextmenu
-			>
+			<li v-for="(item) in projectList" v-bind:key="item.actname" v-contextmenu:contextmenu>
 				<a @click="projectEdit(item.actname)">
 					<div
-					 v-if="item.preview"
-					 :style="{background:'url('+item.preview+') no-repeat top center/100% auto'}"
+						v-if="item.preview"
+						:style="{background:'url('+item.preview+') no-repeat top center/100% auto'}"
 					></div>
-					<p>{{item.actname}}</p>
+
+					<p><span>{{item.actname}}</span></p>
 				</a>
 			</li>
 			<li>
-				<a
-				 @click="showprojectadd"
-				>
-					<Icon
-					 type="ios-add-circle"
-					 :size="30"
-					/>
+				<a @click="showprojectadd">
+					<p class="aligncenter">
+						<Icon type="ios-add-circle" :size="30"/>
+					</p>
 				</a>
 			</li>
 		</ul>
-		<newproject
-		 ref="projectForm"
-		 @ok="newprojectok"
-		></newproject>
-		<v-contextmenu
-		 ref="contextmenu"
-		 @contextmenu="onContextMenu"
-		>
+		<newproject ref="projectForm" @ok="newprojectok"></newproject>
+		<v-contextmenu ref="contextmenu" @contextmenu="onContextMenu">
 			<v-contextmenu-item @click="deleProject">删除</v-contextmenu-item>
 			<v-contextmenu-item @click="openinVscode">在VSCODE打开</v-contextmenu-item>
 			<v-contextmenu-item @click="openinFolder">在文件夹中显示</v-contextmenu-item>
 		</v-contextmenu>
 	</div>
-
 </template>
 <script>
 import Vue from "vue";

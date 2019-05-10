@@ -8,7 +8,7 @@
 		 :before-upload="upload"
 		 action="javascript:void(0)"
 		>
-			<Button>PSD</Button>
+			<Button shape="circle" type="text" icon="md-aperture"></Button>
 		</Upload>
 
 		<Modal
@@ -71,6 +71,7 @@
 	</div>
 </template>
 <style lang="scss" scoped>
+
 .error_list{
 	max-height: 200px;
 	overflow: auto;
