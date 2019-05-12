@@ -102,6 +102,8 @@ import Vue from "vue";
 import viewList from "../../elements/list.js";
 import html2canvas from "html2canvas";
 import mySocket from "../../utli/mysocket";
+import ExtensionList from "../../extension";
+console.log(ExtensionList);
 export default {
 	name: "project_edit",
 	data() {
