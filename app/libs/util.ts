@@ -1,7 +1,7 @@
 const path = require("path");
 const shelljs = require("shelljs");
 class Util {
-    static idcache = {};
+    static idcache:any = {};
     static createId() {
         let id: string = new Date().getTime().toString();
         if (!!this.idcache[id]) {
@@ -31,13 +31,13 @@ class Util {
             global.gc();
         }
     }
-    static isPath(str) {
+    static isPath(str:any) {
         if (typeof str == "string" && str.indexOf("/") > -1 && str.indexOf(".") > -1 && str.indexOf("//") == -1) {
             return true;
         }
         return false;
     }
-    static cssUrlChange(cssDir, cssstr, from = null) {
+    static cssUrlChange(cssDir:any, cssstr:any, from:any = null) {
         // console.log(cssDir);
         // console.log(from);
         var regstr = /url\(([^\s\'\"\<\>]*?)\)/gim;
@@ -57,7 +57,7 @@ class Util {
         }
         return cssstr;
     }
-    static async runSh(sh) {
+    static async runSh(sh:any) {
         return await new Promise((resolve, reject) => {
             shelljs.exec(
                 sh,
@@ -65,7 +65,7 @@ class Util {
                     async: true,
                     silent: true
                 },
-                function(code, stdout, stderr) {
+                function(code:any, stdout:any, stderr:any) {
                     if (!!stderr) {
                         console.log(stderr);
                         reject(stderr);
@@ -76,7 +76,7 @@ class Util {
             );
         });
     }
-    static howLong(time) {
+    static howLong(time:any) {
         let milliseconds = new Date().getTime() - time;
         let timeSpanStr;
         var dateTime = new Date(time);

@@ -1,16 +1,15 @@
 const psdjs = require("psdpaser");
 const fse = require("fs-extra");
-const path = require("path");
 import Files from "../files";
-import { Point, Size, Rectangle, Image, PsdUtli, ImagePool } from "./base";
+import { Point, Rectangle, Image, PsdUtli, ImagePool } from "./base";
 
 class PSD {
     private pixelMax;
     private psdpath;
     private imgdir;
     private asseturl;
-    private userwebp;
-    constructor(psdpath, imgdir, asseturl, userwebp, pixelMax) {
+    private usewebp;
+    constructor(psdpath, imgdir, asseturl, usewebp = "auto", pixelMax) {
         if (!pixelMax) {
             pixelMax = 10000 * 10000;
         }
@@ -18,7 +17,7 @@ class PSD {
         this.psdpath = psdpath;
         this.imgdir = imgdir;
         this.asseturl = asseturl;
-        this.userwebp = userwebp;
+        this.usewebp = usewebp;
     }
     async getErrorLayer(psdnode = null, parentName = "", errorArr = []) {
         if (!psdnode) {
@@ -56,7 +55,55 @@ class PSD {
         }
         return true;
     }
-    async parse(debug, onProgress) {
+    paiping(vnodetree: any, yiweitree = null, relativeheight = 0, parent = null) {
+        if (!yiweitree) {
+            yiweitree = [];
+            relativeheight = 0;
+            this.paiping(vnodetree, yiweitree, relativeheight, null);
+            return yiweitree;
+        }
+        let curvnode;
+        let isallRealtive = true;
+        for (let i in vnodetree) {
+            if (!!vnodetree[i].styles && vnodetree[i].styles.position != "relative") {
+                isallRealtive = false;
+                break;
+            }
+        }
+        //如果采用绝对定位在网页中反序
+        if (!isallRealtive) {
+            vnodetree = vnodetree.reverse();
+        }
+        for (let i in vnodetree) {
+            curvnode = vnodetree[i];
+            if (!!parent) {
+                curvnode.styles.x += parent.styles.x;
+                curvnode.styles.y += parent.styles.y;
+                if (parent.styles.display == "none") {
+                    curvnode.styles.display = "none";
+                }
+            }
+            if (!!curvnode.childrens && curvnode.childrens.length > 0) {
+                // if (curvnode.styles.position != 'relative') {
+                //     curvnode.childrens = curvnode.childrens.reverse();
+                // }
+                this.paiping(curvnode.childrens, yiweitree, relativeheight, curvnode);
+
+                if (curvnode.styles.position == "relative") {
+                    relativeheight += curvnode.styles.height;
+                }
+            } else {
+                if (curvnode.view == "my-button") {
+                    if (!!curvnode.props.text) {
+                        curvnode.view = "text";
+                    }
+                }
+                curvnode.styles.y += relativeheight;
+                yiweitree.push(curvnode);
+            }
+        }
+    }
+    async parse(debug = false, onProgress = (state, percent, msg) => {}, istree = false) {
         var self = this;
         //判断文件是否存在，保存图片的目录是否存在
         let exists = await fse.exists(this.psdpath);
@@ -75,7 +122,17 @@ class PSD {
         let psdtree = psd.tree();
         onProgress(1, 10, "正在解析PSD");
         psd = null;
-        let res = this.getvnodetree(psdtree);
+        let res = this.getvnodetree(psdtree, istree);
+        if (!istree) {
+            let vnodetree = res.vNode;
+            let newvnodetree = this.paiping(vnodetree);
+            vnodetree[0].childrens = newvnodetree;
+            res.vNode = vnodetree[0];
+        }
+        var errorlayer = null;
+        if (!istree) {
+            errorlayer = this.getErrorLayer();
+        }
         onProgress(1, 20, "正在保存图片");
         let errorimg = [];
         let saved = 0;
@@ -109,7 +166,8 @@ class PSD {
         }
         return {
             vNode: res.vNode,
-            errorimg
+            errorimg,
+            errorlayer
         };
     }
     checkLayer(layer) {}
@@ -135,7 +193,7 @@ class PSD {
         }
         return newPoint;
     }
-    getvnodetree(psdNode, vNode = null, imgPool = null, curDesignSize = null) {
+    getvnodetree(psdNode, istree = false, vNode = null, imgPool = null, curDesignSize = null) {
         //params psdNode:psd中的节点
         //vNode:虚拟节点
         //vNode:待保存的图片数组
@@ -184,6 +242,9 @@ class PSD {
                 width: psdNode.get("width"),
                 height: psdNode.get("height")
             };
+            if (this.usewebp == "auto") {
+                this.usewebp = pageSize.width <= 750;
+            }
             curDesignSize = pageSize;
             // }
             vNode.styles = Object.assign(pageSize, {
@@ -194,7 +255,7 @@ class PSD {
                 background: "none",
                 overflow: "hidden"
             });
-            this.getvnodetree(psdNode, vNode, imgPool, curDesignSize);
+            this.getvnodetree(psdNode, istree, vNode, imgPool, curDesignSize);
             return {
                 vNode,
                 imgPool
@@ -338,7 +399,7 @@ class PSD {
                     if (!!curLayer.children()) {
                         //生成多维数组；
                         curVNode.childrens = [];
-                        this.getvnodetree(curLayer, curVNode, imgPool, curDesignSize);
+                        this.getvnodetree(curLayer, istree, curVNode, imgPool, curDesignSize);
                     }
                 } else if (curLayer.type == "layer") {
                     if (!!curLayerJson.text && !!curLayerJson.text.font) {
@@ -416,7 +477,7 @@ class PSD {
                                 }
                             });
                         }
-                        imgPool.push(new Image(this.imgdir, curLayer.path(), curLayer.layer.image, afterImgSaved, imgArea, this.userwebp));
+                        imgPool.push(new Image(this.imgdir, curLayer.path(), curLayer.layer.image, afterImgSaved, imgArea, this.usewebp));
                     }
                 }
             }
