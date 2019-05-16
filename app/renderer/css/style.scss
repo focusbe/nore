@@ -19,8 +19,9 @@ html,
 
 #app {
     height: 100%;
-    background-color: rgba(49,55,58,0.995);
+    background-color: rgba($color: #424242, $alpha: 0.995);
 }
+
 /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
 
 ::-webkit-scrollbar {
@@ -49,6 +50,7 @@ html,
 .aligncenter {
     text-align: center;
 }
+
 // .project_list {
 //     text-align: left;
 //     display: block;
@@ -79,42 +81,47 @@ html,
     flex-shrink: 0;
     margin: 5px 0;
 }
+
 .canvas {
     margin: 0 auto;
     background: #fff;
     overflow: auto;
-    overflow-x:hidden;
+    overflow-x: hidden;
     position: relative;
     box-shadow: 0 0 3px #464646;
 }
-.main_wrap{
+
+.main_wrap {
     height: 100%;
-    &>.center{
+
+    &>.center {
         flex-grow: 1;
         flex-shrink: 1;
         display: flex;
         flex-direction: column;
-        overflow-x:hidden;
+        overflow-x: hidden;
     }
-    
-    .page_list{
+
+    .page_list {
         flex-grow: 0;
         flex-shrink: 0;
         white-space: nowrap;
         overflow-x: auto;
-        li{
+
+        li {
             display: inline-block;
             background: #424242;
             padding: 0 10px;
             margin-left: 1px;
             border-radius: 2px;
         }
-        li.cur{
+
+        li.cur {
             background: #535353;
         }
     }
 
-    .page_detail{
+    .page_detail {
         flex-grow: 1;
         position: relative;
         height: 100%;
@@ -129,6 +136,7 @@ html,
     width: 220px;
     height: 100%;
     background: #464646;
+
     position: relative;
     height: 100%;
     left: 0;
@@ -139,11 +147,13 @@ html,
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    &>*{
+
+    &>* {
         flex-grow: 1;
         flex-shrink: 1;
     }
 }
+
 .right_area {
     width: 280px;
     height: 100%;
@@ -157,29 +167,34 @@ html,
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    &>div{
+
+    &>div {
         flex-grow: 1;
         flex-shrink: 1;
     }
 }
+
 .options_section {
     display: flex;
     flex-direction: column;
+
     h2 {
-        background: #373737;
+        background: #424242;
         line-height: 2;
-        border-top: 1px solid #242424;
-        border-bottom: 1px solid #242424;
+        border-top: 1px solid #393939;
+        border-bottom: 1px solid #393939;
         text-indent: 10px;
         flex-shrink: 0;
-        flex-grow:0;
+        flex-grow: 0;
     }
-    &>*{
+
+    &>* {
         flex-shrink: 1;
         flex-grow: 1;
         overflow: auto;
     }
 }
+
 .element_list {
     li {
         display: inline-block;
@@ -188,10 +203,12 @@ html,
         margin-top: 10px;
     }
 }
+
 .form_ul {
     li {
         padding-left: 10px;
         margin-top: 10px;
+
         label {
             display: inline-block;
             width: 96px;
@@ -210,16 +227,24 @@ html,
     bottom: 0;
     overflow: auto;
 }
+
 .form_ul {
+
     input,
-    select {
+    select,
+    .ivu-select-selection,
+    .ivu-select-dropdown {
         background: #383838;
         border: none;
     }
+    .ivu-select-item:hover{
+        background: rgba($color: #fff, $alpha: 0.1)
+    }
 }
+
 .project_list {
     li {
-        background: #42474c;
+        background: #323232;
         border-radius: 5px;
         display: inline-block;
         margin: 10px;
@@ -227,35 +252,43 @@ html,
         width: 200px;
         height: 120px;
         overflow: hidden;
+
         a {
             position: relative;
             overflow: hidden;
             display: block;
             height: 100%;
             transition: all 0.3s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+
+
             // background: #666;
             p {
                 font-size: 20px;
-                top: 50%;
                 left: 0;
                 text-align: center;
                 width: 100%;
                 text-transform: Uppercase;
                 text-shadow: #000 1px 1px 5px;
+                position: relative;
+                z-index: 2;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
             }
+
             div {
-                &:after{
+                &:after {
                     position: absolute;
-                    background: rgba(0,0,0,0.3);
+                    background: rgba(0, 0, 0, 0.5);
                     width: 100%;
                     height: 100%;
                     left: 0;
                     top: 0;
-                    content:' ';
+                    content: ' ';
                 }
+
+                position: absolute;
                 transition: all 0.3s;
                 width: 100%;
                 height: auto;
@@ -266,15 +299,18 @@ html,
                 height: 100%;
             }
         }
+
         a:hover {
             div {
                 transform: scale(1.1);
+
                 // opacity: 0.8;
-                &:after{
-                    opacity: 0;
+                &:after {
+                    opacity: 0.9;
                 }
             }
         }
+
         button {
             background: none;
             width: 100%;
@@ -282,11 +318,13 @@ html,
             padding: 0;
         }
     }
-    li:hover{
-        background: rgba($color: #42474c, $alpha: 0.6)
+
+    li:hover {
+        background: rgba($color: #323232, $alpha: 0.8)
     }
 }
-.dragover{
+
+.dragover {
     position: fixed;
     width: 100%;
     height: 100%;

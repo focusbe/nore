@@ -1,5 +1,5 @@
 <template id="template">
-	<div>
+	<div class="app_wrap">
 		<div class="mac_topbar">
 
 		</div>
@@ -125,22 +125,27 @@ export default {
 		width: 100%;
 		-webkit-app-region: drag;
 		height: 22px;
-		z-index: 999999;
+		z-index: 2000;
+		background: #5e5e5e;
+
 	}
 	.win_topbar {
 		display: none;
 	}
 	.project_list {
-		margin-top: -6px;
+		//margin-top: -6px;
 	}
 }
 .drag_wrap {
 	-webkit-app-region: drag;
 	width: 100%;
 }
+.app_wrap{
+	height: 100%;
+}
 .win_topbar {
 	height: 30px;
-	background: rgba($color: #3d474c, $alpha: 0.99);
+	background: rgba($color: #5e5e5e, $alpha: 0.99);
 	width: 100%;
 	position: relative;
 	border-bottom: 1px solid #282c2f;
