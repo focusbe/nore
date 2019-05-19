@@ -3,10 +3,13 @@ import path from "path";
 import Configs from "../configs";
 import fs from "fs-extra";
 import Files from "../files";
+import webpack from 'webpack'
+const getConfig = require("../../../build/webpack.config");
+
 class Nore {
     private static instance: Nore;
     private cache = {};
-    constructor() {}
+    constructor() { }
     static getInstance(): Nore {
         if (!Nore.instance) {
             Nore.instance = new Nore();
@@ -52,17 +55,17 @@ class Nore {
         var head = document.getElementsByTagName("head")[0];
         var script = document.createElement("script");
         script.type = "text/javascript";
-        await new Promise(function(resolve, reject) {
-            script.onreadystatechange = function() {
+        await new Promise(function (resolve, reject) {
+            script.onreadystatechange = function () {
                 // console.log(this);
                 if (this.readyState == "complete") {
                     resolve();
                 }
             };
-            script.onload = function() {
+            script.onload = function () {
                 resolve();
             };
-            script.onerror = function(err) {
+            script.onerror = function (err) {
                 reject(err);
             };
             script.src = jssrc;
@@ -71,6 +74,34 @@ class Nore {
     }
     async packModules(id) {
         //打包需要的模块们，创建入口页面，然后运行webpack打包；
+        var webpackConfig = getConfig("renderer", '');
+        let moduleDir = path.resolve(Configs.getHome(), id);
+        let tempDir = path.resolve(moduleDir, ".temp");
+        let distDir = path.resolve(tempDir, "dist");
+        let jssrc = path.resolve(distDir, "index.js");
+        let entryjs = path.resolve(tempDir, "entry.js");
+
+        let entrystr = await fs.readFile('./build/entry.js');
+        entrystr = entrystr.replace('__ExtensionDir__', moduleDir);
+        entrystr = entrystr.replace('__ModuleId__', id);
+        let mainjs = path.resolve(tempDir,'main.js');
+        await Files.writeFile(mainjs,entrystr);
+        // let mainjs =  
+        webpackConfig.entry = mainjs;
+        webpackConfig.output = {
+            
+        };
+        let compiler = webpack(webpackConfig);
+        return await new Promise((resolve, reject) => {
+            compiler.run((err, stats) => {
+                let res = true;
+                if (err || stats.hasErrors()) {
+                    reject(err)
+                } else {
+                    resolve(true);
+                }
+            })
+        });
     }
     export(id, obj) {
         //导出模块，在其他webpack中打包的js中执行，用于把变量导出到Nore中，方便require；
