@@ -104,6 +104,12 @@ class Config {
         }
         return false;
     }
+    getHome() {
+        let homepath = process.env.HOME || "/";
+        let configFiles = inarar ? ".norecode" : ".norecode_dev";
+        let folder = path.join(homepath, configFiles);
+        return folder;
+    }
     setItem(key, value) {
         if (!!this.config) {
             this.config[key] = value;
