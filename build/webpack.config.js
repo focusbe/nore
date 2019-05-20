@@ -274,7 +274,7 @@ config['renderer'] = function (mode) {
         plugins: [
             //热更新
             new webpack.optimize.OccurrenceOrderPlugin(),
-            // new webpack.HotModuleReplacementPlugin(),
+            new webpack.HotModuleReplacementPlugin(),
             new webpack.NamedModulesPlugin(),
 
             new VueLoaderPlugin(),

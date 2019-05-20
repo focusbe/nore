@@ -1,33 +1,110 @@
-import Configs from "../configs";
+import Util from "../util";
 import path from "path";
-import Files from '../files';
-import fs from 'fs-extra';
-import Util from '../util'
-class Extension {
-    private static instance: Extension;
-    private extensiondir;
-    constructor() {
-        this.extensiondir = path.resolve(__dirname, "../../../extension");
-    }
-    static getInstance(): Extension {
-        if (!Extension.instance) {
-            Extension.instance = new Extension();
+import Configs from "../configs";
+import fs from "fs-extra";
+import Files from "../files";
+import webpack from "webpack";
+const getConfig = require("../../../build/webpack.config");
+
+class Nore {
+    private static instance: Nore;
+    private cache = {};
+    constructor() {}
+    static getInstance(): Nore {
+        if (!Nore.instance) {
+            Nore.instance = new Nore();
+            window.Nore = this.instance;
         }
         return this.instance;
     }
-    async createEntry() {
-        //创建extension进入页面，包含1、默认extension目录中的所有组件
-        try {
-            let entryjsStr = await fs.readFile(path.resolve(__dirname,'./entry.js'), "utf8");
-            entryjsStr = entryjsStr.replace('__ExtensionDir__',this.extensiondir);
-            entryjsStr = entryjsStr.replace('__ModuleId__','extension');
-            
-        } catch (error) {
-            
+    async require(id) {
+        if (!!this.cache[id]) {
+            return this.cache[id];
         }
-        
+        var self = this;
+        let moduleDir = path.resolve(Configs.getHome(), id);
+        let tempDir = path.resolve(moduleDir, ".temp");
+        let distDir = path.resolve(tempDir, "dist");
+        let jssrc = path.resolve(distDir, "index.js");
+        let entryjs = path.resolve(tempDir, "entry.js");
+        let exists = await fs.pathExists(jssrc);
+        if (!exists) {
+            await this.packModules(id);
+        } else {
+            let fileList: any = Files.getList(moduleDir);
+            var stats = await fs.stat(jssrc);
+            if (!!stats && !!stats.mtime) {
+                //console.log(stats.mtime.getTime());
+                // return stats.mtime.getTime();
+                for (var i in fileList) {
+                    if (fileList[i].indexOf(".temp") > -1) {
+                        continue;
+                    }
+                    if (!!Files.getMtime(fileList[i]) && Files.getMtime(fileList[i]) > stats.mtime) {
+                        await this.packModules(id);
+                        break;
+                    }
+                }
+            }
+        }
+
+        //打包完成后加载打包后的js并缓存变量；
+        var head = document.getElementsByTagName("head")[0];
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        var res = await new Promise(function(resolve, reject) {
+            script.onreadystatechange = function() {
+                // console.log(this);
+                if (this.readyState == "complete") {
+                    resolve(true);
+                }
+            };
+            script.onload = function() {
+                resolve(true);
+            };
+            script.onerror = function(err) {
+                reject(err);
+            };
+            script.src = jssrc;
+            head.appendChild(script);
+        });
+        return res;
     }
-    pack() {}
+    async packModules(id) {
+        //打包需要的模块们，创建入口页面，然后运行webpack打包；
+        var webpackConfig = getConfig("renderer", "");
+        let moduleDir = path.resolve(Configs.getHome(), id);
+        let tempDir = path.resolve(moduleDir, ".temp");
+        let distDir = path.resolve(tempDir, "dist");
+        let jssrc = path.resolve(distDir, "index.js");
+        let entryjs = path.resolve(tempDir, "entry.js");
+        let entrystr = await fs.readFile("./build/entry.js");
+        entrystr = entrystr.replace("__ExtensionDir__", moduleDir);
+        entrystr = entrystr.replace("__ModuleId__", id);
+        let mainjs = path.resolve(tempDir, "main.js");
+        await Files.writeFile(mainjs, entrystr);
+        // let mainjs =
+        webpackConfig.entry = mainjs;
+        webpackConfig.output = {
+            filename: "index.js",
+            path: distDir,
+            publicPath: distDir
+        };
+        let compiler = webpack(webpackConfig);
+        return await new Promise((resolve, reject) => {
+            compiler.run((err, stats) => {
+                if (err || stats.hasErrors()) {
+                    reject(err);
+                } else {
+                    resolve(true);
+                }
+            });
+        });
+    }
+    export(id, obj) {
+        //导出模块，在其他webpack中打包的js中执行，用于把变量导出到Nore中，方便require；
+        this.cache[id] = obj;
+    }
 }
-const config = Extension.getInstance();
-export default config;
+const nore = Nore.getInstance();
+export default nore;

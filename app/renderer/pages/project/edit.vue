@@ -102,8 +102,9 @@ import Vue from "vue";
 import viewList from "../../elements/list.js";
 import html2canvas from "html2canvas";
 import mySocket from "../../utli/mysocket";
-import ExtensionList from "../../extension";
-console.log(ExtensionList);
+// import ExtensionList from "../../extension";
+// console.log(ExtensionList);
+// import Nore from '../../../libs/nore'
 export default {
 	name: "project_edit",
 	data() {

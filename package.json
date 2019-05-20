@@ -124,8 +124,6 @@
         "vue-style-loader": "^4.1.2",
         "vue-template-compiler": "^2.5.21",
         "vuex": "^3.1.1",
-        "webpack": "^4.28.3",
-        "webpack-cli": "^3.1.2",
         "webpack-dev-server": "^3.1.14",
         "webpack-node-externals": "^1.7.2"
     },
@@ -147,6 +145,7 @@
         "shelljs": "^0.8.3",
         "socket.io": "^2.2.0",
         "sudo-prompt": "^8.2.5",
-        "vue-server-renderer": "^2.5.21"
+        "vue-server-renderer": "^2.5.21",
+        "webpack": "4.28.3"
     }
 }
