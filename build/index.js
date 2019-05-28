@@ -2,6 +2,10 @@ const webpack = require("webpack");
 const UI = require("readline-ui");
 const ui = new UI();
 ui.rl.on('SIGINT', function(){
+    if(process.platform == 'win32'){
+        runSh('taskkill -f -t -im electron.exe',function(){});
+    }
+    
     console.log(chalk.yellow('再次按Ctrl+C退出'));
 });
 const {
@@ -236,6 +240,7 @@ class Build {
     startElectron() {
         if (!!this.electronPro) {
             try {
+                
                 this.electronPro.kill();
             } catch (error) {
 

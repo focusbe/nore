@@ -8,6 +8,7 @@ import initMenu from "./initmenu";
 import mySocket from "./mysocket";
 import Utli from "../libs/util";
 // setInterval(Utli.showMem,2000);
+
 const fs = require("fs");
 class Main {
     constructor() {

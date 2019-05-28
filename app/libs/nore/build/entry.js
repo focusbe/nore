@@ -1,5 +1,5 @@
 
-var comList = require.context('__ExtensionDir__', true, /\.vue$/);
+var str = `var comList = require.context('__ExtensionDir__', true, /\.vue$/);
 var comArr = {};
 comList.keys().map(key => {
     let comname;
@@ -13,18 +13,11 @@ comList.keys().map(key => {
         comname = key
             .replace("./", "")
             .replace(".vue", "")
-            .replace(/\//g, "-");
+            .replace(/\\//g, "-");
     }
     comname='extension-'+comname;
     comObj["name"] = comname;
     comArr[comname] = comObj;
-    // console.log(comname);
-    // console.log(comObj);
-    // if(!!comname&&typeof(comObj)=='object'){
-    //     Vue.component(comname, comObj);
-    // }
 });
-
-if(!!Nore){
-    Nore.export('__ModuleId__',comObj)
-}
+export default comObj;`
+export default str;

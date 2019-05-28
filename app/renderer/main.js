@@ -25,6 +25,8 @@ Vue.use(VueRouter);
 
 require('../libs/psd/test.js');
 
+import Nore from "libs/nore/index"
+console.log(Nore.packModules('extension'));
 // setInterval(Utli.showMem,2000);
 
 import Pages from './pages';
@@ -70,7 +72,6 @@ var app = new Vue({
     store,
     template: `
   <div id="app" class="${process.platform}">
-    
     <router-view class="view"></router-view>
   </div>
   `
