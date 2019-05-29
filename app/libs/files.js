@@ -212,34 +212,49 @@ class Files {
         }
         // var fileslist = fse.readdirSync(src);
         // return fileslist;
-
-        fse.readdir(src, function(err, paths) {
-            if (!!err || !paths) {
-                callback(false);
-                return;
-            }
-            var filestlist = new Object();
-            paths.forEach(function(curpath) {
-                var _src = path.resolve(src, curpath);
-                var readable;
-                var writable;
-                var filestat = fse.statSync(_src);
-                var issure = true;
-                if (filestat && filestat.isDirectory()) {
-                    var projectfiles = fse.readdirSync(_src);
-                    for (var filename in hasFile) {
-                        if (projectfiles.indexOf(filename) < 0) {
-                            issure = false;
-                            break;
+        
+        function run(callback){
+            fse.readdir(src, function(err, paths) {
+                if (!!err || !paths) {
+                    callback(false);
+                    return;
+                }
+                var filestlist = new Object();
+                paths.forEach(function(curpath) {
+                    var _src = path.resolve(src, curpath);
+                    var readable;
+                    var writable;
+                    var filestat = fse.statSync(_src);
+                    var issure = true;
+                    if (filestat && filestat.isDirectory()) {
+                        var projectfiles = fse.readdirSync(_src);
+                        for (var filename in hasFile) {
+                            if (projectfiles.indexOf(filename) < 0) {
+                                issure = false;
+                                break;
+                            }
+                        }
+                        if (issure) {
+                            filestlist[curpath] = _src;
                         }
                     }
-                    if (issure) {
-                        filestlist[curpath] = _src;
-                    }
-                }
+                });
+                callback(filestlist);
             });
-            callback(filestlist);
-        });
+        }
+
+        if(!callback){
+            callback = function(){};
+            return new Promise((resolve,reject)=>{
+                run(function(bool){
+                    if(!bool){
+                        reject('获取失败');
+                    }
+                    resolve(true);
+                })
+            });
+        }
+        
     }
     static exists(src, dst, callback) {
         fse.exists(dst, function(exists) {

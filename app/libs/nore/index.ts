@@ -17,36 +17,39 @@ class Nore {
         }
         return this.instance;
     }
+    
     async require(id) {
         if (!!this.cache[id]) {
             return this.cache[id];
         }
-        // var self = this;
-        // let moduleDir = path.resolve(Configs.getHome(), id);
-        // let tempDir = path.resolve(moduleDir, ".temp");
-        // let distDir = path.resolve(tempDir, "dist");
-        // let jssrc = path.resolve(distDir, "index.js");
-        // let entryjs = path.resolve(tempDir, "entry.js");
-        // let exists = await fs.pathExists(jssrc);
-        // if (!exists) {
-        //     await this.packModules(id);
-        // } else {
-        //     let fileList: any = Files.getList(moduleDir);
-        //     var stats = await fs.stat(jssrc);
-        //     if (!!stats && !!stats.mtime) {
-        //         //console.log(stats.mtime.getTime());
-        //         // return stats.mtime.getTime();
-        //         for (var i in fileList) {
-        //             if (fileList[i].indexOf(".temp") > -1) {
-        //                 continue;
-        //             }
-        //             if (!!Files.getMtime(fileList[i]) && Files.getMtime(fileList[i]) > stats.mtime) {
-        //                 await this.packModules(id);
-        //                 break;
-        //             }
-        //         }
-        //     }
-        // }
+        let moduleDir = path.resolve(Configs.getHome(), id);
+        let tempDir = path.resolve(moduleDir, ".temp");
+        let distDir = path.resolve(tempDir, "dist");
+        let jssrc = path.resolve(distDir, "index.js");
+        //return require(jssrc);
+        let entryjs = path.resolve(tempDir, "entry.js");
+        let exists = await fs.pathExists(jssrc);
+        if (!exists) {
+            await this.packModules(id);
+        } else {
+            let fileList: any = Files.getList(moduleDir);
+            var stats = await fs.stat(jssrc);
+            if (!!stats && !!stats.mtime) {
+                //console.log(stats.mtime.getTime());
+                // return stats.mtime.getTime();
+                for (var i in fileList) {
+                    if (fileList[i].indexOf(".temp") > -1) {
+                        continue;
+                    }
+                    if (!!Files.getMtime(fileList[i]) && Files.getMtime(fileList[i]) > stats.mtime) {
+                        await this.packModules(id);
+                        break;
+                    }
+                }
+            }
+        }
+
+        return await require(jssrc.replace(/\\/g, "/"));
 
         // //打包完成后加载打包后的js并缓存变量；
         // var head = document.getElementsByTagName("head")[0];

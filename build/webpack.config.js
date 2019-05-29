@@ -18,9 +18,11 @@ var alias = {
 //     'browserify'
 // ],
 externalDev = function(context, request, cb) {
-    // console.log(context);
+   
     // console.log(request);
-    if (request == "webpack" || request.indexOf("webpack.config") > -1) {
+    if (request == "webpack" || request.indexOf("webpack.config") > -1||context.indexOf('.norecode')>-1) {
+        console.log('----------------------');
+        console.log(context);
         return cb(null, "commonjs " + request);
     }
     nodeExternals({
@@ -33,7 +35,7 @@ externalDev = function(context, request, cb) {
 
 function noparse(content) {
     //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
-    if (content.indexOf("app\\libs") > -1) {
+    if (content.indexOf("app\\libs") > -1 || content.indexOf(".norecode") > -1) {
         return false;
     }
     // for (var i in packagejson['dependencies']) {
