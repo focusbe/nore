@@ -26,7 +26,6 @@ class Nore {
         let tempDir = path.resolve(moduleDir, ".temp");
         let distDir = path.resolve(tempDir, "dist");
         let jssrc = path.resolve(distDir, "index.js");
-        let entryjs = path.resolve(tempDir, "entry.js");
         let exists = await fs.pathExists(jssrc);
         if (!exists) {
             await this.packModules(id);
@@ -97,8 +96,6 @@ class Nore {
         let moduleDir = path.resolve(Configs.getHome(), id);
         let tempDir = path.resolve(moduleDir, ".temp");
         let distDir = path.resolve(tempDir, "dist");
-        let jssrc = path.resolve(distDir, "index.js");
-        let entryjs = path.resolve(tempDir, "entry.js");
         let entrystr = require("./build/entry.js").default;
         entrystr = entrystr.replace("__ExtensionDir__", moduleDir.replace(/\\/g, "/"));
         entrystr = entrystr.replace("__ModuleId__", id);
