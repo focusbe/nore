@@ -1,6 +1,5 @@
 const fse = require("fs-extra");
 const path = require("path");
-const shelljs = require("shelljs");
 var sudo = require("sudo-prompt");
 class Files {
     static copy(src, dst, callback) {
@@ -32,10 +31,6 @@ class Files {
             return true;
         }
         var res = await new Promise((result, reject) => {
-            // fse.mkdir(src, function(err) {
-            //     if (!err) result(true);
-            //     else reject(err);
-            // });
             this.createdir(src, success => {
                 if (!!success) {
                     result(success);

@@ -31,32 +31,22 @@ class Nore {
             await this.packModules(id);
         } else {
             let fileList: any = await Files.getTree(moduleDir, false, null, function(curpath) {
-                console.log(curpath);
                 if (curpath.indexOf("node_modules") > -1) {
-                    console.log("isnode_modules");
                     return true;
                 }
                 return false;
             });
-            console.log(fileList);
             var stats = await fs.stat(jssrc);
-            console.log(stats);
-            console.log(stats.mtime.getTime());
-            console.log(fileList);
             var distTime = stats.mtime.getTime();
             if (!!stats && !!distTime) {
                 //console.log(stats.mtime.getTime());
                 // return stats.mtime.getTime();
                 for (var i in fileList) {
-                    console.log(fileList[i]["path"]);
                     if (fileList[i]["path"].indexOf(".temp") > -1) {
                         continue;
                     }
-                    var curfileTime = await Files.getMtime(fileList[i]['path']);
-                    console.log(curfileTime);
-                    console.log(distTime);
+                    var curfileTime = await Files.getMtime(fileList[i]["path"]);
                     if (!!curfileTime && curfileTime > distTime) {
-                        console.log("packmodules");
                         await this.packModules(id);
                         break;
                     }
@@ -113,17 +103,33 @@ class Nore {
         webpackConfig.plugins.pop();
         webpackConfig.externals = [];
         let compiler = webpack(webpackConfig);
+
         return await new Promise((resolve, reject) => {
-            compiler.run((err, stats) => {
-                if (!!err || stats.hasErrors()) {
-                    if (!err) {
-                        err = new Error(stats.compilation.errors);
+            compiler.watch(
+                {
+                    ignored: /node_modules|\.temp|output/
+                },
+                function(err, stats) {
+                    if (!!err || stats.hasErrors()) {
+                        if (!err) {
+                            err = new Error(stats.compilation.errors);
+                        }
+                        reject(err);
+                    } else {
+                        resolve(true);
                     }
-                    reject(err);
-                } else {
-                    resolve(true);
                 }
-            });
+            );
+            // compiler.run((err, stats) => {
+            //     if (!!err || stats.hasErrors()) {
+            //         if (!err) {
+            //             err = new Error(stats.compilation.errors);
+            //         }
+            //         reject(err);
+            //     } else {
+            //         resolve(true);
+            //     }
+            // });
         });
     }
 }

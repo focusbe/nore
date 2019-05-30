@@ -6,17 +6,15 @@ const nodeExternals = require("webpack-node-externals");
 const path = require("path");
 //判断当前运行环境是开发模式还是生产模式
 var config = {};
-var jsonfile = require("jsonfile");
-var configfile = resolve(__dirname, "../package.json");
-const packagejson = jsonfile.readFileSync(configfile);
+// var jsonfile = require("jsonfile");
+// var configfile = resolve(__dirname, "../package.json");
+// const packagejson = jsonfile.readFileSync(configfile);
 var alias = {
     libs: resolve(__dirname, "../app/libs"),
     main: resolve(__dirname, "../app/main"),
     renderer: resolve(__dirname, "../app/renderer")
 };
-// externals:[
-//     'browserify'
-// ],
+
 externalDev = function(context, request, cb) {
     // console.log(request);
     if (request == "webpack" || request.indexOf("webpack.config") > -1) {
@@ -35,18 +33,6 @@ function noparse(content) {
         return false;
     }
     //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
-    // if (content.indexOf("app\\libs") > -1 || content.indexOf(".norecode") > -1) {
-    //     return false;
-    // }
-    // // for (var i in packagejson['dependencies']) {
-
-    // //     if(content.indexOf('node_modules\\'+i)>-1){
-    // //         console.log('node_modules\\'+i);
-    // //         return true;
-    // //     }console
-    // // }
-    // // return false;
-    // return false;
 }
 config["main"] = function(mode) {
     return {
@@ -86,17 +72,6 @@ config["main"] = function(mode) {
                     exclude: /node_modules/
                 },
 
-                // {
-                //     test: /\.js?$/,
-                //     use: {
-                //         loader: 'babel-loader?cacheDirectory=true',
-                //         options: {
-                //             presets: ['env']
-                //         }
-                //     },
-                //     exclude: /node_modules/,
-                //     include: /app\/main/
-                // },
                 {
                     test: /\.json$/,
                     use: [
@@ -136,8 +111,6 @@ config["renderer"] = function(mode) {
             }
         },
         module: {
-            //module.noParse 配置哪些文件可以脱离webpack的解析
-            // noParse: /node_modules\/(jquey\.js)/,
             noParse: noparse,
             rules: [
                 //html
@@ -170,10 +143,6 @@ config["renderer"] = function(mode) {
                         }
                     ]
                 },
-                // {
-                //     test: /\.js$/,
-                //     loader: 'babel-loader'
-                // },
                 {
                     test: /\.jsx?$/,
                     use: ["babel-loader"],

@@ -1,5 +1,3 @@
-//const {Projects,Project,Files} = require('../main/libs/project');
-const Configs = require("../libs/configs");
 import Vue from "vue";
 import Vuex from "vuex";
 import VueRouter from "vue-router";
@@ -9,11 +7,9 @@ import "./css/style.scss";
 import iView from "iview";
 import "./css/themes.less";
 import Elelments from "./elements/index.js";
-// console.log(path);
 import contentmenu from "v-contextmenu";
 import "v-contextmenu/dist/index.css";
 import mySocket from "./utli/mysocket";
-import Utli from "../libs/util";
 mySocket.on("reloadPage", function() {
     window.location.reload();
 });
@@ -27,7 +23,6 @@ import Nore from "libs/nore/index";
 Nore.require("extension").then(res => {
     console.log(res);
 });
-// setInterval(Utli.showMem,2000);
 
 import Pages from "./pages";
 import components from "./componets/install";
@@ -69,8 +64,8 @@ var app = new Vue({
     el: "#app",
     store,
     template: `
-  <div id="app" class="${process.platform}">
-    <router-view class="view"></router-view>
-  </div>
-  `
+    <div id="app" class="${process.platform}">
+        <router-view class="view"></router-view>
+    </div>
+    `
 }).$mount("#app");
