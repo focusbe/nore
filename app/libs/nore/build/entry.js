@@ -1,5 +1,5 @@
-
-var str = `var comList = require.context('__ExtensionDir__', true, /\.vue$/);
+var str = `
+var comList = require.context('__ExtensionDir__', true, /\.vue$/);
 var comArr = {};
 comList.keys().map(key => {
     let comname;
@@ -19,5 +19,9 @@ comList.keys().map(key => {
     comObj["name"] = comname;
     comArr[comname] = comObj;
 });
-export default comObj;`
+export default comArr;
+if(!!window.Nore){
+    window.Nore.export('__ModuleId__',comArr)
+}
+`;
 export default str;

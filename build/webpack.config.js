@@ -18,11 +18,8 @@ var alias = {
 //     'browserify'
 // ],
 externalDev = function(context, request, cb) {
-   
     // console.log(request);
-    if (request == "webpack" || request.indexOf("webpack.config") > -1||context.indexOf('.norecode')>-1) {
-        console.log('----------------------');
-        console.log(context);
+    if (request == "webpack" || request.indexOf("webpack.config") > -1) {
         return cb(null, "commonjs " + request);
     }
     nodeExternals({
@@ -34,19 +31,22 @@ externalDev = function(context, request, cb) {
 };
 
 function noparse(content) {
-    //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
-    if (content.indexOf("app\\libs") > -1 || content.indexOf(".norecode") > -1) {
+    if (content.indexOf("myrequire") > -1) {
         return false;
     }
-    // for (var i in packagejson['dependencies']) {
-
-    //     if(content.indexOf('node_modules\\'+i)>-1){
-    //         console.log('node_modules\\'+i);
-    //         return true;
-    //     }console
+    //在 dependencies 中的代码不打包，因为可以再electron 环境中直接调用
+    // if (content.indexOf("app\\libs") > -1 || content.indexOf(".norecode") > -1) {
+    //     return false;
     // }
+    // // for (var i in packagejson['dependencies']) {
+
+    // //     if(content.indexOf('node_modules\\'+i)>-1){
+    // //         console.log('node_modules\\'+i);
+    // //         return true;
+    // //     }console
+    // // }
+    // // return false;
     // return false;
-    return false;
 }
 config["main"] = function(mode) {
     return {
@@ -284,12 +284,11 @@ config["renderer"] = function(mode) {
             ]
         },
         plugins: [
+            new VueLoaderPlugin(),
             //热更新
             new webpack.optimize.OccurrenceOrderPlugin(),
             // new webpack.HotModuleReplacementPlugin(),
             new webpack.NamedModulesPlugin(),
-
-            new VueLoaderPlugin(),
             //html模板
             new HtmlWebpackPlugin({
                 filename: "index.html",

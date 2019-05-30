@@ -134,7 +134,7 @@ class Files {
             }
         });
     }
-    static getTree(src, istree, folder) {
+    static getTree(src, istree, folder,testfun) {
         if (!folder) {
             folder = [];
         }
@@ -155,8 +155,13 @@ class Files {
                         var promisArr = [];
                         var length = paths.length;
                         var done = 0;
-                        paths.forEach(async function(curpath) {
+                        paths.forEach(function(curpath) {
+                            if(!!testfun&&testfun(curpath)){
+                                done++;
+                                return true;
+                            }
                             var _src = src + "/" + curpath;
+                            console.log(_src);
                             var filestat = fse.statSync(_src);
                             if (filestat) {
                                 if (filestat.isDirectory()) {
@@ -170,7 +175,7 @@ class Files {
                                         saveArr = _folder["children"];
                                     }
 
-                                    Files.getTree(_src, istree, saveArr)
+                                    Files.getTree(_src, istree, saveArr,testfun)
                                         .then(function(res) {
                                             done++;
                                             if (done >= length) {
@@ -250,7 +255,7 @@ class Files {
                     if(!bool){
                         reject('获取失败');
                     }
-                    resolve(true);
+                    resolve(bool);
                 })
             });
         }
