@@ -318,6 +318,7 @@ class ImagePool {
     }
     public start(cb) {
         if (!!this.status || this.pool.length == 0) {
+            cb('stop',null);
             return false;
         }
         this.status = 1;

@@ -1,6 +1,6 @@
 {
     "name": "NoreCode",
-    "version": "0.0.2",
+    "version": "0.0.4",
     "productName": "Nore Code",
     "description": "集成前端开发，切图，逻辑编辑，组件调用，项目发布的客户端",
     "productFileName": "NoreCode",
