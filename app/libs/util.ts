@@ -40,6 +40,7 @@ class Util {
     static cssUrlChange(cssDir, cssstr, from = null) {
         // console.log(cssDir);
         // console.log(from);
+       
         var regstr = /url\(([^\s\'\"\<\>]*?)\)/gim;
         var cssattr;
         while ((cssattr = regstr.exec(cssstr))) {
@@ -47,8 +48,9 @@ class Util {
                 // cssstr += "#" + htmlattr[1] + "{\n\t" + htmlattr[3].replace(/;/g, ";\n\t") + "\n}\n";
                 // htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
                 let resUrl;
+                
                 if (!!from) {
-                    resUrl = path.relative(from, path.resolve(cssDir, cssattr[1])).replace(/\\/g, "/");
+                    resUrl = path.relative(path.dirname(from), path.resolve(cssDir, cssattr[1])).replace(/\\/g, "/");
                 } else {
                     resUrl = path.resolve(cssDir, cssattr[1]).replace(/\\/g, "/");
                 }

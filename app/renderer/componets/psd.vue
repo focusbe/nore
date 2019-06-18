@@ -87,7 +87,7 @@ export default {
 					file.path,
 					this.uploadpath,
 					"images/" + this.pagename,
-					this.device == "phone"
+					false
 				);
 				let res = await mypsd.parse(false, (state, percent, msg) => {
 					if (!!state) {
@@ -95,6 +95,11 @@ export default {
 							this.isparse = false;
 						}
 						this.percent = { value: percent, msg: msg };
+					}
+					else{
+						this.isparse = false;
+						this.percent = { value: percent, msg: msg };
+						alert(msg);
 					}
 				});
 				// res = null;

@@ -56,9 +56,12 @@ class PSD {
                         case "finish":
                             result(data);
                             break;
+                        case "stop":
+                            onProgress(0, 100, "无法识别图层");
+                            result(false);
+                            break;
                         case "change":
                             saved++;
-
                             break;
                     }
                     let total = errorimg.length + saved;
@@ -104,6 +107,7 @@ class PSD {
         //vNode:虚拟节点
         //vNode:待保存的图片数组
         //istree：最终生成树形结构还是一维数组
+
         let self = this;
         if (!psdNode) {
             return;

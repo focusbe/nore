@@ -966,7 +966,8 @@ class Project {
         while ((htmlattr = regstr.exec(html))) {
             if (!!htmlattr[1] && !!htmlattr[3]) {
                 htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
-                let stylestr = Util.cssUrlChange(srcpath, htmlattr[3], csspath);
+                
+                let stylestr = Util.cssUrlChange(srcpath, htmlattr[3], maincsspath);
                 cssstr +=
                     "#" +
                     htmlattr[1] +
@@ -976,6 +977,9 @@ class Project {
             }
         }
         cssstr = cssstr.replace(/\t\n\}/g, "}");
+        
+        //cssstr = Util.cssUrlChange(srcpath, cssstr, maincsspath);
+
         page.html = htmlstr;
         var reshtml = juicer(templatehtml, { page: page });
         reshtml = beautify(reshtml, {
