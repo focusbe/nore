@@ -262,8 +262,6 @@ class PSD {
                         imgArea = new Rectangle(newInOriPoint, resRec.size).toStyles();
                     }
                     curLayer.realPositon = curposition;
-                    // console.log(curposition);
-                    // console.log(imgArea);
 
                     Object.assign(curStyles, {
                         width: curposition.width,
@@ -306,10 +304,9 @@ class PSD {
                         this.getvnodetree(curLayer, curVNode, imgPool, curDesignSize);
                     }
                 } else if (curLayer.type == "layer") {
-                    if (!!curLayerJson.text && !!curLayerJson.text.font) {
-                        console.log(curLayerJson.text);
-                    }
-
+                    // if (!!curLayerJson.text && !!curLayerJson.text.font) {
+                    //     console.log(curLayerJson.text);
+                    // }
                     if (!!curLayerJson.text && (curLayerJson.text.value.length > 100 || (!!curLayerJson.text.font && PsdUtli.isSystemFont(curLayerJson.text.font)))) {
                         let fontname = PsdUtli.isSystemFont(curLayerJson.text.font);
                         //是文字节点
@@ -326,8 +323,6 @@ class PSD {
                         let fontstyle: { [key: string]: any } = {};
                         if (!!font.sizes && font.sizes.length > 0) {
                             fontstyle.fontSize = font.sizes[0] + "px";
-                            console.log(font.sizes[0]);
-                            console.log(curVNode.styles.height);
                             if (curVNode.styles.height <= font.sizes[0] + 4) {
                                 fontstyle.lineHeight = 1;
                             }

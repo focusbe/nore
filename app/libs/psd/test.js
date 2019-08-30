@@ -10,8 +10,6 @@ async function main(){
     let psd2 = new PSD('C:/Users/liupeng/Desktop/testpsd/mobile/zhoudongyu.psd','C:/Users/liupeng/Desktop/testpsd/mobile/zhoudongyu','');
     let result3 = await psd2.parse();
     let result4 = await psd2.parse(true);
-    console.log(result3);
-    console.log(result4);
 }
 function showMem(log) {
     if (typeof (global.gc) == 'function') {

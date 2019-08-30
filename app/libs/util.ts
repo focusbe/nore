@@ -6,7 +6,7 @@ class Util {
         let id: string = new Date().getTime().toString();
         if (!!this.idcache[id]) {
             this.idcache[id]++;
-            //console.log(this.idcache[id]);
+
             id = id + "" + this.idcache[id];
         } else {
             this.idcache[id] = 1;
@@ -38,8 +38,6 @@ class Util {
         return false;
     }
     static cssUrlChange(cssDir, cssstr, from = null) {
-        // console.log(cssDir);
-        // console.log(from);
        
         var regstr = /url\(([^\s\'\"\<\>]*?)\)/gim;
         var cssattr;

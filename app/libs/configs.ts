@@ -49,7 +49,7 @@ class Config {
         return this.instance;
     }
     private async gameList() {
-        const response = await axios.get("http://nore.focusbe.com/games.json");
+        const response = await axios.get("http://nore.focusbe.com/api/games.json");
         if (!!response && !!response.data) {
             return response.data;
         }
@@ -73,7 +73,6 @@ class Config {
         let configFiles = inarar ? ".norecode" : ".norecode_dev";
 
         this.file = path.join(homepath, configFiles + "/config.json");
-        //console.log(this.file);
         var isexist = fs.existsSync(this.file);
         if (!isexist) {
             this.save(this.getConfigJson(this.defaultConfig));

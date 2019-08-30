@@ -13,7 +13,7 @@ class Games{
         if(!!this.gamelist){
             return this.gamelist;
         }
-        let response = await axios.get("http://nore.focusbe.com/games.json");
+        let response = await axios.get("http://nore.focusbe.com/api/games.json");
         if (!response || !response.data) {
             return null;
         }

@@ -526,7 +526,6 @@ class Project {
     }
     async whoIsLatest(name, type = "origin") {
         var dbtime = this.getPageByName(name).updatetime;
-        // console.log(dbtime);
         var originTime = await this.getEnvTime(Env.origin, name);
         var srcTime = await this.getEnvTime(Env.src, name);
         var bijiao;
@@ -570,7 +569,6 @@ class Project {
         });
 
         var pageJson = eval(funStr);
-        // console.log(pageJson);
         if (!!css && !!pageJson.tree) {
             try {
                 let cssroot = postcss.parse(css);
@@ -846,7 +844,6 @@ class Project {
         var TplPath = this.dirCode(
             "../../templates/" + page.template + "/html.tpl"
         );
-        // console.log(templatesrc);
         var temres = await Files.createdirAsync(templatesrc);
 
         if (!temres) {

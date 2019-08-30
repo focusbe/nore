@@ -8,7 +8,6 @@ export default {
 	},
 	render(c) {
         var _this = this;
-        console.log(_this.thekey);
 		return c("div", {
 			style: {
 				color: "blue",

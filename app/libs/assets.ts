@@ -10,7 +10,6 @@ class Assets {
         this.actname = actname;
         this.actdir = path.resolve(Configs.getItem('workshop'), this.actname);
         this.assetsdir = path.resolve(this.actdir, './src/imaegs');
-        //console.log(this.assetsdir);
     }
     async upload(filePath) {
         let exists = await fse.exists(this.actdir);
