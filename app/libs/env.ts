@@ -1,4 +1,6 @@
 const inarar = __dirname.indexOf("app.asar") > -1;
 const DEBUG = !inarar;
 const isproduct = inarar;
-export {inarar,DEBUG,isproduct}
+let homepath = process.env.HOME || "/";
+let configFolder = inarar ? ".norecode" : ".norecode_dev";
+export { inarar, DEBUG, isproduct, configFolder }

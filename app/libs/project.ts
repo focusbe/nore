@@ -19,6 +19,7 @@ import Files from "./files";
 var jsxTransform = require("jsx-transform");
 import Games from "./games";
 import Util from "./util";
+import dataBase from './database';
 enum Env {
     origin = "origin",
     src = "src",
@@ -28,121 +29,91 @@ enum Env {
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
-    private workshopdir;
-    private constructor() { 
-        // if(!!Configs.getItem("workshop")){
-        //     this.workshopdir = path.resolve(Configs.getItem("workshop"));
-        // }
-        
+    private table;
+    private constructor() {
+        let db = dataBase.getDb();
+        this.table = db.get('projects');
     }
     static getInstance(): ProjectsClass {
-        
         if (!ProjectsClass.instance) {
-            
             ProjectsClass.instance = new ProjectsClass();
         }
         return this.instance;
     }
-    getlist() {
-        return new Promise(
-            (resolve, reject) => {
-                if (!Configs.getItem("workshop")) {
-                    reject("没有设置workshop");
-                    return;
-                }
-                if(!!Configs.getItem("workshop")){
-                    this.workshopdir = path.resolve(Configs.getItem("workshop"));
-                }
-                Files.createdir(this.workshopdir, () => {
-                    Files.getList(this.workshopdir, async (list) => {
-                        if (!list) {
-                            reject("获取文件失败");
-                            return;
-                        } else {
-                            let projectlist = [];
-                            //debugger;
-                            for(var i in list){
-                                let projectjson = await this.isProject(i);
-                                if(!!projectjson){
-                                    projectlist.push(projectjson);
-                                }
-                                resolve(projectlist);
-                            }
-                            //resolve(list);
-                        }
-                    });
-                });
-            }
-        );
-    }
-    async isProject(name) {
-        if(!!Configs.getItem("workshop")){
-            this.workshopdir = path.resolve(Configs.getItem("workshop"));
+
+    async add(config) {
+        //创建新项目
+        if (!config || !config.actname || !config.savedir) {
+            throw new Error("缺少参数");
         }
-        let projectFile = path.resolve(this.workshopdir,name);
-        let imgFile = path.resolve(projectFile, 'data/preview.webp');
-        let dbFile = path.resolve(projectFile, 'data/db.json');
+        let project = new Project(config);
+        await new Promise((resolve, reject) => {
+            project.create((res) => {
+                if (res.ret > 0) {
+                    this.table.insert({
+                        actname: config.actname,
+                        savedir: config.savedir
+                    }).write();
+                    resolve(res);
+                } else {
+                    reject(res.msg);
+                }
+            });
+        })
+    }
+
+    async delete(id, deleteFolder = false) {
+        let curProject = await this.getProjectByid(id);
+        if (curProject && !!curProject.path) {
+            if (deleteFolder) {
+                await fse.remove(curProject.path);
+                return await this.table.remove({ id: id }).write();
+            }
+        }
+        else {
+            throw new Error('项目不存在');
+        }
+    }
+
+    getList() {
+        return this.table.value();
+    }
+    async getProjectInfo(id) {
+        //通过id获取项目的具体信息
+        var projectInfo = await this.getProjectByid(id);
+        if (!projectInfo) {
+            throw new Error('项目不存在');
+        }
+        if (!projectInfo.path) {
+            throw new Error('项目文件不存在');
+        }
+        //根据项目目录获取项目信息
+        let projectFolder = projectInfo.path;
+        if (!projectFolder) {
+            return false;
+        }
+        let dbFile = path.resolve(projectFolder, 'data/db.json');
+        let imgFile = path.resolve(projectFolder, 'data/preview.webp');
         if (!await fse.exists(dbFile)) {
             return false;
         }
         let json = await fse.readJson(dbFile);
-
         if (!json || !json.info) {
             return false;
         }
-        if(await fse.exists(imgFile)){
-            json.info.preview = imgFile.replace(/\\/g,'/');
+        if (await fse.exists(imgFile)) {
+            json.info.preview = imgFile.replace(/\\/g, '/');
         }
         return json.info;
     }
-    add(config) {
-        return new Promise(
-            function (resolve, reject) {
-                if (!config || !config.actname) {
-                    reject("参数错误");
-                    return;
-                }
-                if (
-                    !!this.projectCache[config.actname] ||
-                    this.has(config.actname)
-                ) {
-                    reject("项目已存在");
-                    return;
-                }
-                let project = new Project(config);
-                this.projectCache[config.actname] = project;
-                project.create(function (res) {
-                    if (res.ret > 0) {
-                        resolve(project);
-                    } else {
-                        reject(res.msg);
-                    }
-                });
-            }.bind(this)
-        );
+
+    async getProjectByid(id) {
+        let curProject = await this.table.getById(id).value();
+        return curProject;
     }
-    has(actname) {
-        return fs.existsSync(this.getProjectDir(actname));
-    }
-    async delete(actname) {
-        await new Promise(
-             (resolve, reject) =>{
-                let projectDir = path.resolve(
-                    Configs.getItem("workshop"),
-                    actname
-                );
-                fse.remove(projectDir, err => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve(true);
-                });
-            }
-        );
-    }
-    getTempList() {
-        return new Promise(function (resolve, reject) {
+
+    async getTempList() {
+        return await new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../templates");
             Files.createdir(tempdir, function () {
                 Files.getList(tempdir, function (list) {
@@ -155,8 +126,8 @@ class ProjectsClass {
             });
         });
     }
-    getScaList() {
-        return new Promise(function (resolve, reject) {
+    async getScaList() {
+        return await new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../scaffold");
             Files.createdir(tempdir, function () {
                 Files.getList(tempdir, function (list) {
@@ -169,57 +140,10 @@ class ProjectsClass {
             });
         });
     }
-    openWithIed(actname) {
-        return new Promise(
-            function (resolve, reject) {
-                if (!Configs.getItem("vscodePath")) {
-                    reject("请配置VSCOD路径");
-                    return;
-                    // callback(false, '请配置VSCOD路径', -1);
-                }
-                let vcodedir = path.resolve(
-                    Configs.getItem("vscodePath"),
-                    "bin/code"
-                );
-
-                let project = this.getProjectDir(actname);
-                let sh = '"' + vcodedir + '" ' + project;
-                Util.runSh(sh)
-                    .then(res => {
-                        {
-                            resolve(res);
-                        }
-                    })
-                    .catch(err => {
-                        reject(err);
-                    });
-            }.bind(this)
-        );
-    }
-    getProjectDir(actname) {
-        let projectDir = path.resolve(Configs.getItem("workshop"), actname);
-        return projectDir;
-    }
-    getProject(actname) {
-        if (!actname) {
-            return -1;
-        }
-        if (!this.projectCache[actname]) {
-            let projectroot = path.resolve(
-                Configs.getItem("workshop"),
-                actname
-            );
-            if (!fs.existsSync(projectroot)) {
-                return -2;
-            }
-            this.projectCache[actname] = new Project(actname);
-        }
-        return this.projectCache[actname];
-    }
 }
 
 class Project {
-    private actname: string;
+    private id: string;
     private config: { [key: string]: any };
     private rootdir: string;
     private datadir: string;
@@ -233,14 +157,13 @@ class Project {
         }
         if (typeof config == "string") {
             //项目已经存在
-            this.actname = config;
-            this.config = null;
+            throw new Error('请传入项目的config')
         } else {
             this.config = config;
-            this.actname = config.actname;
+            this.id = config.id;
         }
 
-        this.rootdir = path.resolve(Configs.getItem("workshop"), this.actname);
+        this.rootdir = this.config.savedir;
         this.datadir = path.resolve(this.rootdir, "data");
         this.srcDir = path.resolve(this.rootdir, "src");
         this.originDir = path.resolve(this.rootdir, "origin");
@@ -267,25 +190,24 @@ class Project {
                 info: {}
             })
             .write();
-        if (!this.config) {
-            this.config = this.db.get("info").value();
-        }
         return true;
     }
 
     getPageList() {
+        //查询项目的页面列表
         let pages = this.db.get("pages").value();
         return pages;
     }
 
     addPage(config) {
+        //添加页面
         if (!config || !config.name) {
             return -1;
         }
         if (this.hasPage(config.name)) {
             return -2;
         }
-        var newPost = this.db
+        var newPage = this.db
             .get("pages")
             .insert(
                 Object.assign(
@@ -298,7 +220,7 @@ class Project {
                 )
             )
             .write();
-        return newPost;
+        return newPage;
     }
     async delPage(name) {
         if (!name || !this.hasPage(name)) {
@@ -357,22 +279,22 @@ class Project {
             .write();
         return res;
     }
-    async savePreImg(canvasData){
-        if(!canvasData){
+    async savePreImg(canvasData) {
+        if (!canvasData) {
             return false;
         }
-        let imgFile = path.resolve(this.datadir,'preview.webp');
+        let imgFile = path.resolve(this.datadir, 'preview.webp');
         try {
             var dataBuffer = Buffer.from(canvasData, 'base64');
-            let res = await fse.writeFile(imgFile,dataBuffer);
+            let res = await fse.writeFile(imgFile, dataBuffer);
         } catch (error) {
             console.log(error)
             return false;
         }
         return true;
     }
-    async delPreImg(){
-        let imgFile = path.resolve(this.datadir,'preview.webp');
+    async delPreImg() {
+        let imgFile = path.resolve(this.datadir, 'preview.webp');
         try {
             await Files.delFile(imgFile);
         } catch (error) {
@@ -392,7 +314,7 @@ class Project {
         if (!pageFiles) {
             return;
         }
-        
+
         jsxobj.css = Util.cssUrlChange(
             this.originDir,
             jsxobj.css,
@@ -563,7 +485,7 @@ class Project {
         return res;
     }
     jsxToJson(jsx, css) {
- 
+
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
         });
@@ -920,7 +842,7 @@ class Project {
                     "/" +
                     realPath +
                     '";\n';
-     
+
             } else if (extname == ".js") {
                 mainjsstr +=
                     'require("../templates/' +
@@ -963,7 +885,7 @@ class Project {
         while ((htmlattr = regstr.exec(html))) {
             if (!!htmlattr[1] && !!htmlattr[3]) {
                 htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
-                
+
                 let stylestr = Util.cssUrlChange(srcpath, htmlattr[3], maincsspath);
                 cssstr +=
                     "#" +
@@ -974,7 +896,7 @@ class Project {
             }
         }
         cssstr = cssstr.replace(/\t\n\}/g, "}");
-        
+
         //cssstr = Util.cssUrlChange(srcpath, cssstr, maincsspath);
 
         page.html = htmlstr;

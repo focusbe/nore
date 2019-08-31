@@ -10,6 +10,7 @@ class Files {
         });
     }
     static async getAlivpath(filepath, number) {
+        //获得一个文件名不重复的文件名；
         if (!number) {
             number = 0;
         }
@@ -47,6 +48,7 @@ class Files {
         return res;
     }
     static async getMtime(file) {
+        //获取文件的创建时间
         let exists = await fse.exists(file);
         if (exists) {
             try {
@@ -62,6 +64,7 @@ class Files {
         return false;
     }
     static async writeFile(src, content) {
+        //写文件内容
         var res = await new Promise((resolve, reject) => {
             this.createdir(path.dirname(src), function(bool) {
                 if (!bool) {
@@ -79,6 +82,7 @@ class Files {
         return res;
     }
     static async writeJson(src, json) {
+        //写入json
         var res = await new Promise((resolve, reject) => {
             this.createdir(path.dirname(src), function(bool) {
                 if (!bool) {
@@ -98,6 +102,7 @@ class Files {
         return res;
     }
     static createdir(src, callback) {
+        //创建文件路径
         let parentdir = path.dirname(src);
         fse.exists(parentdir, function(exists) {
             if (!exists) {
@@ -132,6 +137,7 @@ class Files {
         });
     }
     static getTree(src, istree, folder) {
+        //获取文件夹的树形结构
         if (!folder) {
             folder = [];
         }
@@ -203,6 +209,7 @@ class Files {
         });
     }
     static getList(src, hasFile, callback) {
+        //获得文件夹的一维数组
         if (typeof hasFile == "function") {
             callback = hasFile;
             hasFile = [];
@@ -239,6 +246,7 @@ class Files {
         });
     }
     static exists(src, dst, callback) {
+        //目录是否存在，不存在时创建
         fse.exists(dst, function(exists) {
             if (exists) {
                 //不存在
