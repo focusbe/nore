@@ -11,7 +11,7 @@
 
 如果你是一名在这方面有一定经验的人，希望能从你身上获得一些经验；
 
-<img src="https://raw.githubusercontent.com/foliouTeam/NoreCode/master/assets/qrcode.png" width="200" alt="qrcode"/>
+<img src="https://raw.githubusercontent.com/foliouTeam/NoreCode/master/assets/qrcode.jpg" width="200" alt="qrcode"/>
 
 你可以通过下方的链接下载并了解现有的进度
 
