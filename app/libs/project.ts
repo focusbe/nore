@@ -94,7 +94,6 @@ class ProjectsClass {
             return false;
         }
         let json = await fse.readJson(dbFile);
-
         if (!json || !json.info) {
             return false;
         }
@@ -213,7 +212,7 @@ class ProjectsClass {
 }
 
 class Project {
-    private actname: string;
+    private id: string;
     private config: { [key: string]: any };
     private rootdir: string;
     private datadir: string;
@@ -227,14 +226,13 @@ class Project {
         }
         if (typeof config == "string") {
             //项目已经存在
-            this.actname = config;
-            this.config = null;
+            throw new Error('请传入项目的config')
         } else {
             this.config = config;
-            this.actname = config.actname;
+            this.id = config.id;
         }
 
-        this.rootdir = path.resolve(Configs.getItem("workshop"), this.actname);
+        this.rootdir = this.config.savedir;
         this.datadir = path.resolve(this.rootdir, "data");
         this.srcDir = path.resolve(this.rootdir, "src");
         this.originDir = path.resolve(this.rootdir, "origin");
@@ -261,25 +259,24 @@ class Project {
                 info: {}
             })
             .write();
-        if (!this.config) {
-            this.config = this.db.get("info").value();
-        }
         return true;
     }
 
     getPageList() {
+        //查询项目的页面列表
         let pages = this.db.get("pages").value();
         return pages;
     }
 
     addPage(config) {
+        //添加页面
         if (!config || !config.name) {
             return -1;
         }
         if (this.hasPage(config.name)) {
             return -2;
         }
-        var newPost = this.db
+        var newPage = this.db
             .get("pages")
             .insert(
                 Object.assign(
@@ -292,7 +289,7 @@ class Project {
                 )
             )
             .write();
-        return newPost;
+        return newPage;
     }
     async delPage(name) {
         if (!name || !this.hasPage(name)) {
