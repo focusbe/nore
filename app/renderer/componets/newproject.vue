@@ -105,7 +105,7 @@ export default {
 				actname: "",
 				game: "",
 				template: "",
-				scaffold:""
+				scaffold:"gulp"
 			},
 			projectRules: {
 				title: [
@@ -117,7 +117,7 @@ export default {
 				],
 				desc: [
 					{
-						required: true,
+						required: false,
 						message: "请填写项目描述",
 						trigger: "blur"
 					}
@@ -132,7 +132,7 @@ export default {
 				scaffold: [
 					{
 						required: true,
-						message: "请选择游戏项目",
+						message: "请选择脚手架",
 						trigger: "blur"
 					}
 				],

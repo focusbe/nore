@@ -55,11 +55,11 @@ export default {
 		};
 	},
 	mounted() {
-		if (!Configs.getItem("workshop")) {
-			this.showEditConfig();
-		} else {
+		// if (!Configs.getItem("workshop")) {
+		// 	this.showEditConfig();
+		// } else {
 			this.getProjects();
-		}
+		//}
 		var self = this;
 	},
 	created: function() {
@@ -131,7 +131,7 @@ export default {
 		getProjects: async function() {
 			var self = this;
 			var res = await Projects.getlist();
-			//console.log(res);
+			// console.log(res);
 			if (res) {
 				self.projectList = res;
 			} else {

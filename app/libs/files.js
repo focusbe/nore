@@ -310,7 +310,7 @@ class Files {
             } else if (process.platform == "win32") {
                 sh = "mklink /D " + target + " " + src;
             } else {
-                reject("该平台不支持创建软连接");
+                reject("该系统不支持创建软连接");
             }
             sudo.exec(
                 sh,
