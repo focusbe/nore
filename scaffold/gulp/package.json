@@ -47,7 +47,7 @@
     "jquery": "1",
     "juicer": "^0.6.15",
     "merge-stream": "^1.0.1",
-    "open": "^0.0.5",
+    "open": "^7.0.0",
     "pathmodify": "^0.5.0",
     "run-sequence": "^2.1.0",
     "tsify": "^4.0.1",
