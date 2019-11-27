@@ -1,69 +1,53 @@
 <template>
 	<Modal
-	 v-model="modalshow"
-	 title="新建项目"
-	 @on-ok="ok"
-	 @on-cancel="cancel"
-	 :loading="loading"
-	 :footer="''"
+		v-model="modalshow"
+		title="新建项目"
+		@on-ok="ok"
+		@on-cancel="cancel"
+		:loading="loading"
+		:footer="''"
 	>
 		<div slot="footer">
-			<Button
-			 @click="submitData"
-			 type="primary"
-			>提交</Button>
+			<Button @click="submitData" type="primary">提交</Button>
 		</div>
 		<Form
-		 ref="form"
-		 :model="projectInfo"
-		 label-position="left"
-		 :label-width="100"
-		 :rules="projectRules"
+			ref="form"
+			:model="projectInfo"
+			label-position="left"
+			:label-width="100"
+			:rules="projectRules"
 		>
-			<FormItem
-			 prop="actname"
-			 label="活动名称"
-			>
-				<Input
-				 placeholder="请填写英文或拼音"
-				 v-model="projectInfo.actname"
-				/>
+			<FormItem prop="actname" label="活动名称">
+				<Input placeholder="请填写英文或拼音" v-model="projectInfo.actname" />
 			</FormItem>
-			<FormItem
-			 prop="title"
-			 label="标题"
-			>
+			<FormItem prop="title" label="标题">
 				<Input v-model="projectInfo.title" />
 			</FormItem>
-			<FormItem
-			 prop="desc"
-			 label="描述"
-			>
+			<FormItem prop="desc" label="描述">
 				<Input v-model="projectInfo.desc" />
 			</FormItem>
-			<FormItem
-			 prop="game"
-			 label="游戏"
-			>
+			<FormItem prop="game" label="游戏">
 				<Select v-model="projectInfo.game">
-					<Option
-					 v-for="(item, key) in gameList"
-					 :value="key"
-					 :key="key"
-					>{{ item.cname }}</Option>
+					<Option v-for="(item, key) in gameList" :value="key" :key="key">{{ item.cname }}</Option>
 				</Select>
 			</FormItem>
-			<FormItem
-			 prop="scaffold"
-			 label="脚手架"
-			>
+			<FormItem prop="scaffold" label="脚手架">
 				<Select v-model="projectInfo.scaffold">
-					<Option
-					 v-for="(item, key) in scaList"
-					 :value="key"
-					 :key="key"
-					>{{ key }}</Option>
+					<Option v-for="(item, key) in scaList" :value="key" :key="key">{{ key }}</Option>
 				</Select>
+			</FormItem>
+			<FormItem prop="folder" label="保存路径">
+				<Input placeholder v-model="projectInfo.folder" />
+
+				<Icon class="foldericon" @click="selectFolder" type="ios-folder-open" :size="30" />
+				<!-- <input
+					class="fileinput"
+					name="folder"
+					@change="fileChange"
+					type="file"
+					webkitdirectory
+					directory
+				/>-->
 			</FormItem>
 			<!-- <FormItem
 			 prop="template"
@@ -76,11 +60,12 @@
 					 :key="key"
 					>{{ item.name }}</Option>
 				</Select>
-			</FormItem> -->
+			</FormItem>-->
 		</Form>
 	</Modal>
 </template>
 <script>
+const { dialog } = require("electron").remote;
 const { Projects, Project, Files } = require("../../libs/project.ts");
 import mySocket from "../utli/mysocket";
 import Configs from "../../libs/configs";
@@ -105,7 +90,8 @@ export default {
 				actname: "",
 				game: "",
 				template: "",
-				scaffold:"gulp"
+				scaffold: "gulp",
+				folder: process.env.HOME || "/"
 			},
 			projectRules: {
 				title: [
@@ -143,6 +129,14 @@ export default {
 						trigger: "blur"
 					},
 					{ validator: this.validateTitle, trigger: "blur" }
+				],
+				folder: [
+					{
+						required: true,
+						message: "保存路径",
+						trigger: "blur"
+					},
+					{ trigger: "blur" }
 				]
 				// template: [
 				// 	{
@@ -169,33 +163,50 @@ export default {
 	// },
 	props: {},
 	methods: {
+		selectFolder() {
+			dialog
+				.showOpenDialog({
+					defaultPath: this.projectInfo.folder,
+					properties: ["openDirectory"]
+				})
+				.then(res => {
+					if (
+						!res.canceled &&
+						!!res.filePaths &&
+						res.filePaths.length > 0
+					) {
+						var folder = res.filePaths[0];
+						this.$set(this.projectInfo, "folder", folder);
+					} else {
+					}
+				});
+		},
+
 		getGameList: async function() {
 			this.gameList = await Configs.gameList();
-			this.gameList['other'] = {
-				'cname':'其他'
-			}
+			this.gameList["other"] = {
+				cname: "其他"
+			};
 		},
 		async getScalList() {
 			this.scaList = await Projects.getScaList();
 			//console.log(this.scaList);
 		},
 		validateTitle: function(rule, value, callback) {
-			var re = new RegExp("^[a-zA-Z0-9\-\_]+$");
+			var re = new RegExp("^[a-zA-Z0-9-_]+$");
 			if (!value) {
 				return callback(new Error("请填写项目名称"));
 			} else if (!re.test(value)) {
 				return callback(new Error("项目名称为英文或拼音"));
-			} 
+			}
 			// else if (!!this.ProjectList[value]) {
 			// 	return callback(new Error("项目名称已存在"));
-			// } 
+			// }
 			else {
 				callback();
 			}
 		},
-		hasProject(actname){
-			
-		},
+		hasProject(actname) {},
 		submitData: function() {
 			var self = this;
 			this.$refs["form"].validate(valid => {
@@ -220,19 +231,21 @@ export default {
 					// 	// });
 					Projects.add(self.projectInfo)
 						.then(function(res) {
-							self.hide();
-							self.$Message.info("创建成功");
-							mySocket.sendTo("MAIN", "open", {
-								tag: "project_edit_"+self.projectInfo.actname,
-								hash:
-									"#/project/edit" +
-									"?actname=" +
-									self.projectInfo.actname
-							});
-							self.ok();
+							console.log(res);
+							if (!!res && !!res.id) {
+								self.hide();
+								self.$Message.info("创建成功");
+								mySocket.sendTo("MAIN", "open", {
+									tag: "project_edit_" + id,
+									hash: "#/project/edit" + "?id=" + id
+								});
+								self.ok();
+							} else {
+								self.$Message.error("保存数据库失败");
+							}
 						})
 						.catch(function(error) {
-							
+							console.log(error);
 							self.$Message.error(error);
 						});
 				} else {
@@ -256,4 +269,14 @@ export default {
 	}
 };
 </script>
-
+<style lang="scss">
+.fileinput,
+.foldericon {
+	position: absolute;
+	right: 10px;
+	top: 2px;
+	// opacity: 0;
+	// width: 100%;
+	z-index: 1;
+}
+</style>

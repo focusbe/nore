@@ -149,6 +149,7 @@ class Image {
                             let webpFile = path.resolve(this.outputdir, this.outputname + ".webp");
                             areasharp.webp().toFile(webpFile, (err, info) => {
                                 if (!!err) {
+                                    console.log(err);
                                     saveEndFun(false);
                                     return;
                                 } else {
@@ -160,6 +161,7 @@ class Image {
                             let tempfile = path.resolve(this.outputdir, this.outputname + ".temp.webp");
                             areasharp.webp().toFile(tempfile, (err, info) => {
                                 if (!!err) {
+                                    console.log(err);
                                     saveEndFun(false);
                                     Files.delFile(this.fullpath);
                                     Files.delFile(tempfile);
@@ -179,6 +181,7 @@ class Image {
                                             })
                                             .toFile(realImgurl, (err, info) => {
                                                 if (!!err) {
+                                                    console.log(err);
                                                     saveEndFun(false, "");
                                                 } else {
                                                     saveEndFun(true, realImgurl);
@@ -190,6 +193,7 @@ class Image {
                                         realImgurl = path.resolve(this.outputdir, this.outputname + ".tmp.png");
                                         tempSharp.png().toFile(realImgurl, (err, info) => {
                                             if (!!err) {
+                                                console.log(err);
                                                 saveEndFun(false, "");
                                             } else {
                                                 Files.delFile(this.fullpath).then(res => {
@@ -198,9 +202,11 @@ class Image {
                                                     } else {
                                                         fse.rename(realImgurl, this.fullpath, err => {
                                                             if (err) {
+                                                                console.log(err);
                                                                 saveEndFun(false, "");
                                                                 return;
                                                             }
+                                                            console.log(this.fullpath);
                                                             saveEndFun(true, this.fullpath);
                                                         });
                                                     }

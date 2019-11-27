@@ -12,7 +12,7 @@
 		</Upload>
 
 		<Modal v-model="isparse" title="PSD解析中" :mask-closable="false" :closable="false">
-			<Progress :percent="percent.value"/>
+			<Progress :percent="percent.value" />
 			<p>{{percent.msg}}</p>
 			<div slot="footer">
 				<!-- <Button type="default" size="large">取消</Button> -->
@@ -39,13 +39,13 @@ import Files from "libs/files";
 import PSD from "libs/psd/index";
 import path from "path";
 import aRemote from "libs/aremote";
-import Util from '../../libs/util';
-
+import Util from "../../libs/util";
+import { Projects } from "../../libs/project";
 export default {
 	name: "my-psd",
 	computed: {},
 	props: {
-		actname: String,
+		projectId: String,
 		pagename: String,
 		device: String
 	},
@@ -61,11 +61,8 @@ export default {
 		};
 	},
 	created() {
-		this.savepath = path.join(
-			Configs.getItem("workshop"),
-			this.actname,
-			"psd"
-		);
+		let projectdir = Projects.getProjectDir(this.projectId);
+		this.savepath = path.resolve(projectdir, "psd");
 	},
 	updated() {},
 	methods: {
@@ -74,9 +71,9 @@ export default {
 			this.list = list;
 		},
 		async upload(file) {
-			this.uploadpath = path.join(
-				Configs.getItem("workshop"),
-				this.actname,
+			let projectdir = Projects.getProjectDir(this.projectId);
+			this.uploadpath = path.resolve(
+				projectdir,
 				"src/images/" + this.pagename
 			);
 			var self = this;
@@ -91,12 +88,11 @@ export default {
 				);
 				let res = await mypsd.parse(false, (state, percent, msg) => {
 					if (!!state) {
-						if(percent==100){
+						if (percent == 100) {
 							this.isparse = false;
 						}
 						this.percent = { value: percent, msg: msg };
-					}
-					else{
+					} else {
 						this.isparse = false;
 						this.percent = { value: percent, msg: msg };
 						alert(msg);
@@ -110,7 +106,7 @@ export default {
 				Util.gc();
 			} catch (error) {
 				this.isparse = false;
-				alert('解析失败请检查PSD是否符合上传标准');
+				alert("解析失败请检查PSD是否符合上传标准");
 				Util.gc();
 			}
 

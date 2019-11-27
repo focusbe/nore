@@ -7,22 +7,21 @@ import { hoverStyles } from "../configs";
 import $ from "jquery";
 import path from "path";
 import Configs from "../../libs/configs";
+import { Projects } from "../../libs/project";
 var jsx = require("jsx-transform");
 
 var viewObj = viewList;
 var curviewObj = null;
 
 export default {
-	name:'my-canvas',
+	name: "my-canvas",
 	created: function() {
 		this.rootvnode = new vnode("root", { overflow: "auto" }, null);
 		this.curvnode = this.rootvnode;
 		this.projectPath = this.isssr
 			? "./"
-			: path.resolve(
-					Configs.getItem("workshop"),
-					this.projectname + "/src"
-			  );
+			: path.resolve(Projects.getProjectDir(this.projectId), "src");
+
 		this.initFromTree(this.canvasData.tree);
 		this.$emit("onChange", "curvnode", this.curvnode);
 	},
@@ -334,7 +333,7 @@ export default {
 			{
 				style: {
 					width: "100%",
-					height: "100%",
+					height: "100%"
 				},
 				// attrs: {
 				// 	canvasversion: this.version
@@ -399,7 +398,7 @@ export default {
 			type: Object
 		},
 		pagename: "",
-		projectname: "",
+		projectId: "",
 		isssr: false
 	}
 };

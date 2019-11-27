@@ -1,5 +1,5 @@
 {
-    "name": "NoreCode",
+    "name": "norecode",
     "version": "0.0.4",
     "productName": "Nore Code",
     "description": "集成前端开发，切图，逻辑编辑，组件调用，项目发布的客户端",
@@ -15,16 +15,15 @@
         "dev": "node ./build/index.js",
         "build": "node ./build/index.js --mode production",
         "electron-builder": "electron-builder --x64 --publish never",
-        "babel": "babel",
-        "postinstall": "install-app-deps"
+        "postinstall": "electron-builder install-app-deps"
     },
     "build": {
-        "appId": "com.focusbe.tttv",
+        "appId": "com.focusbe.norecode",
         "asar": true,
         "publish": [
             {
                 "provider": "generic",
-                "url": "http://nore.focusbe.com/full/${os}/${arch}/"
+                "url": ""
             }
         ],
         "asarUnpack": [
@@ -91,10 +90,10 @@
         "babel-preset-stage-2": "^6.13.0",
         "chalk": "^2.4.1",
         "css-loader": "^2.1.0",
-        "electron": "3",
-        "electron-builder": "^20.38.4",
-        "electron-rebuild": "^1.8.4",
-        "electron-updater": "^4.0.6",
+        "electron": "^7.1.2",
+        "electron-builder": "^21.2.0",
+        "electron-rebuild": "^1.8.8",
+        "electron-updater": "^4.2.0",
         "file-loader": "^3.0.1",
         "html-loader": "^0.5.5",
         "html-webpack-plugin": "^3.2.0",
@@ -142,7 +141,7 @@
         "postcss": "^7.0.14",
         "postcss-js": "^2.0.0",
         "psdpaser": "^3.2.0",
-        "sharp": "^0.22.0",
+        "sharp": "^0.23.3",
         "shelljs": "^0.8.3",
         "socket.io": "^2.2.0",
         "sudo-prompt": "^8.2.5",

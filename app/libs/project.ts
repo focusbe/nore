@@ -32,11 +32,10 @@ enum Env {
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
-    private workshopdir;
+    private db;
     private constructor() {
-        // if(!!Configs.getItem("workshop")){
-        //     this.workshopdir = path.resolve(Configs.getItem("workshop"));
-        // }
+
+        this.initDb();
     }
     static getInstance(): ProjectsClass {
         if (!ProjectsClass.instance) {
@@ -44,107 +43,101 @@ class ProjectsClass {
         }
         return this.instance;
     }
+    initDb() {
+        let dbjsonpath = path.resolve(configFolder, "./projects.json");
+        // console.log(dbjsonpath);
+        let adapter = new FileSync(dbjsonpath); // 申明一个适配器
+        this.db = low(adapter);
+        // db._.mixin(lodashId);
+        this.db._.mixin(lodashId);
+        this.db.defaults({
+            list: []
+        }).write();
+    }
     getlist() {
         return new Promise((resolve, reject) => {
-            let dbjsonpath = path.resolve(configFolder, "/projects.json");
-            let adapter = new FileSync(dbjsonpath); // 申明一个适配器
-            let db = low(adapter);
-            // db._.mixin(lodashId);
-            db.defaults({
-                list: []
-            }).write();
-            var list = db.get("list").value();
+
+
+            var list = this.db.get("list").value();
             resolve(list);
-            // if (!Configs.getItem("workshop")) {
-            //     reject("没有设置workshop");
-            //     return;
-            // }
-            // if(!!Configs.getItem("workshop")){
-            //     this.workshopdir = path.resolve(Configs.getItem("workshop"));
-            // }
-            // Files.createdir(this.workshopdir, () => {
-            //     Files.getList(this.workshopdir, async (list) => {
-            //         if (!list) {
-            //             reject("获取文件失败");
-            //             return;
-            //         } else {
-            //             let projectlist = [];
-            //             //debugger;
-            //             for(var i in list){
-            //                 let projectjson = await this.isProject(i);
-            //                 if(!!projectjson){
-            //                     projectlist.push(projectjson);
-            //                 }
-            //                 resolve(projectlist);
-            //             }
-            //             //resolve(list);
-            //         }
-            //     });
-            // });
         });
     }
-    async isProject(name) {
-        if (!!Configs.getItem("workshop")) {
-            this.workshopdir = path.resolve(Configs.getItem("workshop"));
-        }
-        let projectFile = path.resolve(this.workshopdir, name);
-        let imgFile = path.resolve(projectFile, "data/preview.webp");
-        let dbFile = path.resolve(projectFile, "data/db.json");
-        if (!(await fse.exists(dbFile))) {
-            return false;
-        }
-        let json = await fse.readJson(dbFile);
-        if (!json || !json.info) {
-            return false;
-        }
-        if (await fse.exists(imgFile)) {
-            json.info.preview = imgFile.replace(/\\/g, "/");
-        }
-        return json.info;
-    }
+    // async isProject(name) {
+    //     if (!!Configs.getItem("workshop")) {
+    //         this.workshopdir = path.resolve(Configs.getItem("workshop"));
+    //     }
+    //     let projectFile = path.resolve(this.workshopdir, name);
+    //     let imgFile = path.resolve(projectFile, "data/preview.webp");
+    //     let dbFile = path.resolve(projectFile, "data/db.json");
+    //     if (!(await fse.exists(dbFile))) {
+    //         return false;
+    //     }
+    //     let json = await fse.readJson(dbFile);
+    //     if (!json || !json.info) {
+    //         return false;
+    //     }
+    //     if (await fse.exists(imgFile)) {
+    //         json.info.preview = imgFile.replace(/\\/g, "/");
+    //     }
+    //     return json.info;
+    // }
     add(config) {
         return new Promise(
-            function(resolve, reject) {
+            (resolve, reject) => {
                 if (!config || !config.actname) {
                     reject("参数错误");
                     return;
                 }
-                if (!!this.projectCache[config.actname] || this.has(config.actname)) {
-                    reject("项目已存在");
-                    return;
-                }
+                // if (!!this.projectCache[config.actname] || this.has(config.actname)) {
+                //     reject("项目已存在");
+                //     return;
+                // }
                 let project = new Project(config);
-                this.projectCache[config.actname] = project;
-                project.create(function(res) {
+                project.create((res) => {
                     if (res.ret > 0) {
-                        resolve(project);
+                        var id = this.db.get("list")
+                            .insert(
+                                config
+                            )
+                            .write();
+                        this.projectCache[id] = project;
+                        resolve(id);
                     } else {
                         reject(res.msg);
                     }
                 });
-            }.bind(this)
+            }
         );
     }
-    has(actname) {
-        return fs.existsSync(this.getProjectDir(actname));
+    has(id) {
+        let projectdir = this.getProjectDir(id);
+        if (!projectdir) {
+            return false;
+        }
+        return fs.existsSync(projectdir);
     }
-    async delete(actname) {
+    async delete(id) {
         await new Promise((resolve, reject) => {
-            let projectDir = path.resolve(Configs.getItem("workshop"), actname);
-            fse.remove(projectDir, err => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-                resolve(true);
-            });
+            try {
+                this.db.get("list").remove({ id: id }).write();
+                let projectDir = this.getProjectDir(id);
+                fse.remove(projectDir, err => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(true);
+                });
+            } catch (error) {
+                reject(error);
+            }
         });
     }
     getTempList() {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../templates");
-            Files.createdir(tempdir, function() {
-                Files.getList(tempdir, function(list) {
+            Files.createdir(tempdir, function () {
+                Files.getList(tempdir, function (list) {
                     if (!list) {
                         reject("获取列表失败");
                         return;
@@ -155,10 +148,10 @@ class ProjectsClass {
         });
     }
     getScaList() {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../scaffold");
-            Files.createdir(tempdir, function() {
-                Files.getList(tempdir, function(list) {
+            Files.createdir(tempdir, function () {
+                Files.getList(tempdir, function (list) {
                     if (!list) {
                         reject("获取列表失败");
                         return;
@@ -168,17 +161,16 @@ class ProjectsClass {
             });
         });
     }
-    openWithIed(actname) {
+    openWithIed(id) {
         return new Promise(
-            function(resolve, reject) {
-                if (!Configs.getItem("vscodePath")) {
-                    reject("请配置VSCOD路径");
-                    return;
-                    // callback(false, '请配置VSCOD路径', -1);
-                }
-                let vcodedir = path.resolve(Configs.getItem("vscodePath"), "bin/code");
+            function (resolve, reject) {
+                // if (!Configs.getItem("vscodePath")) {
+                //     reject("请配置VSCOD路径");
+                //     return;
 
-                let project = this.getProjectDir(actname);
+                // }
+                let vcodedir = "code";
+                let project = this.getProjectDir(id);
                 let sh = '"' + vcodedir + '" ' + project;
                 Util.runSh(sh)
                     .then(res => {
@@ -192,22 +184,33 @@ class ProjectsClass {
             }.bind(this)
         );
     }
-    getProjectDir(actname) {
-        let projectDir = path.resolve(Configs.getItem("workshop"), actname);
+    getProjectDir(id) {
+        if (!id) {
+            return null;
+        }
+        var config = this.getInfo(id);
+        if (!config) {
+            return null;
+        }
+        let projectDir = path.resolve(config.folder, config.actname);
         return projectDir;
     }
-    getProject(actname) {
-        if (!actname) {
+    getProject(id) {
+        if (!id) {
             return -1;
         }
-        if (!this.projectCache[actname]) {
-            let projectroot = path.resolve(Configs.getItem("workshop"), actname);
+        if (!this.projectCache[id]) {
+            let info = this.getInfo(id);
+            let projectroot = path.resolve(info.folder, info.actname);
             if (!fs.existsSync(projectroot)) {
                 return -2;
             }
-            this.projectCache[actname] = new Project(actname);
+            this.projectCache[id] = new Project(info);
         }
-        return this.projectCache[actname];
+        return this.projectCache[id];
+    }
+    getInfo(id) {
+        return this.db.get("list").getById(id).value();
     }
 }
 
@@ -226,13 +229,14 @@ class Project {
         }
         if (typeof config == "string") {
             //项目已经存在
-            throw new Error('请传入项目的config')
+            //throw new Error('请传入项目的config')
+            this.config = Projects.getInfo(config);
         } else {
             this.config = config;
             this.id = config.id;
         }
 
-        this.rootdir = this.config.savedir;
+        this.rootdir = path.resolve(this.config.folder, this.config.actname);
         this.datadir = path.resolve(this.rootdir, "data");
         this.srcDir = path.resolve(this.rootdir, "src");
         this.originDir = path.resolve(this.rootdir, "origin");
@@ -389,7 +393,7 @@ class Project {
         let srcImgFile = path.resolve(this.rootdir, "src/images");
         try {
             Files.createLn(srcImgFile, imgFilepath);
-        } catch (error) {}
+        } catch (error) { }
         let jsxString = "<page";
         for (var i in curPageInfo) {
             if (this.isValiProp(i)) {
@@ -585,7 +589,7 @@ class Project {
         }
         return true;
     }
-    pageJsonToData(pageJson, resultJson = {}) {}
+    pageJsonToData(pageJson, resultJson = {}) { }
     isComp(name) {
         if (!name) {
             return false;
@@ -670,10 +674,11 @@ class Project {
         jsx += `\n${tabstr}</${tag}>`;
         return { css: css, jsx: jsx };
     }
-    renderToHtml(name, jsx) {}
-    parseFile() {}
+    renderToHtml(name, jsx) { }
+    parseFile() { }
 
     create(callback) {
+        debugger
         var resolve: { [key: string]: any } = {
             ret: 1
         };
@@ -707,8 +712,14 @@ class Project {
             callback(resolve);
             return resolve;
         }
+        if (!this.config.folder) {
+            resolve.msg = "请输入保存路径";
+            resolve.ret = -1;
+            callback(resolve);
+            return resolve;
+        }
         var self = this;
-        let projectDir = path.resolve(Configs.getItem("workshop"), this.config.actname);
+        let projectDir = path.resolve(this.config.folder, this.config.actname);
         let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
 
         Files.createdirAsync(projectDir)
@@ -719,7 +730,7 @@ class Project {
                         callback({ ret: -1, msg: "获取脚手架失败" });
                         try {
                             fse.unlink(projectDir);
-                        } catch (error) {}
+                        } catch (error) { }
                         return;
                     }
                     try {
@@ -731,10 +742,10 @@ class Project {
 
                             let configres = await Files.writeJson(configPath, ztConfig);
                         }
-                    } catch (error) {}
+                    } catch (error) { }
 
                     //保存基本信息
-                    Files.createdir(self.datadir, function(res) {
+                    Files.createdir(self.datadir, function (res) {
                         if (!!res) {
                             var dbres = self.initDB();
                             if (dbres) {
@@ -744,6 +755,7 @@ class Project {
                                     resolve.ret = 1;
                                     callback(resolve);
                                 } catch (error) {
+                                    console.log(error);
                                     resolve.msg = "保存项目信息失败";
                                     resolve.ret = -1;
                                     callback(resolve);
@@ -761,7 +773,7 @@ class Project {
                     });
                 });
             })
-            .catch(function() {
+            .catch(function () {
                 resolve.msg = "复制文件失败";
                 resolve.ret = -1;
                 callback(resolve);
@@ -769,10 +781,11 @@ class Project {
             });
     }
 
-    getProjectDir(actname) {
-        let projectDir = path.resolve(Configs.getItem("workshop"), actname);
-        return projectDir;
-    }
+    // getProjectDir(id) {
+    //     let config = this.getInfo(id);
+    //     let projectDir = path.resolve(, actname);
+    //     return projectDir;
+    // }
     dirCode(dir) {
         return path.resolve(__dirname, dir);
     }
@@ -807,7 +820,7 @@ class Project {
             return false;
         }
         var copyres = await new Promise((resolve, reject) => {
-            Files.copy(templateAssets, templatesrc, function(err) {
+            Files.copy(templateAssets, templatesrc, function (err) {
                 if (!!err) {
                     reject("获取模板文件失败");
                     return;
@@ -818,8 +831,8 @@ class Project {
         if (!copyres) {
             return false;
         }
-        var templatehtml: String = await new Promise(function(resolve, reject) {
-            fs.readFile(TplPath, "utf8", function(err, data) {
+        var templatehtml: String = await new Promise(function (resolve, reject) {
+            fs.readFile(TplPath, "utf8", function (err, data) {
                 if (err) {
                     resolve("");
                     return;
@@ -1040,10 +1053,10 @@ class Project {
         let sh = '"' + Configs.getItem("svnClient") + '" /command:commit /path ' + svnpath;
         return await Util.runSh(sh);
     }
-    save(data) {}
-    runCmd() {}
-    uploadToDev() {}
-    addWorkTime() {}
+    save(data) { }
+    runCmd() { }
+    uploadToDev() { }
+    addWorkTime() { }
 }
 
 class Page {
@@ -1053,7 +1066,7 @@ class Page {
         this.name = name;
         this.template = template;
     }
-    save() {}
+    save() { }
 }
 const Projects = ProjectsClass.getInstance();
 export { Project, Projects, Page };

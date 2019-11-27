@@ -17,7 +17,8 @@ class WinManager {
         height: 800,
         frame: true,
         webPreferences: {
-            webSecurity: false
+            webSecurity: false,
+            nodeIntegration:true
         },
         show: false,
         titleBarStyle: "hidden",

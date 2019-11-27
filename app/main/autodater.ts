@@ -7,6 +7,7 @@ function myconsole(data:any){
 class AutoUpdater{
     static inited = false;
     static init() {
+        return;
         if(this.inited){
             return;
         }
