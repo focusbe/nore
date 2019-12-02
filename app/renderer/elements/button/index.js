@@ -15,7 +15,7 @@ var Button = createview({
             label: '链接',
             key: 'href',
             type: 'url',
-            default: '#'
+            default: 'javascript:void(0)'
         }
     },
 
