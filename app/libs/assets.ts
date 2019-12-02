@@ -1,14 +1,15 @@
 import Configs from './configs';
 import path from 'path';
 import Files from './files';
+import { Projects } from "./project"
 const fse = require('fs-extra');
 class Assets {
-    private actname: string
+    private id: string
     private assetsdir: string
     private actdir: string
-    constructor(actname) {
-        this.actname = actname;
-        this.actdir = path.resolve(Configs.getItem('workshop'), this.actname);
+    constructor(id) {
+        this.id = id;
+        this.actdir = Projects.getProjectDir(id);
         this.assetsdir = path.resolve(this.actdir, './src/imaegs');
     }
     async upload(filePath) {
@@ -21,7 +22,7 @@ class Assets {
         let basename = path.basename(filePath, extname);
         let resfilepath = path.resolve(this.assetsdir, basename + extname);
         resfilepath = await Files.getAlivpath(resfilepath);
-        await fse.copy(filePath,resfilepath);
+        await fse.copy(filePath, resfilepath);
         return resfilepath;
     }
     getList() {

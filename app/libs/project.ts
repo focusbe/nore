@@ -19,7 +19,10 @@ import Files from "./files";
 var jsxTransform = require("jsx-transform");
 import Games from "./games";
 import Util from "./util";
-import dataBase from './database';
+import { inarar, DEBUG, isproduct, configFolder } from "./env";
+var jsonfile = require("jsonfile");
+console.log(configFolder);
+
 enum Env {
     origin = "origin",
     src = "src",
@@ -29,10 +32,10 @@ enum Env {
 class ProjectsClass {
     private projectCache: { [key: string]: any } = {};
     private static instance: ProjectsClass;
-    private table;
+    private db;
     private constructor() {
-        let db = dataBase.getDb();
-        this.table = db.get('projects');
+
+        this.initDb();
     }
     static getInstance(): ProjectsClass {
         if (!ProjectsClass.instance) {
@@ -40,80 +43,98 @@ class ProjectsClass {
         }
         return this.instance;
     }
+    initDb() {
+        let dbjsonpath = path.resolve(configFolder, "./projects.json");
+        // console.log(dbjsonpath);
+        let adapter = new FileSync(dbjsonpath); // 申明一个适配器
+        this.db = low(adapter);
+        // db._.mixin(lodashId);
+        this.db._.mixin(lodashId);
+        this.db.defaults({
+            list: []
+        }).write();
+    }
+    getlist() {
+        return new Promise((resolve, reject) => {
 
-    async add(config) {
-        //创建新项目
-        if (!config || !config.actname || !config.savedir) {
-            throw new Error("缺少参数");
-        }
-        let project = new Project(config);
-        await new Promise((resolve, reject) => {
-            project.create((res) => {
-                if (res.ret > 0) {
-                    this.table.insert({
-                        actname: config.actname,
-                        savedir: config.savedir
-                    }).write();
-                    resolve(res);
-                } else {
-                    reject(res.msg);
+
+            var list = this.db.get("list").value();
+            resolve(list);
+        });
+    }
+    // async isProject(name) {
+    //     if (!!Configs.getItem("workshop")) {
+    //         this.workshopdir = path.resolve(Configs.getItem("workshop"));
+    //     }
+    //     let projectFile = path.resolve(this.workshopdir, name);
+    //     let imgFile = path.resolve(projectFile, "data/preview.webp");
+    //     let dbFile = path.resolve(projectFile, "data/db.json");
+    //     if (!(await fse.exists(dbFile))) {
+    //         return false;
+    //     }
+    //     let json = await fse.readJson(dbFile);
+    //     if (!json || !json.info) {
+    //         return false;
+    //     }
+    //     if (await fse.exists(imgFile)) {
+    //         json.info.preview = imgFile.replace(/\\/g, "/");
+    //     }
+    //     return json.info;
+    // }
+    add(config) {
+        return new Promise(
+            (resolve, reject) => {
+                if (!config || !config.actname) {
+                    reject("参数错误");
+                    return;
                 }
-            });
-        })
-    }
-
-    async delete(id, deleteFolder = false) {
-        let curProject = await this.getProjectByid(id);
-        if (curProject && !!curProject.path) {
-            if (deleteFolder) {
-                await fse.remove(curProject.path);
-                return await this.table.remove({ id: id }).write();
+                // if (!!this.projectCache[config.actname] || this.has(config.actname)) {
+                //     reject("项目已存在");
+                //     return;
+                // }
+                let project = new Project(config);
+                project.create((res) => {
+                    if (res.ret > 0) {
+                        var id = this.db.get("list")
+                            .insert(
+                                config
+                            )
+                            .write();
+                        this.projectCache[id] = project;
+                        resolve(id);
+                    } else {
+                        reject(res.msg);
+                    }
+                });
             }
-        }
-        else {
-            throw new Error('项目不存在');
-        }
+        );
     }
-
-    getList() {
-        return this.table.value();
-    }
-    async getProjectInfo(id) {
-        //通过id获取项目的具体信息
-        var projectInfo = await this.getProjectByid(id);
-        if (!projectInfo) {
-            throw new Error('项目不存在');
-        }
-        if (!projectInfo.path) {
-            throw new Error('项目文件不存在');
-        }
-        //根据项目目录获取项目信息
-        let projectFolder = projectInfo.path;
-        if (!projectFolder) {
+    has(id) {
+        let projectdir = this.getProjectDir(id);
+        if (!projectdir) {
             return false;
         }
-        let dbFile = path.resolve(projectFolder, 'data/db.json');
-        let imgFile = path.resolve(projectFolder, 'data/preview.webp');
-        if (!await fse.exists(dbFile)) {
-            return false;
-        }
-        let json = await fse.readJson(dbFile);
-        if (!json || !json.info) {
-            return false;
-        }
-        if (await fse.exists(imgFile)) {
-            json.info.preview = imgFile.replace(/\\/g, '/');
-        }
-        return json.info;
+        return fs.existsSync(projectdir);
     }
-
-    async getProjectByid(id) {
-        let curProject = await this.table.getById(id).value();
-        return curProject;
+    async delete(id) {
+        await new Promise((resolve, reject) => {
+            try {
+                this.db.get("list").remove({ id: id }).write();
+                let projectDir = this.getProjectDir(id);
+                fse.remove(projectDir, err => {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
+                    resolve(true);
+                });
+            } catch (error) {
+                reject(error);
+            }
+        });
     }
-
-    async getTempList() {
-        return await new Promise(function (resolve, reject) {
+    getTempList() {
+        return new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../templates");
             Files.createdir(tempdir, function () {
                 Files.getList(tempdir, function (list) {
@@ -126,8 +147,8 @@ class ProjectsClass {
             });
         });
     }
-    async getScaList() {
-        return await new Promise(function (resolve, reject) {
+    getScaList() {
+        return new Promise(function (resolve, reject) {
             var tempdir = path.resolve(__dirname, "../../scaffold");
             Files.createdir(tempdir, function () {
                 Files.getList(tempdir, function (list) {
@@ -139,6 +160,57 @@ class ProjectsClass {
                 });
             });
         });
+    }
+    openWithIed(id) {
+        return new Promise(
+            function (resolve, reject) {
+                // if (!Configs.getItem("vscodePath")) {
+                //     reject("请配置VSCOD路径");
+                //     return;
+
+                // }
+                let vcodedir = "code";
+                let project = this.getProjectDir(id);
+                let sh = '"' + vcodedir + '" ' + project;
+                Util.runSh(sh)
+                    .then(res => {
+                        {
+                            resolve(res);
+                        }
+                    })
+                    .catch(err => {
+                        reject(err);
+                    });
+            }.bind(this)
+        );
+    }
+    getProjectDir(id) {
+        if (!id) {
+            return null;
+        }
+        var config = this.getInfo(id);
+        if (!config) {
+            return null;
+        }
+        let projectDir = path.resolve(config.folder, config.actname);
+        return projectDir;
+    }
+    getProject(id) {
+        if (!id) {
+            return -1;
+        }
+        if (!this.projectCache[id]) {
+            let info = this.getInfo(id);
+            let projectroot = path.resolve(info.folder, info.actname);
+            if (!fs.existsSync(projectroot)) {
+                return -2;
+            }
+            this.projectCache[id] = new Project(info);
+        }
+        return this.projectCache[id];
+    }
+    getInfo(id) {
+        return this.db.get("list").getById(id).value();
     }
 }
 
@@ -157,13 +229,14 @@ class Project {
         }
         if (typeof config == "string") {
             //项目已经存在
-            throw new Error('请传入项目的config')
+            //throw new Error('请传入项目的config')
+            this.config = Projects.getInfo(config);
         } else {
             this.config = config;
             this.id = config.id;
         }
 
-        this.rootdir = this.config.savedir;
+        this.rootdir = path.resolve(this.config.folder, this.config.actname);
         this.datadir = path.resolve(this.rootdir, "data");
         this.srcDir = path.resolve(this.rootdir, "src");
         this.originDir = path.resolve(this.rootdir, "origin");
@@ -283,18 +356,18 @@ class Project {
         if (!canvasData) {
             return false;
         }
-        let imgFile = path.resolve(this.datadir, 'preview.webp');
+        let imgFile = path.resolve(this.datadir, "preview.webp");
         try {
-            var dataBuffer = Buffer.from(canvasData, 'base64');
+            var dataBuffer = Buffer.from(canvasData, "base64");
             let res = await fse.writeFile(imgFile, dataBuffer);
         } catch (error) {
-            console.log(error)
+            console.log(error);
             return false;
         }
         return true;
     }
     async delPreImg() {
-        let imgFile = path.resolve(this.datadir, 'preview.webp');
+        let imgFile = path.resolve(this.datadir, "preview.webp");
         try {
             await Files.delFile(imgFile);
         } catch (error) {
@@ -315,11 +388,7 @@ class Project {
             return;
         }
 
-        jsxobj.css = Util.cssUrlChange(
-            this.originDir,
-            jsxobj.css,
-            pageFiles.css
-        );
+        jsxobj.css = Util.cssUrlChange(this.originDir, jsxobj.css, pageFiles.css);
         let imgFilepath = path.resolve(this.rootdir, "origin/images");
         let srcImgFile = path.resolve(this.rootdir, "src/images");
         try {
@@ -405,10 +474,7 @@ class Project {
             };
             if (env == Env.dist) {
                 files.buildcss = files.css;
-                files.css = path.resolve(
-                    parentPath,
-                    "css/build" + pagename + csstype
-                );
+                files.css = path.resolve(parentPath, "css/build" + pagename + csstype);
             }
             return files;
         }
@@ -459,11 +525,7 @@ class Project {
         } else {
             bijiao = srcTime;
         }
-        return Math.abs(bijiao - dbtime) < 3000
-            ? "same"
-            : dbtime > bijiao
-                ? "data"
-                : type;
+        return Math.abs(bijiao - dbtime) < 3000 ? "same" : dbtime > bijiao ? "data" : type;
     }
     async getEnvTime(env: Env, name) {
         var pageFiles = await this.getPageFiles(env, name);
@@ -485,7 +547,6 @@ class Project {
         return res;
     }
     jsxToJson(jsx, css) {
-
         var funStr = jsxTransform.fromString(jsx, {
             factory: "this.createVnode"
         });
@@ -549,11 +610,7 @@ class Project {
                 }
             }
             for (var i in children) {
-                if (
-                    children[i].tag == "head" ||
-                    children[i].tag == "foot" ||
-                    children[i].tag == "tree"
-                ) {
+                if (children[i].tag == "head" || children[i].tag == "foot" || children[i].tag == "tree") {
                     result[children[i].tag] = children[i].value;
                 }
             }
@@ -621,6 +678,7 @@ class Project {
     parseFile() { }
 
     create(callback) {
+        debugger
         var resolve: { [key: string]: any } = {
             ret: 1
         };
@@ -654,15 +712,15 @@ class Project {
             callback(resolve);
             return resolve;
         }
+        if (!this.config.folder) {
+            resolve.msg = "请输入保存路径";
+            resolve.ret = -1;
+            callback(resolve);
+            return resolve;
+        }
         var self = this;
-        let projectDir = path.resolve(
-            Configs.getItem("workshop"),
-            this.config.actname
-        );
-        let scaffold = path.resolve(
-            __dirname,
-            "../../scaffold/" + this.config.scaffold
-        );
+        let projectDir = path.resolve(this.config.folder, this.config.actname);
+        let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
 
         Files.createdirAsync(projectDir)
             .then(() => {
@@ -676,23 +734,13 @@ class Project {
                         return;
                     }
                     try {
-                        let configPath = path.resolve(
-                            projectDir,
-                            "./configs/ztconfig.json"
-                        );
+                        let configPath = path.resolve(projectDir, "./configs/ztconfig.json");
                         let ztConfig = await Games.getGame(this.config.game);
 
                         if (!!ztConfig) {
-                            ztConfig = Object.assign(
-                                ztConfig,
-                                Configs.getList(),
-                                { game: this.config.game }
-                            );
+                            ztConfig = Object.assign(ztConfig, Configs.getList(), { game: this.config.game });
 
-                            let configres = await Files.writeJson(
-                                configPath,
-                                ztConfig
-                            );
+                            let configres = await Files.writeJson(configPath, ztConfig);
                         }
                     } catch (error) { }
 
@@ -707,6 +755,7 @@ class Project {
                                     resolve.ret = 1;
                                     callback(resolve);
                                 } catch (error) {
+                                    console.log(error);
                                     resolve.msg = "保存项目信息失败";
                                     resolve.ret = -1;
                                     callback(resolve);
@@ -732,10 +781,11 @@ class Project {
             });
     }
 
-    getProjectDir(actname) {
-        let projectDir = path.resolve(Configs.getItem("workshop"), actname);
-        return projectDir;
-    }
+    // getProjectDir(id) {
+    //     let config = this.getInfo(id);
+    //     let projectDir = path.resolve(, actname);
+    //     return projectDir;
+    // }
     dirCode(dir) {
         return path.resolve(__dirname, dir);
     }
@@ -763,9 +813,7 @@ class Project {
         }
         var templatesrc = this.dirProject("./src/templates/" + page.template);
         var templateAssets = this.dirCode("../../templates/" + page.template);
-        var TplPath = this.dirCode(
-            "../../templates/" + page.template + "/html.tpl"
-        );
+        var TplPath = this.dirCode("../../templates/" + page.template + "/html.tpl");
         var temres = await Files.createdirAsync(templatesrc);
 
         if (!temres) {
@@ -805,16 +853,10 @@ class Project {
                 }
                 if (trackcode[i]["position"] == "before") {
                     var tagstr = "</" + trackcode[i]["tag"] + ">";
-                    templatehtml = templatehtml.replace(
-                        tagstr,
-                        trackcode[i]["code"] + "\n" + tagstr
-                    );
+                    templatehtml = templatehtml.replace(tagstr, trackcode[i]["code"] + "\n" + tagstr);
                 } else if (trackcode[i]["position"] == "after") {
                     var tagstr = "<" + trackcode[i]["tag"] + ">";
-                    templatehtml = templatehtml.replace(
-                        tagstr,
-                        tagstr + "\n" + trackcode[i]["code"]
-                    );
+                    templatehtml = templatehtml.replace(tagstr, tagstr + "\n" + trackcode[i]["code"]);
                 }
             }
         }
@@ -822,11 +864,7 @@ class Project {
         var gameinfo: any = await Games.getGame(this.config.game);
         var common: any = await Games.getGame("common");
 
-        var wxid = !!gameinfo.wxid
-            ? gameinfo.wxid
-            : !!common.wxid
-                ? common.wxid
-                : "";
+        var wxid = !!gameinfo.wxid ? gameinfo.wxid : !!common.wxid ? common.wxid : "";
         page.header += '<script>var WXID="' + wxid + '"</script>';
 
         var maincssstr = "";
@@ -836,20 +874,9 @@ class Project {
             let extname = path.extname(tree[i]["path"]);
             let realPath = path.relative(templatesrc, tree[i]["path"]);
             if (extname == ".scss") {
-                maincssstr +=
-                    '@import "../templates/' +
-                    page.template +
-                    "/" +
-                    realPath +
-                    '";\n';
-
+                maincssstr += '@import "../templates/' + page.template + "/" + realPath + '";\n';
             } else if (extname == ".js") {
-                mainjsstr +=
-                    'require("../templates/' +
-                    page.template +
-                    "/" +
-                    realPath +
-                    '");\n';
+                mainjsstr += 'require("../templates/' + page.template + "/" + realPath + '");\n';
             }
         }
         maincssstr += '@import "./build/' + name + '";\n';
@@ -870,29 +897,18 @@ class Project {
         var htmlattr;
         var cssstr = "";
         var htmlstr = html;
-        var csspath = path.resolve(
-            this.rootdir,
-            "src/css/build/" + name + ".scss"
-        );
+        var csspath = path.resolve(this.rootdir, "src/css/build/" + name + ".scss");
 
         var htmlpath = path.resolve(this.rootdir, "src/" + name + ".html");
         var srcpath = path.resolve(this.rootdir, "src/");
-        var maincsspath = path.resolve(
-            this.rootdir,
-            "src/css/" + name + ".scss"
-        );
+        var maincsspath = path.resolve(this.rootdir, "src/css/" + name + ".scss");
         var mainjspath = path.resolve(this.rootdir, "src/js/" + "main" + ".js");
         while ((htmlattr = regstr.exec(html))) {
             if (!!htmlattr[1] && !!htmlattr[3]) {
                 htmlstr = htmlstr.replace('style="' + htmlattr[3] + '"', "");
 
                 let stylestr = Util.cssUrlChange(srcpath, htmlattr[3], maincsspath);
-                cssstr +=
-                    "#" +
-                    htmlattr[1] +
-                    "{\n\t" +
-                    stylestr.replace(/;/g, ";\n\t") +
-                    "\n}\n";
+                cssstr += "#" + htmlattr[1] + "{\n\t" + stylestr.replace(/;/g, ";\n\t") + "\n}\n";
             }
         }
         cssstr = cssstr.replace(/\t\n\}/g, "}");
@@ -930,8 +946,8 @@ class Project {
             return null;
         }
         if (!!devpath) {
-            if (devpath[devpath.length - 1] != '\\') {
-                devpath = devpath + '\\';
+            if (devpath[devpath.length - 1] != "\\") {
+                devpath = devpath + "\\";
             }
             return devpath + path.join(...value);
         }
@@ -944,11 +960,11 @@ class Project {
         // );
         let actpath = this.getDevPath("common/" + this.config.game + "/act/" + this.config.actname);
         if (!actpath) {
-            throw new Error('获取测试服地址失败')
+            throw new Error("获取测试服地址失败");
         }
         if (await fse.exists(actpath)) {
             //var gaptime =  (new Date().getTime())-await Files.getMtime(actpath);
-            return Util.howLong(await Files.getMtime(actpath))
+            return Util.howLong(await Files.getMtime(actpath));
         }
         return false;
     }
@@ -958,13 +974,7 @@ class Project {
             throw new Error("没找到对应游戏的配置");
         }
         var dev = games.online || "svn";
-        let actpath = path.resolve(
-            Configs.getItem(dev + "Folder"),
-            this.config.game +
-            (dev == "svn" ? "/release" : "") +
-            "/act/" +
-            this.config.actname
-        );
+        let actpath = path.resolve(Configs.getItem(dev + "Folder"), this.config.game + (dev == "svn" ? "/release" : "") + "/act/" + this.config.actname);
         return await fse.exists(actpath);
     }
     async publishDev() {
@@ -985,7 +995,6 @@ class Project {
         let projectpath = this.getDevPath("common/" + this.config.game + "/act", this.config.actname);
 
         if (await fse.exists(actpath)) {
-
             await fse.copy(this.distDir, projectpath);
             return true;
         } else {
@@ -1004,10 +1013,7 @@ class Project {
         if (!(await Configs.getItem(dev + "Folder"))) {
             throw new Error("请在设置中配置" + dev + "代码目录");
         }
-        let actpath = path.resolve(
-            Configs.getItem(dev + "Folder"),
-            this.config.game + (dev == "svn" ? "/release" : "") + "/act"
-        );
+        let actpath = path.resolve(Configs.getItem(dev + "Folder"), this.config.game + (dev == "svn" ? "/release" : "") + "/act");
         let projectpath = path.resolve(actpath, this.config.actname);
         if (await fse.exists(actpath)) {
             if (!(await Files.createdirAsync(projectpath))) {
@@ -1039,20 +1045,12 @@ class Project {
     }
     async updateSvn(svnpath) {
         await this.svnClientisOk();
-        let sh =
-            '"' +
-            Configs.getItem("svnClient") +
-            '" /command:update /path ' +
-            svnpath;
+        let sh = '"' + Configs.getItem("svnClient") + '" /command:update /path ' + svnpath;
         return await Util.runSh(sh);
     }
     async commitSvn(svnpath) {
         await this.svnClientisOk();
-        let sh =
-            '"' +
-            Configs.getItem("svnClient") +
-            '" /command:commit /path ' +
-            svnpath;
+        let sh = '"' + Configs.getItem("svnClient") + '" /command:commit /path ' + svnpath;
         return await Util.runSh(sh);
     }
     save(data) { }

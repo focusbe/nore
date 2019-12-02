@@ -137,7 +137,7 @@ function setAppMenu(app: any) {
 
     if (process.platform === "darwin") {
         template.unshift({
-            label: app.getName(),
+            label: app.name,
             submenu: [
                 {
                     label: "配置环境",
