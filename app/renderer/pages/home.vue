@@ -1,5 +1,16 @@
 <template id="template">
 	<div class="page_wrap">
+		<div class="topbar">
+			<Button
+				@click="showLogin"
+				class="loginbtn"
+				type="primary"
+				shape="circle"
+				icon="md-person"
+				size="large"
+			></Button>
+			<!-- <Icon type="" :size="30"/> -->
+		</div>
 		<ul class="project_list">
 			<li
 				v-for="(item) in projectList"
@@ -17,13 +28,29 @@
 				</a>
 			</li>
 			<li>
-				<Button type="primary" @click="showprojectadd">
-					<Icon type="ios-add-circle" :size="30" />
+				<Button
+					type="primary"
+					@click="showprojectadd"
+				>
+					<Icon
+						type="ios-add-circle"
+						:size="30"
+					/>
 				</Button>
 			</li>
 		</ul>
-		<newproject ref="projectForm" @ok="newprojectok"></newproject>
-		<v-contextmenu ref="contextmenu" @contextmenu="onContextMenu">
+		<newproject
+			ref="projectForm"
+			@ok="newprojectok"
+		></newproject>
+		<login
+			ref="loginForm"
+			@ok="logined"
+		></login>
+		<v-contextmenu
+			ref="contextmenu"
+			@contextmenu="onContextMenu"
+		>
 			<v-contextmenu-item @click="deleProject">删除</v-contextmenu-item>
 			<v-contextmenu-item @click="openinVscode">在VSCODE打开</v-contextmenu-item>
 			<v-contextmenu-item @click="openinFolder">在文件夹中显示</v-contextmenu-item>
@@ -121,7 +148,11 @@ export default {
 			//const os = require("os");
 			var info = this.getProject(id);
 			if (!!info) {
-				var dbfolder = path.resolve(info.folder, info.actname,'package.json');
+				var dbfolder = path.resolve(
+					info.folder,
+					info.actname,
+					"package.json"
+				);
 				//console.log(dbfolder);
 				shell.showItemInFolder(dbfolder);
 			}
@@ -160,6 +191,9 @@ export default {
 		showprojectadd: function() {
 			this.$refs.projectForm.show();
 		},
+		showLogin() {
+			this.$refs.loginForm.show();
+		},
 		projectEdit: function(id) {
 			mySocket.sendTo("MAIN", "open", {
 				tag: "project_edit_" + id,
@@ -169,3 +203,9 @@ export default {
 	}
 };
 </script>
+
+<style lang="scss">
+// .loginbtn{
+
+// }
+</style>

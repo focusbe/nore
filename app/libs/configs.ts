@@ -49,7 +49,7 @@ class Config {
         return this.instance;
     }
     private async gameList() {
-        const response = await axios.get("http://nore.focusbe.com/api/games.json");
+        const let = await axios.get("http://nore.focusbe.com/api/games.json");
         if (!!response && !!response.data) {
             return response.data;
         }
