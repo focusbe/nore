@@ -1,7 +1,18 @@
 <template id="template">
 	<div class="page_wrap">
 		<div class="topbar">
+			<div v-if="userInfo.userName">
+				<span>{{userInfo.userName}}</span>
+				<Button
+					@click="logout"
+					class="logout"
+					type="primary"
+					size="large"
+				>退出</Button>
+			</div>
+
 			<Button
+				v-else
 				@click="showLogin"
 				class="loginbtn"
 				type="primary"
@@ -69,16 +80,12 @@ export default {
 	data() {
 		return {
 			projectList: {},
-			curcontextVnode: null
+			curcontextVnode: null,
+			userInfo: {}
 		};
 	},
 	mounted() {
-		// if (!Configs.getItem("workshop")) {
-		// 	this.showEditConfig();
-		// } else {
 		this.getProjects();
-		//}
-		var self = this;
 	},
 	created: function() {
 		mySocket.on("getlist", () => {
@@ -96,10 +103,28 @@ export default {
 				}
 			});
 		});
+		console.log(this.$store);
+		this.getUserInfo();
 	},
 	methods: {
+		getUserInfo() {
+			let userInfo = window.localStorage.getItem("userInfo");
+			if (!!userInfo) {
+				userInfo = JSON.parse(userInfo);
+			}
+			this.userInfo = userInfo;
+			console.log(userInfo);
+		},
 		onContextMenu(vnode) {
 			this.curcontextVnode = vnode;
+		},
+		logined() {
+			this.getUserInfo();
+			this.$refs.loginForm.hide();
+		},
+		logout() {
+			window.localStorage.setItem("userInfo", "");
+			this.getUserInfo();
 		},
 		deleProject() {
 			var name = this.curcontextVnode.data.attrs.name;
@@ -204,8 +229,16 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 // .loginbtn{
 
 // }
+.topbar {
+	padding: 10px;
+	text-align: right;
+	span,
+	a {
+		margin: 0 10px;
+	}
+}
 </style>

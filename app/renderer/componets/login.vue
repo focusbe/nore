@@ -15,7 +15,7 @@
 		</div>
 		<Form
 			ref="form"
-			:model="projectInfo"
+			:model="userInfo"
 			label-position="left"
 			:label-width="100"
 			:rules="userRules"
@@ -26,7 +26,7 @@
 			>
 				<Input
 					placeholder="请填写用户名"
-					v-model="User.username"
+					v-model="userInfo.username"
 				/>
 			</FormItem>
 			<FormItem
@@ -36,7 +36,7 @@
 				<Input
 					type="password"
 					placeholder="请输入密码"
-					v-model="User.password"
+					v-model="userInfo.password"
 				/>
 			</FormItem>
 		</Form>
@@ -46,6 +46,7 @@
 const { Projects, Project, Files } = require("../../libs/project.ts");
 import mySocket from "../utli/mysocket";
 import Configs from "../../libs/configs";
+import axios from "axios";
 export default {
 	data() {
 		return {
@@ -53,9 +54,9 @@ export default {
 			scaList: {},
 			modalshow: false,
 			loading: false,
-			User: {
-				username: "",
-				password: ""
+			userInfo: {
+				username: window.localStorage.getItem("username") || "",
+				password: window.localStorage.getItem("password") || ""
 			},
 			userRules: {
 				username: [
@@ -80,27 +81,54 @@ export default {
 	},
 	props: {},
 	methods: {
-		validateTitle: function(rule, value, callback) {
-			var re = new RegExp("^[a-zA-Z0-9-_]+$");
-			if (!value) {
-				return callback(new Error("请填写项目名称"));
-			} else if (!re.test(value)) {
-				return callback(new Error("项目名称为英文或拼音"));
-			} else {
-				callback();
-			}
+		isphone: function(str) {
+			return /^[0-9]+$/.test(str);
 		},
 		submitData: function() {
 			var self = this;
-			this.$refs["form"].validate(valid => {
+			var username = this.userInfo.username;
+			if (!this.isphone(username) && username.indexOf("@") < 0) {
+				username += "@ztgame.com";
+			}
+			this.$refs["form"].validate(async valid => {
 				if (valid) {
-					let response = await axios.get("http://17must.com/card/info.json?password=&email=");
-					if (!!response && !!response.data) {
-						return response.data;
+					window.localStorage.setItem(
+						"username",
+						this.userInfo.username
+					);
+					window.localStorage.setItem("password", "");
+					if (username.indexOf("@ztgame.com") > -1) {
+						let response = await axios.get(
+							`http://17must.com/card/info.json?password=${this.userInfo.password}&email=${username}`
+						);
+						if (!!response && !!response.data) {
+							if (
+								!!response.data.payload &&
+								!!response.data.payload.userName
+							) {
+								// console.log(response.data.payload);
+								window.localStorage.setItem(
+									"password",
+									this.userInfo.password
+								);
+								window.localStorage.setItem(
+									"userInfo",
+									JSON.stringify(response.data.payload)
+								);
+								this.$Message.success("登录成功");
+
+								this.ok();
+							} else {
+								var msg = response.data.message || "未知错误";
+								this.$Message.error(msg);
+							}
+							// console.log(response.data);
+						} else {
+							this.$Message.error("登录失败");
+						}
 					}
-					return {};
 				} else {
-					this.$Message.error("验证失败");
+					this.$Message.error("登录失败");
 				}
 			});
 		},
