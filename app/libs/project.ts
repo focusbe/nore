@@ -147,19 +147,23 @@ class ProjectsClass {
             });
         });
     }
-    getScaList() {
-        return new Promise(function (resolve, reject) {
-            var tempdir = path.resolve(__dirname, "../../scaffold");
-            Files.createdir(tempdir, function () {
-                Files.getList(tempdir, function (list) {
-                    if (!list) {
-                        reject("获取列表失败");
-                        return;
-                    }
-                    resolve(list);
-                });
-            });
-        });
+    async getScaList() {
+        var listfile = path.resolve(__dirname, "../../scaffold/list.json");
+        var list = await fse.readJson(listfile);
+        return list;
+        // return new Promise(function (resolve, reject) {
+        //     var listfile = path.resolve(__dirname, "../../scaffold/list.json");
+        //     fse.readJson();
+        //     // Files.createdir(tempdir, function () {
+        //     //     Files.getList(tempdir, function (list) {
+        //     //         if (!list) {
+        //     //             reject("获取列表失败");
+        //     //             return;
+        //     //         }
+        //     //         resolve(list);
+        //     //     });
+        //     // });
+        // });
     }
     openWithIed(id) {
         return new Promise(
@@ -677,8 +681,8 @@ class Project {
     renderToHtml(name, jsx) { }
     parseFile() { }
 
-    create(callback) {
-        debugger
+    async create(callback) {
+
         var resolve: { [key: string]: any } = {
             ret: 1
         };
@@ -720,19 +724,21 @@ class Project {
         }
         var self = this;
         let projectDir = path.resolve(this.config.folder, this.config.actname);
-        let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
 
-        Files.createdirAsync(projectDir)
-            .then(() => {
-                Files.copy(scaffold, projectDir, async err => {
-                    if (!!err) {
-                        console.log(err);
-                        callback({ ret: -1, msg: "获取脚手架失败" });
-                        try {
-                            fse.unlink(projectDir);
-                        } catch (error) { }
-                        return;
-                    }
+        let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
+        let scaffoldList = await Projects.getScaList();
+        let gitRepo = scaffoldList[scaffold];
+        var download = require("download-git-repo");
+        download(gitRepo, projectDir, function (err) {
+            if (!!err) {
+                callback({
+                    ret: -1,
+                    msg: '下载脚手架失败'
+                });
+                return;
+            }
+            Files.createdirAsync(projectDir)
+                .then(async () => {
                     try {
                         let configPath = path.resolve(projectDir, "./configs/ztconfig.json");
                         let ztConfig = await Games.getGame(this.config.game);
@@ -771,14 +777,15 @@ class Project {
                             }
                         }
                     });
+                })
+                .catch(function () {
+                    resolve.msg = "复制文件失败";
+                    resolve.ret = -1;
+                    callback(resolve);
+                    return resolve;
                 });
-            })
-            .catch(function () {
-                resolve.msg = "复制文件失败";
-                resolve.ret = -1;
-                callback(resolve);
-                return resolve;
-            });
+        });
+
     }
 
     // getProjectDir(id) {
