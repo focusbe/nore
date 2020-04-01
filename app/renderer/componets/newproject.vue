@@ -8,7 +8,10 @@
 		:footer="''"
 	>
 		<div slot="footer">
-			<Button @click="submitData" type="primary">提交</Button>
+			<Button
+				@click="submitData"
+				type="primary"
+			>提交</Button>
 		</div>
 		<Form
 			ref="form"
@@ -17,29 +20,59 @@
 			:label-width="100"
 			:rules="projectRules"
 		>
-			<FormItem prop="actname" label="活动名称">
-				<Input placeholder="请填写英文或拼音" v-model="projectInfo.actname" />
+			<FormItem
+				prop="actname"
+				label="活动名称"
+			>
+				<Input
+					placeholder="请填写英文或拼音"
+					v-model="projectInfo.actname"
+				/>
 			</FormItem>
-			<FormItem prop="title" label="标题">
+			<FormItem
+				prop="title"
+				label="标题"
+			>
 				<Input v-model="projectInfo.title" />
 			</FormItem>
-			<FormItem prop="desc" label="描述">
+			<FormItem
+				prop="desc"
+				label="描述"
+			>
 				<Input v-model="projectInfo.desc" />
 			</FormItem>
-			<FormItem prop="game" label="游戏">
+			<FormItem
+				prop="game"
+				label="游戏"
+			>
 				<Select v-model="projectInfo.game">
-					<Option v-for="(item, key) in gameList" :value="key" :key="key">{{ item.cname }}</Option>
+					<Option
+						v-for="(item, key) in gameList"
+						:value="key"
+						:key="key"
+					>{{ item.cname }}</Option>
 				</Select>
 			</FormItem>
-			<FormItem prop="scaffold" label="脚手架">
+			<!-- <FormItem prop="scaffold" label="脚手架">
 				<Select v-model="projectInfo.scaffold">
 					<Option v-for="(item, key) in scaList" :value="key" :key="key">{{ key }}</Option>
 				</Select>
-			</FormItem>
-			<FormItem prop="folder" label="保存路径">
-				<Input placeholder v-model="projectInfo.folder" />
-
-				<Icon class="foldericon" @click="selectFolder" type="ios-folder-open" :size="30" />
+			</FormItem> -->
+			<FormItem
+				prop="folder"
+				label="保存路径"
+			>
+				<Input
+					placeholder
+					v-model="projectInfo.folder"
+				/>
+				<!-- <span class="" type="text">{{projectInfo.actname}}</span> -->
+				<Icon
+					class="foldericon"
+					@click="selectFolder"
+					type="ios-folder-open"
+					:size="30"
+				/>
 				<!-- <input
 					class="fileinput"
 					name="folder"
@@ -91,16 +124,19 @@ export default {
 				game: "",
 				template: "",
 				scaffold: "gulp",
-				folder: process.env.HOME || "/"
+				folder:
+					localStorage.getItem("projectFolder") ||
+					process.env.HOME ||
+					"/"
 			},
 			projectRules: {
-				title: [
-					{
-						required: true,
-						message: "请填写项目标题",
-						trigger: "blur"
-					}
-				],
+				// title: [
+				// 	{
+				// 		required: true,
+				// 		message: "请填写项目标题",
+				// 		trigger: "blur"
+				// 	}
+				// ],
 				desc: [
 					{
 						required: false,
@@ -115,13 +151,13 @@ export default {
 						trigger: "blur"
 					}
 				],
-				scaffold: [
-					{
-						required: true,
-						message: "请选择脚手架",
-						trigger: "blur"
-					}
-				],
+				// scaffold: [
+				// 	{
+				// 		required: true,
+				// 		message: "请选择脚手架",
+				// 		trigger: "blur"
+				// 	}
+				// ],
 				actname: [
 					{
 						required: true,
@@ -177,6 +213,7 @@ export default {
 					) {
 						var folder = res.filePaths[0];
 						this.$set(this.projectInfo, "folder", folder);
+						localStorage.setItem("projectFolder", folder);
 					} else {
 					}
 				});
