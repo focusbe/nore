@@ -727,8 +727,9 @@ class Project {
 
         let scaffold = path.resolve(__dirname, "../../scaffold/" + this.config.scaffold);
         let scaffoldList = await Projects.getScaList();
-        let gitRepo = scaffoldList[scaffold];
+        let gitRepo = scaffoldList['gulp'];
         var download = require("download-git-repo");
+        console.log(scaffold,gitRepo,projectDir);
         download(gitRepo, projectDir, function (err) {
             if (!!err) {
                 callback({
