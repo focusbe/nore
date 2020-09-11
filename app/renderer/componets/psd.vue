@@ -38,7 +38,6 @@ import Configs from "libs/configs";
 import Files from "libs/files";
 import PSD from "libs/psd/index";
 import path from "path";
-import aRemote from "libs/aremote";
 import Util from "../../libs/util";
 import { Projects } from "../../libs/project";
 export default {
