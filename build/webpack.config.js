@@ -220,35 +220,6 @@ config['renderer'] = function (mode) {
                             name: 'images/[name].[ext]?v=[hash:5]',
                             limit: 20000
                         }
-                    }, {
-                        loader: 'image-webpack-loader',
-                        options: {
-                            query: {
-                                mozjpeg: {
-                                    progressive: true,
-                                    quality: 65
-                                },
-                                pngquant: {
-                                    quality: "10-20",
-                                    speed: 4
-                                },
-                                svgo: {
-                                    plugins: [{
-                                        removeViewBox: false
-                                    }, {
-                                        removeEmptyAttrs: false
-                                    }]
-                                },
-                                gifsicle: {
-                                    optimizationLevel: 7,
-                                    interlaced: false
-                                },
-                                optipng: {
-                                    optimizationLevel: 7,
-                                    interlaced: false
-                                }
-                            }
-                        }
                     }
 
                     ]

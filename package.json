@@ -90,7 +90,6 @@
         "babel-preset-stage-2": "^6.13.0",
         "chalk": "^2.4.1",
         "css-loader": "^2.1.0",
-        
         "electron": "^7.1.2",
         "electron-builder": "^21.2.0",
         "electron-rebuild": "^1.8.8",
@@ -99,7 +98,6 @@
         "html-loader": "^0.5.5",
         "html-webpack-plugin": "^3.2.0",
         "html2canvas": "^1.0.0-rc.1",
-        "image-webpack-loader": "^4.6.0",
         "iview": "^3.2.1",
         "iview-loader": "^1.2.2",
         "jquery": "^3.2.1",
@@ -111,7 +109,6 @@
         "pinyin": "^2.8.3",
         "readline-ui": "^2.2.3",
         "sass-loader": "^7.1.0",
-        
         "style-loader": "^0.23.1",
         "ts-loader": "^5.3.2",
         "ts-node": "^7.0.1",
@@ -134,7 +131,6 @@
         "browser-sync": "^2.26.3",
         "browserify": "^16.2.3",
         "download-git-repo": "^3.0.2",
-        "sharp": "^0.25.2",
         "fs-extra": "^7.0.1",
         "htmlparser2": "^3.10.1",
         "js-beautify": "^1.9.0",
@@ -145,9 +141,11 @@
         "postcss": "^7.0.14",
         "postcss-js": "^2.0.0",
         "psdpaser": "^3.2.0",
+        "sharp": "^0.25.2",
         "shelljs": "^0.8.3",
         "socket.io": "^2.2.0",
         "sudo-prompt": "^8.2.5",
+        "vue-runtime-helpers": "^1.1.2",
         "vue-server-renderer": "^2.5.21"
     }
 }

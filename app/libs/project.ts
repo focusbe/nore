@@ -128,9 +128,9 @@ class ProjectsClass {
     });
   }
   async getScaList() {
-    var listfile = path.resolve(__dirname, "../../scaffold/list.json");
-    var list = await fse.readJson(listfile);
-    return list;
+    // var listfile = path.resolve(__dirname, "../../scaffold/list.json");
+    // var list = await fse.readJson(listfile);
+    // return list;
   }
   openWithIed(id) {
     return new Promise(
